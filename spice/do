@@ -1,0 +1,2 @@
+gnetlist -g spice-sdb -o spicex.net ring.sch
+#ngspice -b spice.net 

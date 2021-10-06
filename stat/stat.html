@@ -1,0 +1,21 @@
+<html>
+<script src="https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js">
+</script>
+
+<script>
+  var data = [
+             {x: 1, y: 10, cum:10},
+             {x: 2, y: 20, cum:30},
+             {x: 3, y: 30, cum:60},
+             {x: 4, y: 40, cum:100}] ;
+
+var jstat = this.jStat(data); // jStat will be added to the window
+console.log(jstat.mean());
+for (i=0 ; i<4 ; i++)
+data[i]['cum'] = jstat.normal(jstat.mean(), jstat.stdev()).cdf(data[i].x);
+console.log(data);
+</script>
+<body>
+  <h1>Statistics Explorations</h1>
+</body>
+</html>

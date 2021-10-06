@@ -1,0 +1,77 @@
+<html>
+  <head>
+    <!--Load the AJAX API-->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+
+// Load the Visualization API and the corechart package.
+      google.charts.load('current', {'packages':['corechart']});
+
+
+// Gearing up for my own tooltip
+// Get ChartLayout Interface when available
+var chartLayout ;
+
+var hChartReady = function(){ // define handler
+  chartLayout = chart.getChartLayoutInterface();
+};
+
+// google.charts.setOnLoadCallback(callBack)  ... I am not using it 
+
+function drawMulti() {
+
+    var data1 = ([ ["X","Y1"],
+        [1, 6], [2, 5], [3, 8], [4, 2], [5, 5], [6, 5],
+        [7, 4], [8, 8] ]);
+    var data2 = ([ ["X","Y2"],
+        [1, 8], [3, 1], [4, 3], [5, 9], [6, 4],
+        [8, 5], [9, 7], [11, 7], [16, 3] ]);
+    var data3 = ([["X","Y3"]]);
+	      for (let i=0 ; i < 20 ; i++)
+		data3.push([i, 3 * Math.sin(i*Math.PI*40/180)]);
+
+    var dt1 = google.visualization.arrayToDataTable(data1);
+    var dt2 = google.visualization.arrayToDataTable(data2);
+    var dt3 = google.visualization.arrayToDataTable(data3);
+
+   // A way to combine several x,y data series for google
+    var jd = google.visualization.data.join
+	           (dt1, dt2, 'full', [[0, 0]], [1], [1]);
+    var jd = google.visualization.data.join
+	           (jd, dt3, 'full', [[0, 0]], [1, 2], [1]);
+
+    fig =  document.getElementById('fig');
+    var chart = new google.visualization.LineChart(fig);
+    google.visualization.events.addListener(chart, 'ready', hChartReady);
+    fig.addEventListener('mousemove', e => {
+                x = e.offsetX;
+                y = e.offsetY;
+	        console.log(x,y) ; });
+
+
+    var options = {title:     'Plotting Series with Google',
+                       width:      600,
+                       height:     300,
+		       hAxis: {title: 'Xaxis'},
+		       vAxis: {title: 'Yaxis'},
+	               focusTarget: 'category', // Enable all Y's on tooltip 
+		       interpolateNulls: true,
+		       // legend: 'none',   
+		       series: {
+		    	      0: {curveType: 'function', pointSize: 10},
+		    	      1: {curveType: 'scatter', pointSize: 10},
+		    	      2: {curveType: 'function'},  // without points smooth curve
+			     }
+	            }; // end options
+    chart.draw(jd, options);
+} // Draw Multi end
+
+
+    </script>
+  </head>
+
+  <body>
+    <button onclick="drawMulti()">Multi</button>
+    <div id=fig onMouseMove=></div>
+  </body>
+</html>

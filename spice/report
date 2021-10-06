@@ -1,0 +1,18 @@
+OS: BigSur Version 11.5.2
+
+
+#Comment out this LD Flag would make it work
+libxornstorage_la_LDFLAGS = -export-symbols-regex '^xorn_' 
+
+geda-gaf @1.10.2_1
+
+ Email: mark@macports.org, GitHub: markemer
+mp-clang-9.0
+python27
+
+
+
+
+
+
+Q

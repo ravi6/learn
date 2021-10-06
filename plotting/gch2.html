@@ -1,0 +1,82 @@
+<html>
+  <head>
+    <!--Load the AJAX API-->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+
+// Load the Visualization API and the corechart package.
+      google.charts.load('current', {'packages':['corechart']});
+
+
+// Gearing up for my own tooltip
+// Get ChartLayout Interface when available
+var chartLayout ;
+
+var hChartReady = function(){ // define handler
+  chartLayout = chart.getChartLayoutInterface();
+};
+
+// google.charts.setOnLoadCallback(callBack)  ... I am not using it 
+
+function drawMulti() {
+
+    var data1 = ([ ["Frequency (Hz)","Vmin"],
+	    [2.3, -2.15], [8.4, -7.1], [25, -19], [25, -22.6], 
+	    [55, -49.6], [79.4, -70.8]
+	    ]);
+    var data2 = ([ ["Frequency (Hz)","Vmax"],
+	    [2.3, 2.15], [8.4, 8], [25, 21.5], [25, 24.3],
+	    [55, 52], [79.4, 76.8]
+	  ]);
+    var data3 =[] ;
+	data3.push(["Frequency (Hz)", "Vmean"]);
+	for (i=1 ; i < data1.length ; i++) {
+		let dm = (data1[i][1] + data2[i][1]) / 2 ;
+		data3.push([data1[i][0], dm]);
+	      }
+
+	console.log(data1[1]+data2[1]);
+    var dt1 = google.visualization.arrayToDataTable(data1);
+    var dt2 = google.visualization.arrayToDataTable(data2);
+    var dt3 = google.visualization.arrayToDataTable(data3);
+
+   // A way to combine several x,y data series for google
+    var jd = google.visualization.data.join
+	           (dt1, dt2, 'full', [[0, 0]], [1], [1]);
+    var jd = google.visualization.data.join
+	           (jd, dt3, 'full', [[0, 0]], [1,2], [1]);
+
+    fig =  document.getElementById('fig');
+    var chart = new google.visualization.LineChart(fig);
+    google.visualization.events.addListener(chart, 'ready', hChartReady);
+    fig.addEventListener('mousemove', e => {
+                x = e.offsetX;
+                y = e.offsetY;
+	        //console.log(x,y) ;
+	  });
+
+    var options = {title:     'BLDC Motor Back EMF',
+                       width:      600,
+                       height:     300,
+		       hAxis: {title: 'Rotor Rotational Frequency (Hz)'},
+		       vAxis: {title: 'Back EMF (V)'},
+	               focusTarget: 'category', // Enable all Y's on tooltip 
+		       interpolateNulls: true,
+		       // legend: 'none',   
+		       series: {
+		    	      0: {curveType: 'scatter', pointSize: 10},
+		    	      1: {curveType: 'scatter', pointSize: 10},
+			     }
+	            }; // end options
+    chart.draw(jd, options);
+} // Draw Multi end
+
+
+    </script>
+  </head>
+
+  <body>
+    <button onclick="drawMulti()">Multi</button>
+    <div id=fig onMouseMove=></div>
+  </body>
+</html>
