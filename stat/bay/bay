@@ -1,0 +1,41 @@
+function pdf = getPD(pdf, d)
+  %Get discrerte pd from samples x
+    
+    pdf.count(:,1) =  zeros(size(pdf.p),1) ;
+    for i = 1: size(d)
+      for j = 1 : size(pdf.p)
+         if (d(i) == pdf.x(j)) 
+           pdf.count(j,1) = pdf.count(j,1) + 1 ; 
+         endif
+      end
+    end
+    pdf.p = pdf.count / sum(pdf.count) ;
+endfunction
+
+function y = sample(N, pdf)
+  % Generate a sample of size N 
+  % Given a probability distribution (discrete)
+  % Get Cumulative pdf
+   pdf.pc(1) = pdf.p(1) ;
+   for i = 2 : size(pdf.p) ;
+    pdf.pc(i) = pdf.pc(i-1) + pdf.p(i) ;
+   end
+
+  % Now pick N random samples from pdf
+    for n = 1:N
+      r = rand() ; 
+      for k = 1:size(pdf.p)
+         if (r < pdf.pc(k) )
+           break ;
+         end
+      end
+      y(n,1) = pdf.x(k) ;  
+    end
+endfunction
+
+function pdf = testme(N)
+    pdf.x=[1,2,3]';
+    pdf.p=[0.2,0.5,0.3]' ; 
+    y = sample(N, pdf); 
+    pdf = getPD(pdf, y); 
+end
