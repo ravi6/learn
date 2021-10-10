@@ -34,8 +34,10 @@ function y = sample(N, pdf)
 endfunction
 
 function pdf = testme(N)
+%The acid test
     pdf.x=[1,2,3]';
     pdf.p=[0.2,0.5,0.3]' ; 
     y = sample(N, pdf); 
     pdf = getPD(pdf, y); 
 end
+
