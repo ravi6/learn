@@ -1,6 +1,5 @@
 function pdf = getPD(pdf, d)
   %Get discrerte pd from samples x
-    
     pdf.count(:,1) =  zeros(size(pdf.p),1) ;
     for i = 1: size(d)
       for j = 1 : size(pdf.p)
@@ -41,3 +40,17 @@ function pdf = testme(N)
     pdf = getPD(pdf, y); 
 end
 
+function bay()
+
+% Consider a known PDF
+    pdfA.x=[1,2,3]';
+    pdfA.p=[0.2,0.5,0.3]' ; 
+
+% Take one sample from pdfA
+    y = sample(1, pdfA)  
+
+% Say guessed PDF is
+    pdfG.x = [1,2,3]' ;
+    pdfG.p=[0.1,0.1,0.8]' ; 
+
+end 

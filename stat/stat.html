@@ -11,9 +11,10 @@
 
 var jstat = this.jStat(data); // jStat will be added to the window
 console.log(jstat.mean());
+console.log(data[0]['cum']);
 for (i=0 ; i<4 ; i++)
-data[i]['cum'] = jstat.normal(jstat.mean(), jstat.stdev()).cdf(data[i].x);
-console.log(data);
+   data[i]['cum'] = jstat.normal(jstat.mean(), jstat.stdev()).cdf(data[i].x);
+//console.log(data);
 </script>
 <body>
   <h1>Statistics Explorations</h1>
