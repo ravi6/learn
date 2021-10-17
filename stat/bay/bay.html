@@ -1,4 +1,6 @@
 <html>
+  <!-- Author: Ravi Saripalli 17th Oct. 2021 
+      Learn Baesian Statistics  -->
 <script src="https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js">
 </script>
 
@@ -12,8 +14,6 @@ class pdfD {
       this.n = n ; 
       this.x = new Array(n);
       this.p = new Array(n);
-      this.pc = new Array(n);
-      this.count = new Array(n);
       
       // Default x, p values
       for (var i = 0 ; i < n ; i++) {
@@ -21,27 +21,31 @@ class pdfD {
 	     this.p[i] = 1/n ; 
       }
 
-      // Update Cumulative p's
-      this.pc[0] = this.p[0] ;
-      for (var i=1 ; i < n ; i++) 
-	     this.pc[i] = this.pc[i-1] + this.p[i] ;
 
     } // end constructor
 
+   pCum () {  // Return cumulative probability
+      var pc = new Array(this.n) ;
+      pc[0] = this.p[0] ;
+      for (var i=1 ; i < this.n ; i++) 
+	     pc[i] = pc[i-1] + this.p[i] ;
+      return (pc) ;
+     } // end pCum
 
    update (d) { 
     // Update discrerte pdf from samples of x 
-      this.count.fill(0) ;
+
     // bin the data
+      var count = new Array(this.n).fill(0) ;
       for (var i = 0 ; i < d.length ; i++) {
-	     for (var j = 0 ; i < this.n ; j++)
-	       if (d[i] == this.x[j]) this.count[j]++  ; 
+	     for (var j = 0 ; j < this.n ; j++)
+	       if (d[i] == this.x[j]) count[j]++  ; 
       }
-       console.log(this.count);
+
     // update p values
-        let tcount = this.count.reduce((a,b) => a+b, 0);
+        let tcount = count.reduce((a,b) => a+b, 0);
         for(var i = 0 ; i < this.n ; i++)
-    	  this.p[i] = this.count[i] / tcount ;
+    	  this.p[i] = count[i] / tcount ;
   } // end update 
 
   E(pdf) {
@@ -55,30 +59,31 @@ class pdfD {
 
   sample(N){
     // Generate a sample of size N 
-    var s = new Array(N).fill(2) ;
-    /*
+    var s = new Array(N) ;
+    var pc = this.pCum () ;
     for (var i = 0 ; i < N ; i++) { 
 	   let r = Math.random() ; 
 	   for (var k = 0 ; k < this.n ; k++) {
-	       if (r < this.pc[k] ) break ;
+	       if (r < pc[k] ) break ;
 	   }
 	   s[i] = this.x[k] ;  
      }
- */
     return (s) ;
   } // end sample
 
-  test(N) { 
-    this.x = [1,2,3];
-    this.p = [0.2,0.5,0.3] ; 
-    var y = this.sample(N); 
-    this.update(y); 
-    
-  } // end test
-
 } // end pdfD class
+
+function test(N) { 
+    var pdf = new pdfD(3) ;
+    pdf.x = [1,2,3];
+    pdf.p = [0.2,0.5,0.3] ; 
+    var y = pdf.sample(N); 
+    pdf.update(y); 
+    console.log(pdf);
+  } // end test
 </script>
 <body>
   <h1>Statistics Explorations</h1>
+  <button onclick="test(100000);">RUN</button>
 </body>
 </html>
