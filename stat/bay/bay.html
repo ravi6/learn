@@ -1,77 +1,10 @@
 <html>
-  <!-- Author: Ravi Saripalli 17th Oct. 2021 
-      Learn Baesian Statistics  -->
-<script src="https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js">
-</script>
-
+  <!-- Author: Ravi Saripalli 17th Oct. 2021 Learn Baesian Statistics  -->
+<script src="https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js"> </script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript" src="gchart.js"></script>
+<script type="text/javascript" src="pdfD.js"></script>
 <script>
-
-class pdfD {
-  
-  // Discrete variable pdf 
-  
-    constructor (n) { //n possible outcomes
-      this.n = n ; 
-      this.x = new Array(n);
-      this.p = new Array(n);
-      
-      // Default x, p values
-      for (var i = 0 ; i < n ; i++) {
-	     this.x[i] = i ;
-	     this.p[i] = 1/n ; 
-      }
-
-
-    } // end constructor
-
-   pCum () {  // Return cumulative probability
-      var pc = new Array(this.n) ;
-      pc[0] = this.p[0] ;
-      for (var i=1 ; i < this.n ; i++) 
-	     pc[i] = pc[i-1] + this.p[i] ;
-      return (pc) ;
-     } // end pCum
-
-   update (d) { 
-    // Update discrerte pdf from samples of x 
-
-    // bin the data
-      var count = new Array(this.n).fill(0) ;
-      for (var i = 0 ; i < d.length ; i++) {
-	     for (var j = 0 ; j < this.n ; j++)
-	       if (d[i] == this.x[j]) count[j]++  ; 
-      }
-
-    // update p values
-        let tcount = count.reduce((a,b) => a+b, 0);
-        for(var i = 0 ; i < this.n ; i++)
-    	  this.p[i] = count[i] / tcount ;
-  } // end update 
-
-  E(pdf) {
-    // Returns expected value of pdf
-
-    xm = 0 ;
-    for (var i = 0 ; i < this.n ; i++)
-        xm = xm + this.p[i] * this.x[i] ;
-    return(xm);
-  } // end E
-
-  sample(N){
-    // Generate a sample of size N 
-    var s = new Array(N) ;
-    var pc = this.pCum () ;
-    for (var i = 0 ; i < N ; i++) { 
-	   let r = Math.random() ; 
-	   for (var k = 0 ; k < this.n ; k++) {
-	       if (r < pc[k] ) break ;
-	   }
-	   s[i] = this.x[k] ;  
-     }
-    return (s) ;
-  } // end sample
-
-} // end pdfD class
 
 function test(N) { 
     var pdf = new pdfD(3) ;
@@ -81,9 +14,43 @@ function test(N) {
     pdf.update(y); 
     console.log(pdf);
   } // end test
+
+function flip(Ns){
+	// coin flip Baesian
+	var pdf = new pdfD(2);
+	pdf.x=[0,1] ;
+	pdf.p=[0.5, 0.5];  // fair coin
+
+	// Let us pick parameter p in range (0, 1)
+	// assuming it has a beta distribution with alpha=1, beta=1
+	var p ;
+	jStat.beta.sample(p, 1, 1);
+
+	// Let us draw some samples from from a coin flipping experiment
+	var y = pdf.sample(Ns) ;
+	// Calculate likelyhood of the above sample assuming probability of
+	// head is p (we assume its distribution is of beta type)
+	var lhood = 1 ;
+		for (var i=0 ; i < Ns ; i++) {
+		   if (y[i] == 1) x = p ; else x = 1 - p ;
+		   lhood = lhood * x ;
+		}
+	var ph = jStat.beta.pdf(p, 1, 1) ; // probability of parameter being p
+
+	var phd = lhood * ph ;
+	console.log(p, lhood, ph, phd) ;
+}
+
+function betaplot(){
+    data = jStat(0,1,20,function (x){
+	                     return ([x, jStat.beta.pdf(x, 2, 5)]);
+	                    };
+	console.log(data) ;
+  }
 </script>
+
 <body>
   <h1>Statistics Explorations</h1>
-  <button onclick="test(100000);">RUN</button>
+  <button onclick="betaPlot();">RUN</button>
 </body>
 </html>
