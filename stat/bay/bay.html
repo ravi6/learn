@@ -1,5 +1,5 @@
 <html>
-  <!-- Author: Ravi Saripalli 17th Oct. 2021 Learn Baesian Statistics  -->
+<!-- Author: Ravi Saripalli 17th Oct. 2021 Learn Baesian Statistics  -->
 <script src="https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js"> </script>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript" src="gchart.js"></script>
@@ -15,42 +15,48 @@ function test(N) {
     console.log(pdf);
   } // end test
 
-function flip(Ns){
-	// coin flip Baesian
-	var pdf = new pdfD(2);
-	pdf.x=[0,1] ;
-	pdf.p=[0.5, 0.5];  // fair coin
+function flip(Ns) {
+   // coin flip Baesian
+   var pdf = new pdfD(2);
+   pdf.x=[0,1] ;
+   pdf.p=[0.5, 0.5];  // fair coin
 
-	// Let us pick parameter p in range (0, 1)
-	// assuming it has a beta distribution with alpha=1, beta=1
-	var p ;
-	jStat.beta.sample(p, 1, 1);
+   // Let us pick parameter p in range (0, 1)
+   // assuming it has a beta distribution with alpha=1, beta=1
+   var p ;
+   jStat.beta.sample(p, 1, 1);
 
-	// Let us draw some samples from from a coin flipping experiment
-	var y = pdf.sample(Ns) ;
-	// Calculate likelyhood of the above sample assuming probability of
-	// head is p (we assume its distribution is of beta type)
-	var lhood = 1 ;
-		for (var i=0 ; i < Ns ; i++) {
-		   if (y[i] == 1) x = p ; else x = 1 - p ;
-		   lhood = lhood * x ;
-		}
-	var ph = jStat.beta.pdf(p, 1, 1) ; // probability of parameter being p
-
-	var phd = lhood * ph ;
-	console.log(p, lhood, ph, phd) ;
+   // Let us draw some samples from from a coin flipping experiment
+   var y = pdf.sample(Ns) ;
+   // Calculate likelyhood of the above sample assuming probability of
+   // head is p (we assume its distribution is of beta type)
+   var lhood = 1 ;
+   for (var i=0 ; i < Ns ; i++) {
+	   if (y[i] == 1) x = p ; else x = 1 - p ;
+	   lhood = lhood * x ;
+	}
+    var ph = jStat.beta.pdf(p, 1, 1) ; // probability of parameter being p
+    var phd = lhood * ph ;
+    console.log(p, lhood, ph, phd) ;
 }
 
-function betaplot(){
-    data = jStat(0,1,20,function (x){
-	                     return ([x, jStat.beta.pdf(x, 2, 5)]);
-	                    };
-	console.log(data) ;
+function betaPlot(){
+   data = [["x", "p"]] ;
+   for (let i = 0 ; i < 20 ; i++) {
+   	    let x = i / 20 ;
+    	data.push([x, jStat.beta.pdf(x, 2, 5)]) ;
+   }
+      
+    var options = defoptions ;
+   // data = [["x","y"]].concat(data);
+   
+    gPlot("fig",data,options);  
   }
 </script>
 
 <body>
   <h1>Statistics Explorations</h1>
   <button onclick="betaPlot();">RUN</button>
+  <div id="fig"></div>
 </body>
 </html>

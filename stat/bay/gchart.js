@@ -18,10 +18,10 @@ var defoptions = {title:  'Plotting Series with Google',
 			     }
 	            }; // end options
 
-function gPlot(figID, data) {
+function gPlot(figID, data, options) {
     // data = ([ ["X","Y2"], [1, 8], [3, 1], [4, 3]]) ;
     var dt = google.visualization.arrayToDataTable(data);
-    fig =  document.getElementById(figID);
-    var chart = new google.visualization.LineChart(figIDg);
-    chart.draw(jd, options);
+    var fig =  document.getElementById(figID);
+    var chart = new google.visualization.LineChart(fig);
+    chart.draw(dt, options);
 } // Draw Multi end
