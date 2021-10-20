@@ -42,8 +42,9 @@ function flip(Ns) {
 
 function betaPlot(){
    data = [["x", "p"]] ;
-   for (let i = 0 ; i < 20 ; i++) {
-   	    let x = i / 20 ;
+   var n = 100 ;
+   for (let i = 0 ; i < n ; i++) {
+   	    let x = i / n ;
     	data.push([x, jStat.beta.pdf(x, 2, 5)]) ;
    }
       
