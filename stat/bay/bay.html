@@ -1,8 +1,7 @@
 <html>
 <!-- Author: Ravi Saripalli 17th Oct. 2021 Learn Baesian Statistics  -->
 <script src="https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js"> </script>
-<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-<script type="text/javascript" src="gchart.js"></script>
+<script src="https://cdn.plot.ly/plotly-2.4.2.min.js"></script>
 <script type="text/javascript" src="pdfD.js"></script>
 <script>
 
@@ -28,7 +27,8 @@ function flip(Ns) {
 
    // Let us draw some samples from from a coin flipping experiment
    var y = pdf.sample(Ns) ;
-   // Calculate likelyhood of the above sample assuming probability of
+   
+    // Calculate likelyhood of the above sample assuming probability of
    // head is p (we assume its distribution is of beta type)
    var lhood = 1 ;
    for (var i=0 ; i < Ns ; i++) {
@@ -40,24 +40,47 @@ function flip(Ns) {
     console.log(p, lhood, ph, phd) ;
 }
 
-function betaPlot(){
-   data = [["x", "p"]] ;
+function betaPdf(a, b){
+   data = {x: [], p: []};
    var n = 100 ;
    for (let i = 0 ; i < n ; i++) {
    	    let x = i / n ;
-    	data.push([x, jStat.beta.pdf(x, 2, 5)]) ;
+    	data.p.push(jStat.beta.pdf(x, a, b)) ;
+    	data.x.push(x);
    }
-      
-    var options = defoptions ;
-   // data = [["x","y"]].concat(data);
-   
-    gPlot("fig",data,options);  
+   return(data);
+} // end betaPDF
+ 
+
+function plotme(){
+
+     var a = [2, 10, 5] ;
+     var b = [5, 10, 2] ;
+     series = [] ;
+   for (var i=0 ; i<3 ; i++) {
+     var data = betaPdf(a[i], b[i]);	
+     series.push( {x:    data.x,
+                   y:    data.p,
+                   mode: 'lines',
+                   name: sprintf("a=%d b=%d", a[i], b[i])
+                });
+     }
+                
+     var layout = { title:      'Beta Distribution',               
+                    showlegend: true,
+               	    xaxis: {title: {text: "x"}},
+	            yaxis: {title: {text: "pdf"}}
+                  };
+     Plotly.newPlot('fig', series, layout, 
+                    {scrollZoom: false});     
   }
 </script>
 
 <body>
   <h1>Statistics Explorations</h1>
-  <button onclick="betaPlot();">RUN</button>
+  <button onclick="plotme();">BetaPlot</button>
   <div id="fig"></div>
+
+
 </body>
 </html>
