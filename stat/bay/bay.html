@@ -1,10 +1,25 @@
 <html>
+<!doctype html>
 <!-- Author: Ravi Saripalli 17th Oct. 2021 Learn Baesian Statistics  -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <title>Bayesian Statistics</title>
+  </head>
+ <body>
+
+<div class=container-fluid>
+  <h1>Beta Distribution</h1>
+  <figure class=figure  id="fig"></figure>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js"> </script>
 <script src="https://cdn.plot.ly/plotly-2.4.2.min.js"></script>
 <script type="text/javascript" src="pdfD.js"></script>
+<script type="text/javascript" src="pdfBeta.js"></script>
 <script>
-
 function test(N) { 
     var pdf = new pdfD(3) ;
     pdf.x = [1,2,3];
@@ -14,73 +29,59 @@ function test(N) {
     console.log(pdf);
   } // end test
 
-function flip(Ns) {
-   // coin flip Baesian
-   var pdf = new pdfD(2);
-   pdf.x=[0,1] ;
-   pdf.p=[0.5, 0.5];  // fair coin
+function ballGame(Ns) {
 
-   // Let us pick parameter p in range (0, 1)
-   // assuming it has a beta distribution with alpha=1, beta=1
-   var p ;
-   jStat.beta.sample(p, 1, 1);
+   // A discrete probability distribution
+   // describing distrinution of a collection of three different
+   // colored balls
+   var a = 0.3 ; // fraction of color 0 balls
+   var b = 0.5 ; //             color 1 balls
+   
+   var pdf = new pdfD(3);
+   pdf.x=[0,1,2] ; // each value correspond to one color
+   pdf.p=[a, b, 1-a-b];  
 
-   // Let us draw some samples from from a coin flipping experiment
+   // Let us draw some samples(Ns) from the above
    var y = pdf.sample(Ns) ;
    
-    // Calculate likelyhood of the above sample assuming probability of
-   // head is p (we assume its distribution is of beta type)
-   var lhood = 1 ;
-   for (var i=0 ; i < Ns ; i++) {
-	   if (y[i] == 1) x = p ; else x = 1 - p ;
+   // I will pretent that I don't know the origin of this sample
+   // And assume the proportion of balls are likely to be of this
+   // distribution (starting prio)
+   var prior = []; 
+   for (let a = 0 ; a < 1 ; a = a + 0.1)  {
+	for (let b = 0  ; b < 1-a ; b = b + 0.1) 
+           prior.push( {a: a, b: b, p: 0.1});
+      }
+	         
+   for (var m = 0 ; m < 10 ; m++) { // number of baesin estmates
+   // Calculate posterior
+    for (var k = 0 ; k < prior.length ; k++) {
+      var lhood = 1 ; var x ;
+      for (var i=0 ; i < Ns ; i++) {
+	      if (y[i] == 0) x = prior[k].a ;
+	      else if (y[i] == 1) x = prior[k].b ;
+              else x = 1 - (prior[k].a + prior[k].b) ;
 	   lhood = lhood * x ;
 	}
-    var ph = jStat.beta.pdf(p, 1, 1) ; // probability of parameter being p
-    var phd = lhood * ph ;
-    console.log(p, lhood, ph, phd) ;
-}
+           posterior.push({a: prior[k].a, 
+	                   b: prior[k].b,
+	                   p: prior[k].p * lhood});
+    }
 
-function betaPdf(a, b){
-   data = {x: [], p: []};
-   var n = 100 ;
-   for (let i = 0 ; i < n ; i++) {
-   	    let x = i / n ;
-    	data.p.push(jStat.beta.pdf(x, a, b)) ;
-    	data.x.push(x);
-   }
-   return(data);
-} // end betaPDF
- 
+    // Normalize posterior
+    var total = 0 ;
+    for(var i = 0 ; i < posterior.length ; i++)
+       total = total + posterior[i].p ;
+    for(var i = 0 ; i < posterior.length ; i++)
+        posterior[i].p = posterior[i].p / total  ;
 
-function plotme(){
+    prior = posterior ; // ready for next cycle
+  } // end data input
 
-     var a = [2, 10, 5] ;
-     var b = [5, 10, 2] ;
-     series = [] ;
-   for (var i=0 ; i<3 ; i++) {
-     var data = betaPdf(a[i], b[i]);	
-     series.push( {x:    data.x,
-                   y:    data.p,
-                   mode: 'lines',
-                   name: sprintf("a=%d b=%d", a[i], b[i])
-                });
-     }
-                
-     var layout = { title:      'Beta Distribution',               
-                    showlegend: true,
-               	    xaxis: {title: {text: "x"}},
-	            yaxis: {title: {text: "pdf"}}
-                  };
-     Plotly.newPlot('fig', series, layout, 
-                    {scrollZoom: false});     
-  }
+} // end ballGame
+  var bpdf = new pdfBeta() ;
+  bpdf.plot("fig", 2, 5) ;
+  ballGame(100);
 </script>
-
-<body>
-  <h1>Statistics Explorations</h1>
-  <button onclick="plotme();">BetaPlot</button>
-  <div id="fig"></div>
-
-
 </body>
 </html>
