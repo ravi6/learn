@@ -36,7 +36,8 @@ function ballGame(Ns) {
    // colored balls
    var a = 0.3 ; // fraction of color 0 balls
    var b = 0.5 ; //             color 1 balls
-   
+   var series = [] ; 
+
    var pdf = new pdfD(3);
    pdf.x=[0,1,2] ; // each value correspond to one color
    pdf.p=[a, b, 1-a-b];  
@@ -47,35 +48,40 @@ function ballGame(Ns) {
    // I will pretent that I don't know the origin of this sample
    // And assume the proportion of balls are likely to be of this
    // distribution (starting prio)
-   var prior = []; 
+   var Epdf = []; 
    for (let a = 0 ; a < 1 ; a = a + 0.1)  {
 	for (let b = 0  ; b < 1-a ; b = b + 0.1) 
-           prior.push( {a: a, b: b, p: 0.1});
+           Epdf.push( {a: a, b: b, prior: 0.1 post: 0.1});
       }
 	         
+    var xvals[Epdf.length].map(function(x,i){return(i);}) ;
+    console.log(xvals) ;
+    series.push({x: xvals
+                 y: Epdf.prior
+                       mode: 'lines',
+                       name: sprintf("a=%d b=%d", a, b) });
+                
    for (var m = 0 ; m < 10 ; m++) { // number of baesin estmates
-   // Calculate posterior
-    for (var k = 0 ; k < prior.length ; k++) {
-      var lhood = 1 ; var x ;
-      for (var i=0 ; i < Ns ; i++) {
-	      if (y[i] == 0) x = prior[k].a ;
-	      else if (y[i] == 1) x = prior[k].b ;
-              else x = 1 - (prior[k].a + prior[k].b) ;
-	   lhood = lhood * x ;
-	}
-           posterior.push({a: prior[k].a, 
-	                   b: prior[k].b,
-	                   p: prior[k].p * lhood});
-    }
+     // Calculate posterior
+      for (var k = 0 ; k < Epdf.length ; k++) {
+	var lhood = 1 ; var x ;
+	for (var i=0 ; i < Ns ; i++) {
+		if (y[i] == 0) x = Epdf[k].a ;
+		else if (y[i] == 1) x = Epdf[k].b ;
+		else x = 1 - (Epdf[k].a + Epdf[k].b) ;
+	     lhood = lhood * x ;
+	  }
+	    Epdf[k].post[k] = Epdf[k].prior[k] * lhood ; 
+      }
 
-    // Normalize posterior
-    var total = 0 ;
-    for(var i = 0 ; i < posterior.length ; i++)
-       total = total + posterior[i].p ;
-    for(var i = 0 ; i < posterior.length ; i++)
-        posterior[i].p = posterior[i].p / total  ;
+      // Normalize posterior
+      var total = 0 ;
+      for(var i = 0 ; i < Epdf.length ; i++)
+	 total = total + Epdf[i].post ;
+      for(var i = 0 ; i < Epdf.length ; i++)
+	  Epdf[i].post = Epdf[i].post / total  ;
 
-    prior = posterior ; // ready for next cycle
+
   } // end data input
 
 } // end ballGame
