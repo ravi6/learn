@@ -19,6 +19,7 @@
 <script src="https://cdn.plot.ly/plotly-2.4.2.min.js"></script>
 <script type="text/javascript" src="pdfD.js"></script>
 <script type="text/javascript" src="pdfBeta.js"></script>
+<script type="text/javascript" src="ballGame.js"></script>
 <script>
 function test(N) { 
     var pdf = new pdfD(3) ;
@@ -29,65 +30,16 @@ function test(N) {
     console.log(pdf);
   } // end test
 
-function ballGame(Ns) {
-
-   // A discrete probability distribution
-   // describing distrinution of a collection of three different
-   // colored balls
-   var a = 0.3 ; // fraction of color 0 balls
-   var b = 0.5 ; //             color 1 balls
-   var series = [] ; 
-
-   var pdf = new pdfD(3);
-   pdf.x=[0,1,2] ; // each value correspond to one color
-   pdf.p=[a, b, 1-a-b];  
-
-   // Let us draw some samples(Ns) from the above
-   var y = pdf.sample(Ns) ;
-   
-   // I will pretent that I don't know the origin of this sample
-   // And assume the proportion of balls are likely to be of this
-   // distribution (starting prio)
-   var Epdf = []; 
-   for (let a = 0 ; a < 1 ; a = a + 0.1)  {
-	for (let b = 0  ; b < 1-a ; b = b + 0.1) 
-           Epdf.push( {a: a, b: b, prior: 0.1 post: 0.1});
-      }
-	         
-    var xvals[Epdf.length].map(function(x,i){return(i);}) ;
-    console.log(xvals) ;
-    series.push({x: xvals
-                 y: Epdf.prior
-                       mode: 'lines',
-                       name: sprintf("a=%d b=%d", a, b) });
-                
-   for (var m = 0 ; m < 10 ; m++) { // number of baesin estmates
-     // Calculate posterior
-      for (var k = 0 ; k < Epdf.length ; k++) {
-	var lhood = 1 ; var x ;
-	for (var i=0 ; i < Ns ; i++) {
-		if (y[i] == 0) x = Epdf[k].a ;
-		else if (y[i] == 1) x = Epdf[k].b ;
-		else x = 1 - (Epdf[k].a + Epdf[k].b) ;
-	     lhood = lhood * x ;
-	  }
-	    Epdf[k].post[k] = Epdf[k].prior[k] * lhood ; 
-      }
-
-      // Normalize posterior
-      var total = 0 ;
-      for(var i = 0 ; i < Epdf.length ; i++)
-	 total = total + Epdf[i].post ;
-      for(var i = 0 ; i < Epdf.length ; i++)
-	  Epdf[i].post = Epdf[i].post / total  ;
-
-
-  } // end data input
-
-} // end ballGame
+  /* Test beta functions
   var bpdf = new pdfBeta() ;
   bpdf.plot("fig", 2, 5) ;
   ballGame(100);
+ */
+
+  // Finally I get Bayesian update for discrete distribution
+  var game = new ballGame(0.3, 0.5) ;
+  for(var i=0 ; i<3 ; i++)  game.sample(100) ;
+
 </script>
 </body>
 </html>
