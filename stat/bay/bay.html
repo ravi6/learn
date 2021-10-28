@@ -12,7 +12,8 @@
 
 <div class=container-fluid>
   <h1>Beta Distribution</h1>
-  <figure class=figure  id="fig"></figure>
+  <figure class=figure  id="fig1"></figure>
+  <figure class=figure  id="fig2"></figure>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js"> </script>
@@ -30,14 +31,12 @@ function test(N) {
     console.log(pdf);
   } // end test
 
-  /* Test beta functions
+  // Test beta functions
   var bpdf = new pdfBeta() ;
-  bpdf.plot("fig", 2, 5) ;
-  ballGame(100);
- */
+  bpdf.plot("fig1", 20, 5) ;
 
   // Finally I get Bayesian update for discrete distribution
-  var game = new ballGame(0.3, 0.5) ;
+  var game = new ballGame("fig2", 0.3, 0.5) ;
   for(var i=0 ; i<3 ; i++)  game.sample(100) ;
 
 </script>

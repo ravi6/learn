@@ -16,7 +16,7 @@ pdf(a, b) { // Returns pdfTable
    return(data);
 } // end pdf
  
-plot (div, a, b) { 
+plot (fig, a, b) { 
   // adds pdf trend at each call
      var data = this.pdf(a, b);	
      this.series.push({x:    data.x,
@@ -30,7 +30,7 @@ plot (div, a, b) {
 	            yaxis: {title: {text: "pdf"}} 
                   };
 
-     Plotly.newPlot('fig', this.series, layout, 
+     Plotly.newPlot(fig, this.series, layout, 
                     {scrollZoom: false});     
 } // end plot
 

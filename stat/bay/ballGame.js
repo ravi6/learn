@@ -3,7 +3,8 @@ class ballGame {
      // of collection of colored balls with three distinct colors by Baesian
      // Method with progressive sampling
 
-  constructor(a=0.3, b=0.5) {
+  constructor(fig, a=0.3, b=0.5) {
+      this.fig = fig ;
       this.a = a ; // fraction of color 0 balls
       this.b = b ; //             color 1 balls
 
@@ -47,7 +48,6 @@ class ballGame {
 	   total = total + this.Epdf[i].post ;
 	for(var i = 0 ; i < this.Epdf.length ; i++)
 	    this.Epdf[i].post = this.Epdf[i].post / total  ;
-
         this.plot() ;
       
         // Update prior ready for next sample
@@ -77,7 +77,7 @@ class ballGame {
 	                             x: 0.1, y: 0.9, showarrow: false}]
                      };
    
-     Plotly.newPlot('fig', this.series, layout, 
+     Plotly.newPlot(this.fig, this.series, layout, 
                     {scrollZoom: false});     
   } // end plot
 
