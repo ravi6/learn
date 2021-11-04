@@ -20,9 +20,16 @@
 <script type="text/javascript" src="pdfD.js"></script>
 <script type="text/javascript" src="lreg.js"></script>
 <script>
+ function testMLE(std, Nrep) {
+  // Show how standard deviation and
+     // data size effect regression based on MLE
   var lr = new lreg() ;
+  lr.genData(std, Nrep) ;
   lr.mle() ;
   lr.plot() ;
+  }
+  testMLE(0.5, 20) ;
+
 </script>
 </body>
 </html>
