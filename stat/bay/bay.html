@@ -23,7 +23,7 @@
   a Bayesian estimation of distribution with incremental
   sampling from the batch.
 
-  The discrete distribution of the colored balls in the batch 
+  The discrete distribution of the coloured balls in the batch 
   can be represented as 
 
 \[
@@ -38,7 +38,7 @@ C_3 \hspace{10mm} & 1 - a - b \nonumber \\
 
 <p class="card-text">
 $a$ and $b$ represent probabilities associated with picking
-$C_1$ and $C_2$ colored balls respectively and they represent the
+$C_1$ and $C_2$ coloured balls respectively and they represent the
 respective fractions the batch.
 </p>
 
@@ -49,7 +49,7 @@ with some arbitray discrete distribution function f(a, b)
 in the following manner. (Note: in reality a and b are continuous
 variables and the combined distribution is complicated due to additional contraint
 $(a+b) \le 0$. Would this be approximated by a product of two beta 
-functions with four parameters??.)
+functions with four parameters??. Need to examine it later)
 ) 
 </p>
 
@@ -79,7 +79,7 @@ $$
 <p class="card-text">
 The above likelyhood value is weighted with the prior probability
 $\left(P(a(i),b(i)\right)$ to obtain posterior probability. 
-<\p>
+</p>
 $$
 \begin{aligned}
 P^{post} (a(i),b(i))  \propto  L * P(a(i),b(i)) \\ 
@@ -97,7 +97,7 @@ posterior would converge to the orginal batch distribution.
 </p>
 <p class="card-text">
 The following figure shows some simulation results to illustrate the point.
-Random samples from a batch of colored balls with known proportions (0.3, 0.5, 0.2)
+Random samples from a batch of coloured balls with known proportions (0.3, 0.5, 0.2)
 are drawn and starting with a uniform prior, the posterior estimated 
 with four batches of samples. The resulting changes in posterior estimate
 can be seen in the graph.
