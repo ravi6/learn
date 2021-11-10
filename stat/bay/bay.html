@@ -11,17 +11,16 @@
  <body>
 
 <div class=container-fluid>
-<div class="card-body">
-
+<div class="card">
+ <div class="card-body">
     <h5 class="card-title">
-    Bayesian Estimation of Discrete Distribution <h5>
-
+    Bayesian Estimation of Discrete Distribution </h5>
     <p class="card-text">
   Let us consider a large batch of balls with three
   possible colors. By sampling from this batch we want
   to estimate the color distribution of the batch based on 
   the samples we analyse. Here is the way we can implement
-  a Bayesian way of estimating the distribution with incremental
+  a Bayesian estimation of distribution with incremental
   sampling from the batch.
 
   The discrete distribution of the colored balls in the batch 
@@ -37,19 +36,21 @@ C_3 \hspace{10mm} & 1 - a - b \nonumber \\
 \end{align}
 \]
 
-<p>
+<p class="card-text">
 $a$ and $b$ represent probabilities associated with picking
 $C_1$ and $C_2$ colored balls respectively and they represent the
 respective fractions the batch.
 </p>
 
-<p>
+<p class="card-text">
 In this example of Baesian estimation strategy the above 
 unknown parameters ($a$ and $b$) are assumed to be distributed
 with some arbitray discrete distribution function f(a, b)
 in the following manner. (Note: in reality a and b are continuous
 variables and the combined distribution is complicated due to additional contraint
-$(a+b) \le 0$. Can this be a product of two beta functions?) 
+$(a+b) \le 0$. Would this be approximated by a product of two beta 
+functions with four parameters??.)
+) 
 </p>
 
 $$
@@ -60,8 +61,52 @@ P(a(i), b(i)) & = p(i)  \quad \quad   i = 1 .. 11  \\
 \end{aligned}
 $$
 
-  <figure class=figure  id="fig2"></figure>
-    <a href="#" class="btn btn-primary">Go somewhere</a>
+<p class="card-text">
+Now with a given sample of N balls containing  $n_1, n_2, n_3$ coloured
+balls the likelyhood of this sample is from above distribution is given
+by the following.
+</p>
+$$
+\begin{aligned}
+\textit{Likelyhood} &  \quad L(sample \quad | \quad  (a_i, b_i))  \\ 
+& \propto    \{a(i)\}^{n_1}
+                     \{b(i)\}^{n_2}
+		     \{1 - a(i) - b(i)\}^{n_3}  \quad
+		       i = 1 .. 11
+\end{aligned}
+$$
+
+<p class="card-text">
+The above likelyhood value is weighted with the prior probability
+$\left(P(a(i),b(i)\right)$ to obtain posterior probability. 
+<\p>
+$$
+\begin{aligned}
+P^{post} (a(i),b(i))  \propto  L * P(a(i),b(i)) \\ 
+\therefore P^{post} (a(i),b(i)) =   \frac{ L * P(a(i),b(i)) } 
+{ \sum_{i=1}^{11} L * P(a(i),b(i)) } 
+
+\end{aligned}
+$$
+
+<p class="card-text">
+When ever a new sample data is obtained the process can be repeated 
+with posterior estimate of the past as a prior. Since each sample outcome
+is independant one would expect, with enough batches of samples the 
+posterior would converge to the orginal batch distribution.
+</p>
+<p class="card-text">
+The following figure shows some simulation results to illustrate the point.
+Random samples from a batch of colored balls with known proportions (0.3, 0.5, 0.2)
+are drawn and starting with a uniform prior, the posterior estimated 
+with four batches of samples. The resulting changes in posterior estimate
+can be seen in the graph.
+</p>
+
+  <figure class=figure  id="fig1"></figure>
+    <a href="#" class="btn btn-primary">Top</a>
+</div>
+</div>
 </div>
 
 
@@ -70,7 +115,7 @@ $$
   is finite. It has two parameters "a" and "b". The following
   figure illustrates how these parameters influence the
   distribution function.
-  <figure class=figure  id="fig1"></figure>
+  <figure class=figure  id="fig2"></figure>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js"> </script>
 <script src="https://cdn.plot.ly/plotly-2.4.2.min.js"></script>
