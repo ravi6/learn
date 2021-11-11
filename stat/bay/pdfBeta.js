@@ -27,11 +27,14 @@ plot (fig, a, b) {
      var layout = { title:      'Beta Distribution',               
                     showlegend: true,
                	    xaxis: {title: {text: "x"}},
-	            yaxis: {title: {text: "pdf"}} 
+	            yaxis: {title: {text: "pdf"}}, 
+                 autosize: true
                   };
 
-     Plotly.newPlot(fig, this.series, layout, 
-                    {scrollZoom: false});     
+     var config = { scrollZoom: false,
+                    displayModeBar: false
+                  }
+     Plotly.newPlot(fig, this.series, layout, config);     
 } // end plot
 
 clearPlot() {this.series = [] ;}

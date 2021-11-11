@@ -77,8 +77,10 @@ class ballGame {
 	                             x: 0.1, y: 0.9, showarrow: false}]
                      };
    
-     Plotly.newPlot(this.fig, this.series, layout, 
-                    {scrollZoom: false});     
+     var config = { scrollZoom: false,
+                    displayModeBar: false
+                  }
+     Plotly.newPlot(this.fig, this.series, layout, config);     
   } // end plot
 
 

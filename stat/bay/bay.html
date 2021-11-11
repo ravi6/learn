@@ -12,6 +12,7 @@
 
 <div class=container-fluid>
 <div class="card">
+  <div class=card-header>Author: Ravi Saripalli</div>
  <div class="card-body">
     <h5 class="card-title">
     Bayesian Estimation of Discrete Distribution </h5>
@@ -26,15 +27,15 @@
   The discrete distribution of the coloured balls in the batch 
   can be represented as 
 
+<div class="border border-info rounded bg-light bg-gradient">
 \[
 \begin{align}
-\hline %inserts horizontal line
 C_1 \hspace{10mm} & a \nonumber \\
 C_2 \hspace{10mm} & b \nonumber \\
 C_3 \hspace{10mm} & 1 - a - b \nonumber \\
-\hline %inserts horizontal line
 \end{align}
 \]
+</div>
 
 <p class="card-text">
 $a$ and $b$ represent probabilities associated with picking
@@ -52,7 +53,7 @@ $(a+b) \le 0$. Would this be approximated by a product of two beta
 functions with four parameters??. Need to examine it later)
 ) 
 </p>
-
+<div class="border border-info rounded bg-light bg-gradient">
 $$
 \begin{aligned}
 P(a(i), b(i)) & = p(i)  \quad \quad   i = 1 .. 11  \\
@@ -60,12 +61,13 @@ P(a(i), b(i)) & = p(i)  \quad \quad   i = 1 .. 11  \\
 & b(i) \in \{1-a(i), 1-a(i)+0.1, .. 1\} 
 \end{aligned}
 $$
-
+</div>
 <p class="card-text">
 Now with a given sample of N balls containing  $n_1, n_2, n_3$ coloured
 balls the likelyhood of this sample is from above distribution is given
 by the following.
 </p>
+<div class="border border-info rounded bg-light bg-gradient">
 $$
 \begin{aligned}
 \textit{Likelyhood} &  \quad L(sample \quad | \quad  (a_i, b_i))  \\ 
@@ -75,11 +77,14 @@ $$
 		       i = 1 .. 11
 \end{aligned}
 $$
+</div>
 
 <p class="card-text">
 The above likelyhood value is weighted with the prior probability
 $\left(P(a(i),b(i)\right)$ to obtain posterior probability. 
 </p>
+
+<div class="border border-info rounded bg-light bg-gradient">
 $$
 \begin{aligned}
 P^{post} (a(i),b(i))  \propto  L * P(a(i),b(i)) \\ 
@@ -88,9 +93,10 @@ P^{post} (a(i),b(i))  \propto  L * P(a(i),b(i)) \\
 
 \end{aligned}
 $$
+</div>
 
 <p class="card-text">
-When ever a new sample data is obtained the process can be repeated 
+Whenever a new sample data is obtained the process can be repeated 
 with posterior estimate of the past as a prior. Since each sample outcome
 is independant one would expect, with enough batches of samples the 
 posterior would converge to the orginal batch distribution.
@@ -99,23 +105,33 @@ posterior would converge to the orginal batch distribution.
 The following figure shows some simulation results to illustrate the point.
 Random samples from a batch of coloured balls with known proportions (0.3, 0.5, 0.2)
 are drawn and starting with a uniform prior, the posterior estimated 
-with four batches of samples. The resulting changes in posterior estimate
+with three batches of 100 samples. The resulting changes in posterior estimate
 can be seen in the graph.
 </p>
 
+  <button class="btn btn-info" onClick="estimate();">ReSample</button>
   <figure class=figure  id="fig1"></figure>
     <a href="#" class="btn btn-primary">Top</a>
 </div>
-</div>
-</div>
 
-
-  <h2>Beta Distribution</h2>
+<div class="card">
+  <div class=card-header>Author: Ravi Saripalli</div>
+ <div class="card-body">
+    <h5 class="card-title"> Beta Distribution </h5>
+    <p class="card-text" >
   Beta distribution is useful when domain of interest
   is finite. It has two parameters "a" and "b". The following
   figure illustrates how these parameters influence the
   distribution function.
-  <figure class=figure  id="fig2"></figure>
+    </p>
+          <figure class="figure"  class="w-50" id="fig2"></figure>
+</div>
+</div>
+</div>
+
+
+
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js"> </script>
 <script src="https://cdn.plot.ly/plotly-2.4.2.min.js"></script>
@@ -144,11 +160,16 @@ function test(N) {
   // Test beta functions
   var bpdf = new pdfBeta() ;
   bpdf.plot("fig2", 20, 5) ;
+  bpdf.plot("fig2", 5, 20) ;
+  bpdf.plot("fig2", 20, 20) ;
+  bpdf.plot("fig2", 5, 5) ;
 
+  function estimate() {
   // Finally I get Bayesian update for discrete distribution
   var game = new ballGame("fig1", 0.3, 0.5) ;
   for(var i=0 ; i<3 ; i++)  game.sample(100) ;
-
+  }
+  estimate() ;
 </script>
 </body>
 </html>
