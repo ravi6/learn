@@ -27,7 +27,7 @@ class lreg {
     this.w = W ;
   }   // end Max. Likelyhood Estimate
 
-  plot() {
+  plot(fig) {
 	 this.series.push({x: this.data.x,
 		           y: this.data.y,
 	                type: 'scatter',
@@ -58,7 +58,7 @@ class lreg {
                     showlegend: true,
                   };
    
-     Plotly.newPlot('fig', this.series, layout, 
+     Plotly.newPlot(fig, this.series, layout, 
                     {scrollZoom: false});     
   } // end plot
 

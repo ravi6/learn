@@ -11,6 +11,8 @@
  <body>
 
 <div class=container-fluid>
+
+<!-- ******************************************************** -->
 <div class="card">
   <div class=card-header>Author: Ravi Saripalli</div>
  <div class="card-body">
@@ -114,6 +116,7 @@ can be seen in the graph.
     <a href="#" class="btn btn-primary">Top</a>
 </div>
 
+<!-- ******************************************************** -->
 <div class="card">
   <div class=card-header>Author: Ravi Saripalli</div>
  <div class="card-body">
@@ -125,12 +128,117 @@ can be seen in the graph.
   distribution function.
     </p>
           <figure class="figure"  class="w-50" id="fig2"></figure>
-</div>
-</div>
-</div>
+</div> </div>
+
+<!-- ******************************************************** -->
+<div class="card">
+  <div class=card-header>Author: Ravi Saripalli</div>
+ <div class="card-body">
+    <h5 class="card-title">
+      Expressing Discrete PDF as a continuous function </h5>
+
+Consider a discrete distribution  function  
+
+$$
+ f(x_i) = p_k  \ \ \ x_i \in \{ x_1, x_2, ... x_n \} \nonumber
+$$
+Its cumulative distribution 
+
+$$
+F(x < x_k) = \sum_{i=1}^{k} p_k \nonumber
+$$
+
+This function can be expressed as continuous CDF in x with the help of step functions
+$$
+F(x) = \sum_{i=1}^{k} f(x_i) S(x-x_i)  \ \ \  x_1 < x < x_n \nonumber
+$$
+where
+$$
+    S(x)= 
+        \begin{cases}
+           0, & \text{if } x < 0\\
+           1,              & \text{otherwise}
+        \end{cases} \nonumber
+$$
+If we differentiate the above function we should get continuous equivalent of discrete distribution $P(x_i)$
+$$
+f(x) = \frac{dF}{dx} = \sum_{i=1}^{k} 
+     f(x_i) \delta(x-x_i)  \ \ \  x_1 < x < x_n \nonumber
+$$
+ </div></div>
+
+<!-- ******************************************************** -->
+<div class="card">
+  <div class=card-header>Author: Ravi Saripalli</div>
+ <div class="card-body">
+    <h5 class="card-title">
+      PDF of transformed random variable</h5>
+
+Given a random continuous variable $x$ with known PDF $P_X(x)$ determine the PDF of a transformed variable
+$P_Y(y)$ with transformation $Y=g(X)$.
+
+This is achieved expressing the CDF of transformed variable $Y$ in terms of CDF of original variable $X$.
+with appropriate reverse transformation.
+
+$$
+\begin{align*}
+F_Y (y) & =   P (Y < y)   =  P (g (X) < y) \\
+& =  P (X < g^{-1} (y))
+\textit{ (assuming g(x) is monotonically increases with x)  }  \\
+
+& =  F_X \left( g^{-1} \left( y \right) \right)
+\end{align*} 
+$$
+
+Note that $g^{-1}$ function refers to reverse mapping from Y to X.
+Also, the requirement for the function $g(X)$ to be a monotonically
+increasing function in the interval of interest is to ensure the inequality
+is preserved during reverse mapping.
+
+The PDF of transformed variable can now be determined with differentiation of above CDF with
+respect to y.
+
+\[
+\begin{align*}
+      P_Y(y) &= \frac{d}{dy} F_Y (y) = \frac{d}{dy} F_X ( g^{-1}(y) ) \\
+             & = \frac{dx}{dy} \frac{d}{dx} F_X ( g^{-1}(y) )
+	     =  \frac{dx}{dy}  P_X ( g^{-1} (y) ) \\ 
+	     &=  \frac{d}{dy} (g^{-1}(y)) \   P_X ( g^{-1} (y) ) 
+\end{align*}
+\]
+
+Although above result is derived for monotonically increasing $g(X)$,
+for non-monotonic function case, one can segment the functions into 
+monotonically increasing and decreasing segements and a generic result
+can be obtained as follows.
+
+Assuming the $g(X)$ has $k$ segments of montonically increasing or decreasing
+regions,
+\[
+\begin{align*}
+  P_Y(y) &= \sum_{i=1}^{k} \left | \frac{d}{dy} (g_k^{-1}(y)) \right |
+             \   P_X ( g_k^{-1} (y) )   \ \ \ y \in Y 
+\end{align*}
+\]
+
+Note the absolute sign on the derivative term is to account for effect of
+sign change between monotonically increasing and decreasing function gradients.
+<it>How one can do it for very complicated 
+functions is not clear to me. </it>
+
+But my interest is to find PDF of a function $g(x1, x2, x3)$  given  
+$x1, x2, x3$ are members of a random variables with their respective PDF functions are known.
+ </div></div>
+<!-- ******************************************************** -->
+<div class=card-header>Author: Ravi Saripalli</div>
+ <div class="card-body">
+    <h5 class="card-title"> Linear Regressionn </h5>
+  <figure class=figure  id="fig3"></figure>
+ </div></div>
 
 
 
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js"> </script>
@@ -138,6 +246,7 @@ can be seen in the graph.
 <script type="text/javascript" src="pdfD.js"></script>
 <script type="text/javascript" src="pdfBeta.js"></script>
 <script type="text/javascript" src="ballGame.js"></script>
+<script type="text/javascript" src="lreg.js"></script>
 <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 <script>
   MathJax = {
@@ -157,7 +266,7 @@ function test(N) {
     console.log(pdf);
   } // end test
 
-  // Test beta functions
+  // Show a sample of beta distributions
   var bpdf = new pdfBeta() ;
   bpdf.plot("fig2", 20, 5) ;
   bpdf.plot("fig2", 5, 20) ;
@@ -170,6 +279,18 @@ function test(N) {
   for(var i=0 ; i<3 ; i++)  game.sample(100) ;
   }
   estimate() ;
+
+  function testMLE(std, Nrep) {
+  // Show how standard deviation and
+     // data size effect regression based on MLE
+  var lr = new lreg() ;
+  lr.genData(std, Nrep) ;
+  lr.mle() ;
+  lr.plot("fig3") ;
+  }
+  testMLE(0.5, 20) ;
+
+</script>
 </script>
 </body>
 </html>
