@@ -50,7 +50,7 @@ class lreg {
 
      var info = sprintf("Fit:  std = %4.2f  w = [%4.1f %4.1f %4.1f %4.1f] ", 
                             this.std, this.w[0], this.w[1], this.w[2], this.w[3] );
-     var layout = { title: 'Linear Regression',               
+     var layout = { title: 'Linear Regression - MLE',               
                	    xaxis: {title: {text: "x"}},
 	            yaxis: {title: {text: "y"}},
               annotations: [{text: info, xref: 'paper', yref: 'paper', 
