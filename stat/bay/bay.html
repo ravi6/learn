@@ -15,7 +15,7 @@
 <!-- Stick all tex macros here -->
 <div id=macros>
 $\newcommand{\NDist}[3]{\frac{1}{\sqrt{2\pi}#3} 
- e^{\left({\frac{#1 - #2}{#3}}\right)^2}}$
+ e^{-\left({\frac{#1 - #2}{#3}}\right)^2}}$
 $\newcommand{\xv}{\mathbf{x}}$
 $\newcommand{\Xv}{\mathbf{X}}$
 $\newcommand{\yv}{\mathbf{y}}$
@@ -350,15 +350,15 @@ now weighted with prior probabilities.
 Although it is not essential, for illustration purpose, we would
 assume that all parameters $w_k$ are normally distributed 
 $\mathcal{N}(0, \sigma_w) $with zero mean and $\sigma_w$ standard deviation.
+\[
+P(w_j) = \NDist{w_j}{0}{\sigma_w}  j = 1..N
+\]
 
- 
-The likelyhood that observed data $y_k$ given that the parameters $w_n$ are 
-drawn from a product distribution of these parameters (note that the
-parameters are assumed to be independantly distributed) can be expressed
-as follows.
+The likelyhood of estimated parameters are $\wv$ given the
+data $(\xv, \yv), \sigma, \sigma_w$ can now be written as follows.
 
 \begin{align*}
-L (\yv, \wv | \xv, \sigma, \sigma_w) \propto
+P (\wv | \xv, \yv, \sigma, \sigma_w) \propto
   \prod_{k=1}^{M} \NDist{y_k}{\phi(x_k, \wv)}{\sigma}     
   \prod_{i=1}^{N} \NDist{w_i}{0}{\sigma_w}     \\
 \end{align*}
@@ -381,8 +381,8 @@ The log of the above likelyhood can now be written as follows
  - \sum_{i=1}^{M}   \frac{1}{2} ln(2\pi\sigma^2)
                  + \frac{(y_i - \phi(x_i,\wv))^2}{2\sigma^2} \\
  -\sum_{k=1}^{N} \frac{1}{2} ln(2\pi\sigma_w^2) 
-                 + \frac{1}{2} \left( \frac{w_k}{\sigma_w} \right)^2
-
+                 + \frac{1}{2} \left( \frac{w_k}{\sigma_w} \right)^2 \\
+		 \textrm{where }   \phi(x_i,\wv) =  \sum_{k=1}^N w_k  x_i^{k-1}
 \end{align*}
 \]
 
