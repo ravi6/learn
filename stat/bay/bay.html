@@ -13,10 +13,15 @@
 <div class=container-fluid>
 
 <!-- Stick all tex macros here -->
- <div id=macros>
-      $\newcommand{\NDist}[3]{\frac{1}{\sqrt{2\pi}#3} 
-                             e^{\left({\frac{#1 - #2}{#3}}\right)^2}}$
- </div>
+<div id=macros>
+$\newcommand{\NDist}[3]{\frac{1}{\sqrt{2\pi}#3} 
+ e^{\left({\frac{#1 - #2}{#3}}\right)^2}}$
+$\newcommand{\xv}{\mathbf{x}}$
+$\newcommand{\Xv}{\mathbf{X}}$
+$\newcommand{\yv}{\mathbf{y}}$
+$\newcommand{\wv}{\textbf{w}}$
+</div>
+
 <!-- ******************************************************** -->
 <div class="card">
   <div class=card-header>Author: Ravi Saripalli</div>
@@ -236,7 +241,7 @@ $x1, x2, x3$ are members of a random variables with their respective PDF functio
 <!-- ******************************************************** -->
 <div class=card-header>Author: Ravi Saripalli</div>
  <div class="card-body">
-    <h5 class="card-title"> Linear Regression  </h5>
+    <h5 class="card-title"> Linear Regression - MLE  </h5>
 
 Assume that we have a set of measurements of $y_i$ corresponding to $x_i$,
 and the measurement is not deterministic. That is $y$ values are not 
@@ -265,12 +270,12 @@ random variables $y_i$ is given as follows.
 
 \[
 \begin{align*}
-L(\mathbf{y} | \boldsymbol{\mu}, \sigma) = \prod_{i=1}^{M}  \NDist{y_i}{\mu_i}{\sigma} \\
+L(\yv | \boldsymbol{\mu}, \sigma) = \prod_{i=1}^{M}  \NDist{y_i}{\mu_i}{\sigma} \\
 \textit{where }   \mu_i =  \sum_{k=1}^N w_k  x_i^{k-1}
 \end{align*}
 \]
 
-Maximising the above function with respect to parameters $\mathbf{w}, \sigma$
+Maximising the above function with respect to parameters $\wv, \sigma$
 will yield the distribution of random variable with assumed functional dependance
 on x. Noting that maximisation of above likelyhood  is equivalent to maximising the
 logarithem of the likelyhood, the parameters of interest can be evaluated as follows.
@@ -290,12 +295,12 @@ logarithem of the likelyhood, the parameters of interest can be evaluated as fol
 \end{align*}
 \]
 
-Coefficient vector $\mathbf(w)$ can determined as follows.
+Coefficient vector $\wv$ can determined as follows.
 
 \[
 \begin{align*}
-\mathbf{w}  &= \left(\mathbf{XX^T}\right)^{-1}\mathbf{Xy} \\
-\textit{where } \mathbf{X} & = 
+\wv  &= \left(\Xv \Xv^T \right)^{-1} \Xv \yv \\
+\textit{where } \Xv & = 
 \begin{pmatrix}
      x_1^0 & x_1^1 & x_1^2 & x_1^3 & .. & x_1^N \\
      x_2^0 & x_2^1 & x_2^2 & x_2^3 & .. & x_2^N \\
@@ -303,8 +308,8 @@ Coefficient vector $\mathbf(w)$ can determined as follows.
      .. & ..  \\
      x_M^0 & x_M^1 & x_M^2 & x_M^3 & .. & x_M^N \\
 \end{pmatrix} \\
-\mathbf{w} &= [w_1 w_2 .. w_N]^T \\
-\mathbf{y} &= [y_1 y_2 .. y_M]^T
+\wv &= [w_1 w_2 .. w_N]^T \\
+\yv &= [y_1 y_2 .. y_M]^T
 \end{align*}
 \]
 
@@ -318,6 +323,101 @@ the standard deviation.
   <figure class=figure  id="fig3"></figure>
  </div></div>
 
+<!-- ******************************************************** -->
+<div class=card-header>Author: Ravi Saripalli</div>
+ <div class="card-body">
+    <h5 class="card-title"> Linear Regression - MAP  </h5>
+
+In the MLE method of linear regression described earlier, the model parameters
+$w_k$ have no uncertainity associated with them and can lead to 
+overfitting the data, especially when sample size is not sufficiently large.
+
+One way to address this issue is to ascribe some distribution to
+the parameters $w_k$ thus treating them as random variables.
+This distribution is of course is yet to be
+determined from the observed data. This is where Bayesian approach 
+comes to rescue. One could start with a prior distribution ascribed
+to each $w_k$ and then update the prior based on the new observations.
+Since all observations are assumed to be independant, one would expect 
+posterior estimate to converge to true distribution as more observations
+are made.
+
+The parameters associated with the distributions for all $w_k$,
+are obtained based on maximum likelyhood estimate similar to MLE. 
+The likelyhood estimate however is
+now weighted with prior probabilities.
+
+Although it is not essential, for illustration purpose, we would
+assume that all parameters $w_k$ are normally distributed 
+$\mathcal{N}(0, \sigma_w) $with zero mean and $\sigma_w$ standard deviation.
+
+ 
+The likelyhood that observed data $y_k$ given that the parameters $w_n$ are 
+drawn from a product distribution of these parameters (note that the
+parameters are assumed to be independantly distributed) can be expressed
+as follows.
+
+\begin{align*}
+L (\yv, \wv | \xv, \sigma, \sigma_w) \propto
+  \prod_{k=1}^{M} \NDist{y_k}{\phi(x_k, \wv)}{\sigma}     
+  \prod_{i=1}^{N} \NDist{w_i}{0}{\sigma_w}     \\
+\end{align*}
+
+Once again, we seek to maximize the log of the above likelyhood with
+respect to $\sigma, \sigma_w, \wv$. Essentially, we have now introduced
+one additional degree of freedom $\sigma_w$ allowing some variability
+in the estimated parameters $\wv$, with the constraint that mean of
+each $w_k$ is zero. 
+
+It is worth re-iterating that such a construct is still a type of model
+that we arbitrarily chose to fit the data. In statistical jargon, this
+introduction of additional degree of freedom along with some
+constraint is termed as "regularization"
+
+The log of the above likelyhood can now be written as follows
+\[
+\begin{align*}
+\psi(\sigma, \sigma_w, \wv) =
+ - \sum_{i=1}^{M}   \frac{1}{2} ln(2\pi\sigma^2)
+                 + \frac{(y_i - \phi(x_i,\wv))^2}{2\sigma^2} \\
+ -\sum_{k=1}^{N} \frac{1}{2} ln(2\pi\sigma_w^2) 
+                 + \frac{1}{2} \left( \frac{w_k}{\sigma_w} \right)^2
+
+\end{align*}
+\]
+
+Now we can determine the values of $\sigma, $sigma_w, \xv$ that maximize
+the above likelyhood function as follows..
+
+\[
+\left.\begin{align*}
+\frac{\partial \psi}{\partial w_j} = 0 \\
+\therefore 
+    \sum_{i=1}^{M} \left( 
+         y_i - \sum_{k=1}^{N} w_k x_i^{k-1} 
+         \right) x_i^{j-1} 
+         - \frac{1}{2} \left(\frac{\sigma}{\sigma_w}\right)^2 w_j = 0 
+\end{align*}\right\} j=1..N
+\]
+
+\[
+\begin{align*}
+\frac{\partial \psi}{\partial \sigma} = 0 \\
+\therefore \sum_{i=1}^{M} \left\{ \left(y_i - \phi(x_i,\wv)\right)^2 - \sigma^2 \right\}    = 0 \\
+\sigma =  \sqrt{ \frac{\sum_{i=1}^{M} (y_i - \phi(x_i,\wv))^2}{M}}  
+\end{align*}
+\]
+
+\[
+\begin{align*}
+\frac{\partial \psi}{\partial \sigma_w} = 0 \\
+\therefore \sum_{i=1}^{N} \left\{ 
+    - \frac{1}{\sigma_w} + \frac{w_i^2}{\sigma_w^3}
+    \right\}    = 0 \\
+    \sigma_w =  \sqrt{ \frac{\sum_{j=1}^{N} w_j^2}{N}}  
+\end{align*}
+\]
+ </div></div>
 
 
 </div>
