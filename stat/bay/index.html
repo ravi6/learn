@@ -351,20 +351,22 @@ Although it is not essential, for illustration purpose, we would
 assume that all parameters $w_k$ are normally distributed 
 $\mathcal{N}(0, \sigma_w) $with zero mean and $\sigma_w$ standard deviation.
 \[
-P(w_j) = \NDist{w_j}{0}{\sigma_w}  j = 1..N
+\begin{align*}
+p(w_j) = \NDist{w_j}{0}{\sigma_w}  j = 1..N
+\end{align*}
 \]
 
-The likelihood of estimated parameters are $\wv$ given the
+The the probability that  parameters are $\wv$ given the
 data $(\xv, \yv), \sigma, \sigma_w$ can now be written as follows.
 
 \begin{align*}
-P (\wv | \xv, \yv, \sigma, \sigma_w) \propto
+p (\wv | \xv, \yv, \sigma, \sigma_w) \propto
   \prod_{k=1}^{M} \NDist{y_k}{\phi(x_k, \wv)}{\sigma}     
   \prod_{i=1}^{N} \NDist{w_i}{0}{\sigma_w}     \\
 \end{align*}
 
-Once again, we seek to maximize the log of the above likelihood with
-respect to $\sigma, \sigma_w, \wv$. Essentially, we have now introduced
+Once again, we seek to maximize the above probability with
+respect to  \wv$. Essentially, we have now introduced
 one additional degree of freedom $\sigma_w$ allowing some variability
 in the estimated parameters $\wv$, with the constraint that mean of
 each $w_k$ is zero. 
@@ -374,7 +376,7 @@ that we arbitrarily chose to fit the data. In statistical jargon, this
 introduction of additional degree of freedom along with some
 constraint is termed as "regularization"
 
-The log of the above likelihood can now be written as follows
+The log of the above function can now be written as follows
 \[
 \begin{align*}
 \psi(\sigma, \sigma_w, \wv) =
@@ -386,8 +388,8 @@ The log of the above likelihood can now be written as follows
 \end{align*}
 \]
 
-Now we can determine the values of $\sigma, \sigma_w, \xv$ that maximize
-the above likelihood function as follows..
+Now we can determine the values of  \xv$ that maximize
+the above quantity.
 
 \[
 \left.\begin{align*}
@@ -400,23 +402,6 @@ the above likelihood function as follows..
 \end{align*}\right\} j=1..N
 \]
 
-\[
-\begin{align*}
-\frac{\partial \psi}{\partial \sigma} = 0 \\
-\therefore \sum_{i=1}^{M} \left\{ \left(y_i - \phi(x_i,\wv)\right)^2 - \sigma^2 \right\}    = 0 \\
-\sigma =  \sqrt{ \frac{\sum_{i=1}^{M} (y_i - \phi(x_i,\wv))^2}{M}}  
-\end{align*}
-\]
-
-\[
-\begin{align*}
-\frac{\partial \psi}{\partial \sigma_w} = 0 \\
-\therefore \sum_{i=1}^{N} \left\{ 
-    - \frac{1}{\sigma_w} + \frac{w_i^2}{\sigma_w^3}
-    \right\}    = 0 \\
-    \sigma_w =  \sqrt{ \frac{\sum_{j=1}^{N} w_j^2}{N}}  
-\end{align*}
-\]
  </div></div>
 
 
