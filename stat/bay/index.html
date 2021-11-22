@@ -359,14 +359,16 @@ p(w_j) = \NDist{w_j}{0}{\sigma_w}  j = 1..N
 The the probability that  parameters are $\wv$ given the
 data $(\xv, \yv), \sigma, \sigma_w$ can now be written as follows.
 
+\[
 \begin{align*}
 p (\wv | \xv, \yv, \sigma, \sigma_w) \propto
   \prod_{k=1}^{M} \NDist{y_k}{\phi(x_k, \wv)}{\sigma}     
   \prod_{i=1}^{N} \NDist{w_i}{0}{\sigma_w}     \\
 \end{align*}
+\]
 
 Once again, we seek to maximize the above probability with
-respect to  \wv$. Essentially, we have now introduced
+respect to $\wv$. Essentially, we have now introduced
 one additional degree of freedom $\sigma_w$ allowing some variability
 in the estimated parameters $\wv$, with the constraint that mean of
 each $w_k$ is zero. 
