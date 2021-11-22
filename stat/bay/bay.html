@@ -76,13 +76,13 @@ $$
 </div>
 <p class="card-text">
 Now with a given sample of N balls containing  $n_1, n_2, n_3$ coloured
-balls the likelyhood of this sample is from above distribution is given
+balls the likelihood of this sample is from above distribution is given
 by the following.
 </p>
 <div class="border border-info rounded bg-light bg-gradient">
 $$
 \begin{aligned}
-\textit{Likelyhood} &  \quad L(sample \quad | \quad  (a_i, b_i))  \\ 
+\textit{Likelihood} &  \quad L(sample \quad | \quad  (a_i, b_i))  \\ 
 & \propto    \{a(i)\}^{n_1}
                      \{b(i)\}^{n_2}
 		     \{1 - a(i) - b(i)\}^{n_3}  \quad
@@ -92,7 +92,7 @@ $$
 </div>
 
 <p class="card-text">
-The above likelyhood value is weighted with the prior probability
+The above likelihood value is weighted with the prior probability
 $\left(P(a(i),b(i)\right)$ to obtain posterior probability. 
 </p>
 
@@ -259,13 +259,13 @@ coefficients $w_k$.
 
 One way to determining the unknown wieghts $w_k$ and $\sigma$ in the proposed
 distribution, based on the observed data $(x_i, y_1)$ points, is to maximise
-the likelyhood function. That is we express the likelyhood of observing the
+the likelihood function. That is we express the likelihood of observing the
 data based on above assmed distribution form for a specified parameter set.
-And we seek these parameters that maximise this likelyhood.
+And we seek these parameters that maximise this likelihood.
 
 For illustration purpose, we will assume $\phi_k(x) = x^{k-1}$. Then
 $\mu_i$ is a polynomial function of $x_i$ of degree $N-1$.
-The likelyhood of observing (x_i,y_i i=1..M) assuming above distribution for
+The likelihood of observing (x_i,y_i i=1..M) assuming above distribution for
 random variables $y_i$ is given as follows.
 
 \[
@@ -277,8 +277,8 @@ L(\yv | \boldsymbol{\mu}, \sigma) = \prod_{i=1}^{M}  \NDist{y_i}{\mu_i}{\sigma} 
 
 Maximising the above function with respect to parameters $\wv, \sigma$
 will yield the distribution of random variable with assumed functional dependance
-on x. Noting that maximisation of above likelyhood  is equivalent to maximising the
-logarithem of the likelyhood, the parameters of interest can be evaluated as follows.
+on x. Noting that maximisation of above likelihood  is equivalent to maximising the
+logarithem of the likelihood, the parameters of interest can be evaluated as follows.
 
 \[
 \left.\begin{align*}
@@ -314,7 +314,7 @@ Coefficient vector $\wv$ can determined as follows.
 \]
 
 The following figure illustrates the way above Maximum
-Likelyhood based regression (MLE) estimate works. A third degree
+Likelihood based regression (MLE) estimate works. A third degree
 polynomial with coefficients $[1,2,3,4]$ was used to generate
 data with random noise corresponding to standar deviation of 0.5
 with the mean at $\mu_i$. This data is subsequently used to
@@ -343,8 +343,8 @@ posterior estimate to converge to true distribution as more observations
 are made.
 
 The parameters associated with the distributions for all $w_k$,
-are obtained based on maximum likelyhood estimate similar to MLE. 
-The likelyhood estimate however is
+are obtained based on maximum likelihood estimate similar to MLE. 
+The likelihood estimate however is
 now weighted with prior probabilities.
 
 Although it is not essential, for illustration purpose, we would
@@ -354,7 +354,7 @@ $\mathcal{N}(0, \sigma_w) $with zero mean and $\sigma_w$ standard deviation.
 P(w_j) = \NDist{w_j}{0}{\sigma_w}  j = 1..N
 \]
 
-The likelyhood of estimated parameters are $\wv$ given the
+The likelihood of estimated parameters are $\wv$ given the
 data $(\xv, \yv), \sigma, \sigma_w$ can now be written as follows.
 
 \begin{align*}
@@ -363,7 +363,7 @@ P (\wv | \xv, \yv, \sigma, \sigma_w) \propto
   \prod_{i=1}^{N} \NDist{w_i}{0}{\sigma_w}     \\
 \end{align*}
 
-Once again, we seek to maximize the log of the above likelyhood with
+Once again, we seek to maximize the log of the above likelihood with
 respect to $\sigma, \sigma_w, \wv$. Essentially, we have now introduced
 one additional degree of freedom $\sigma_w$ allowing some variability
 in the estimated parameters $\wv$, with the constraint that mean of
@@ -374,7 +374,7 @@ that we arbitrarily chose to fit the data. In statistical jargon, this
 introduction of additional degree of freedom along with some
 constraint is termed as "regularization"
 
-The log of the above likelyhood can now be written as follows
+The log of the above likelihood can now be written as follows
 \[
 \begin{align*}
 \psi(\sigma, \sigma_w, \wv) =
@@ -387,7 +387,7 @@ The log of the above likelyhood can now be written as follows
 \]
 
 Now we can determine the values of $\sigma, $sigma_w, \xv$ that maximize
-the above likelyhood function as follows..
+the above likelihood function as follows..
 
 \[
 \left.\begin{align*}
