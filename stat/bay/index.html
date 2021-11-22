@@ -1,0 +1,479 @@
+<html>
+<!doctype html>
+<!-- Author: Ravi Saripalli 17th Oct. 2021 Learn Baesian Statistics  -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <title>Bayesian Statistics</title>
+  </head>
+ <body>
+
+<div class=container-fluid>
+
+<!-- Stick all tex macros here -->
+<div id=macros>
+$\newcommand{\NDist}[3]{\frac{1}{\sqrt{2\pi}#3} 
+ e^{-\left({\frac{#1 - #2}{#3}}\right)^2}}$
+$\newcommand{\xv}{\mathbf{x}}$
+$\newcommand{\Xv}{\mathbf{X}}$
+$\newcommand{\yv}{\mathbf{y}}$
+$\newcommand{\wv}{\textbf{w}}$
+</div>
+
+<!-- ******************************************************** -->
+<div class="card">
+  <div class=card-header>Author: Ravi Saripalli</div>
+ <div class="card-body">
+    <h5 class="card-title">
+    Bayesian Estimation of Discrete Distribution </h5>
+    <p class="card-text">
+  Let us consider a large batch of balls with three
+  possible colors. By sampling from this batch we want
+  to estimate the color distribution of the batch based on 
+  the samples we analyse. Here is the way we can implement
+  a Bayesian estimation of distribution with incremental
+  sampling from the batch.
+
+  The discrete distribution of the coloured balls in the batch 
+  can be represented as 
+
+<div class="border border-info rounded bg-light bg-gradient">
+\[
+\begin{align}
+C_1 \hspace{10mm} & a \nonumber \\
+C_2 \hspace{10mm} & b \nonumber \\
+C_3 \hspace{10mm} & 1 - a - b \nonumber \\
+\end{align}
+\]
+</div>
+
+<p class="card-text">
+$a$ and $b$ represent probabilities associated with picking
+$C_1$ and $C_2$ coloured balls respectively and they represent the
+respective fractions the batch.
+</p>
+
+<p class="card-text">
+In this example of Baesian estimation strategy the above 
+unknown parameters ($a$ and $b$) are assumed to be distributed
+with some arbitray discrete distribution function f(a, b)
+in the following manner. (Note: in reality a and b are continuous
+variables and the combined distribution is complicated due to additional contraint
+$(a+b) \le 0$. Would this be approximated by a product of two beta 
+functions with four parameters??. Need to examine it later)
+) 
+</p>
+<div class="border border-info rounded bg-light bg-gradient">
+$$
+\begin{aligned}
+P(a(i), b(i)) & = p(i)  \quad \quad   i = 1 .. 11  \\
+& a(i) \in \{0, 0.1, 0.2, ... 1\} \\
+& b(i) \in \{1-a(i), 1-a(i)+0.1, .. 1\} 
+\end{aligned}
+$$
+</div>
+<p class="card-text">
+Now with a given sample of N balls containing  $n_1, n_2, n_3$ coloured
+balls the likelihood of this sample is from above distribution is given
+by the following.
+</p>
+<div class="border border-info rounded bg-light bg-gradient">
+$$
+\begin{aligned}
+\textit{Likelihood} &  \quad L(sample \quad | \quad  (a_i, b_i))  \\ 
+& \propto    \{a(i)\}^{n_1}
+                     \{b(i)\}^{n_2}
+		     \{1 - a(i) - b(i)\}^{n_3}  \quad
+		       i = 1 .. 11
+\end{aligned}
+$$
+</div>
+
+<p class="card-text">
+The above likelihood value is weighted with the prior probability
+$\left(P(a(i),b(i)\right)$ to obtain posterior probability. 
+</p>
+
+<div class="border border-info rounded bg-light bg-gradient">
+$$
+\begin{aligned}
+P^{post} (a(i),b(i))  \propto  L * P(a(i),b(i)) \\ 
+\therefore P^{post} (a(i),b(i)) =   \frac{ L * P(a(i),b(i)) } 
+{ \sum_{i=1}^{11} L * P(a(i),b(i)) } 
+
+\end{aligned}
+$$
+</div>
+
+<p class="card-text">
+Whenever a new sample data is obtained the process can be repeated 
+with posterior estimate of the past as a prior. Since each sample outcome
+is independant one would expect, with enough batches of samples the 
+posterior would converge to the orginal batch distribution.
+</p>
+<p class="card-text">
+The following figure shows some simulation results to illustrate the point.
+Random samples from a batch of coloured balls with known proportions (0.3, 0.5, 0.2)
+are drawn and starting with a uniform prior, the posterior estimated 
+with three batches of 100 samples. The resulting changes in posterior estimate
+can be seen in the graph.
+</p>
+
+  <button class="btn btn-info" onClick="estimate();">ReSample</button>
+  <figure class=figure  id="fig1"></figure>
+    <a href="#" class="btn btn-primary">Top</a>
+</div>
+
+<!-- ******************************************************** -->
+<div class="card">
+  <div class=card-header>Author: Ravi Saripalli</div>
+ <div class="card-body">
+    <h5 class="card-title"> Beta Distribution </h5>
+    <p class="card-text" >
+  Beta distribution is useful when domain of interest
+  is finite. It has two parameters "a" and "b". The following
+  figure illustrates how these parameters influence the
+  distribution function.
+    </p>
+          <figure class="figure"  class="w-50" id="fig2"></figure>
+</div> </div>
+
+<!-- ******************************************************** -->
+<div class="card">
+  <div class=card-header>Author: Ravi Saripalli</div>
+ <div class="card-body">
+    <h5 class="card-title">
+      Expressing Discrete PDF as a continuous function </h5>
+
+Consider a discrete distribution  function  
+
+$$
+ f(x_i) = p_k  \ \ \ x_i \in \{ x_1, x_2, ... x_n \} \nonumber
+$$
+Its cumulative distribution 
+
+$$
+F(x < x_k) = \sum_{i=1}^{k} p_k \nonumber
+$$
+
+This function can be expressed as continuous CDF in x with the help of step functions
+$$
+F(x) = \sum_{i=1}^{k} f(x_i) S(x-x_i)  \ \ \  x_1 < x < x_n \nonumber
+$$
+where
+$$
+    S(x)= 
+        \begin{cases}
+           0, & \text{if } x < 0\\
+           1,              & \text{otherwise}
+        \end{cases} \nonumber
+$$
+If we differentiate the above function we should get continuous equivalent of discrete distribution $P(x_i)$
+$$
+f(x) = \frac{dF}{dx} = \sum_{i=1}^{k} 
+     f(x_i) \delta(x-x_i)  \ \ \  x_1 < x < x_n \nonumber
+$$
+ </div></div>
+
+<!-- ******************************************************** -->
+<div class="card">
+  <div class=card-header>Author: Ravi Saripalli</div>
+ <div class="card-body">
+    <h5 class="card-title">
+      PDF of transformed random variable</h5>
+Given a random continuous variable $x$ with known PDF $P_X(x)$ determine the PDF of a transformed variable
+$P_Y(y)$ with transformation $Y=g(X)$.
+
+This is achieved expressing the CDF of transformed variable $Y$ in terms of CDF of original variable $X$.
+with appropriate reverse transformation.
+
+\[
+\begin{align*}
+F_Y (y) & =   P (Y < y)   =  P (g (X) < y) \\
+& =  P (X < g^{-1} (y))
+\textit{ (assuming g(x) is monotonically increases with x)  }  \\
+
+& =  F_X \left( g^{-1} \left( y \right) \right)
+\end{align*} 
+\]
+
+Note that $g^{-1}$ function refers to reverse mapping from Y to X.
+Also, the requirement for the function $g(X)$ to be a monotonically
+increasing function in the interval of interest is to ensure the inequality
+is preserved during reverse mapping.
+
+The PDF of transformed variable can now be determined with differentiation of above CDF with
+respect to y.
+
+\[
+\begin{align*}
+      P_Y(y) &= \frac{d}{dy} F_Y (y) = \frac{d}{dy} F_X ( g^{-1}(y) ) \\
+             & = \frac{dx}{dy} \frac{d}{dx} F_X ( g^{-1}(y) )
+	     =  \frac{dx}{dy}  P_X ( g^{-1} (y) ) \\ 
+	     &=  \frac{d}{dy} (g^{-1}(y)) \   P_X ( g^{-1} (y) ) 
+\end{align*}
+\]
+
+Although above result is derived for monotonically increasing $g(X)$,
+for non-monotonic function case, one can segment the functions into 
+monotonically increasing and decreasing segements and a generic result
+can be obtained as follows.
+
+Assuming the $g(X)$ has $k$ segments of montonically increasing or decreasing
+regions,
+\[
+\begin{align*}
+  P_Y(y) &= \sum_{i=1}^{k} \left | \frac{d}{dy} (g_k^{-1}(y)) \right |
+             \   P_X ( g_k^{-1} (y) )   \ \ \ y \in Y 
+\end{align*}
+\]
+
+Note the absolute sign on the derivative term is to account for effect of
+sign change between monotonically increasing and decreasing function gradients.
+<it>How one can do it for very complicated 
+functions is not clear to me. </it>
+
+But my interest is to find PDF of a function $g(x1, x2, x3)$  given  
+$x1, x2, x3$ are members of a random variables with their respective PDF functions are known.
+ </div></div>
+<!-- ******************************************************** -->
+<div class=card-header>Author: Ravi Saripalli</div>
+ <div class="card-body">
+    <h5 class="card-title"> Linear Regression - MLE  </h5>
+
+Assume that we have a set of measurements of $y_i$ corresponding to $x_i$,
+and the measurement is not deterministic. That is $y$ values are not 
+uniquely determined for any given x but have a distribution. And we will assume this
+distribution correspond to a normal distribution with the following parameters.
+
+\begin{align*}
+P(y_i | \mu_i, \sigma) = \NDist{y_i}{\mu_i}{\sigma}    i = 1 .. M \\
+   \textit{where }   \mu_i =  \sum_{k=1}^N w_k  \phi_k(x_i)
+\end{align*}
+
+Note the functions $\phi_k(x)$ are specified and can by arbitraily non-linear
+in $x$. The linear regression description in the analysis is in relation to the
+coefficients $w_k$.
+
+One way to determining the unknown wieghts $w_k$ and $\sigma$ in the proposed
+distribution, based on the observed data $(x_i, y_1)$ points, is to maximise
+the likelihood function. That is we express the likelihood of observing the
+data based on above assmed distribution form for a specified parameter set.
+And we seek these parameters that maximise this likelihood.
+
+For illustration purpose, we will assume $\phi_k(x) = x^{k-1}$. Then
+$\mu_i$ is a polynomial function of $x_i$ of degree $N-1$.
+The likelihood of observing (x_i,y_i i=1..M) assuming above distribution for
+random variables $y_i$ is given as follows.
+
+\[
+\begin{align*}
+L(\yv | \boldsymbol{\mu}, \sigma) = \prod_{i=1}^{M}  \NDist{y_i}{\mu_i}{\sigma} \\
+\textit{where }   \mu_i =  \sum_{k=1}^N w_k  x_i^{k-1}
+\end{align*}
+\]
+
+Maximising the above function with respect to parameters $\wv, \sigma$
+will yield the distribution of random variable with assumed functional dependance
+on x. Noting that maximisation of above likelihood  is equivalent to maximising the
+logarithem of the likelihood, the parameters of interest can be evaluated as follows.
+
+\[
+\left.\begin{align*}
+\frac{\partial L}{\partial w_j} = 0 \\
+\therefore \sum_{i=1}^{M} \left( y_i - \sum_{k=1}^{N} w_k x_i^{k-1} \right) x_i^{j-1} = 0
+\end{align*}\right\} j=1..N
+\]
+
+\[
+\begin{align*}
+\frac{\partial L}{\partial \sigma} = 0 \\
+\therefore \sum_{i=1}^{M} \left\{ (y_i - \mu_i)^2 - \sigma^2 \right\}    = 0 \\
+\sigma =  \sqrt{ \frac{\sum_{i=1}^{M} (y_i - \mu_i)^2}{M}}  
+\end{align*}
+\]
+
+Coefficient vector $\wv$ can determined as follows.
+
+\[
+\begin{align*}
+\wv  &= \left(\Xv \Xv^T \right)^{-1} \Xv \yv \\
+\textit{where } \Xv & = 
+\begin{pmatrix}
+     x_1^0 & x_1^1 & x_1^2 & x_1^3 & .. & x_1^N \\
+     x_2^0 & x_2^1 & x_2^2 & x_2^3 & .. & x_2^N \\
+     x_3^0 & x_3^1 & x_3^2 & x_3^3 & .. & x_3^N \\
+     .. & ..  \\
+     x_M^0 & x_M^1 & x_M^2 & x_M^3 & .. & x_M^N \\
+\end{pmatrix} \\
+\wv &= [w_1 w_2 .. w_N]^T \\
+\yv &= [y_1 y_2 .. y_M]^T
+\end{align*}
+\]
+
+The following figure illustrates the way above Maximum
+Likelihood based regression (MLE) estimate works. A third degree
+polynomial with coefficients $[1,2,3,4]$ was used to generate
+data with random noise corresponding to standar deviation of 0.5
+with the mean at $\mu_i$. This data is subsequently used to
+test how MLE estimates the weight coefficient vector along with
+the standard deviation. 
+  <figure class=figure  id="fig3"></figure>
+ </div></div>
+
+<!-- ******************************************************** -->
+<div class=card-header>Author: Ravi Saripalli</div>
+ <div class="card-body">
+    <h5 class="card-title"> Linear Regression - MAP  </h5>
+
+In the MLE method of linear regression described earlier, the model parameters
+$w_k$ have no uncertainity associated with them and can lead to 
+overfitting the data, especially when sample size is not sufficiently large.
+
+One way to address this issue is to ascribe some distribution to
+the parameters $w_k$ thus treating them as random variables.
+This distribution is of course is yet to be
+determined from the observed data. This is where Bayesian approach 
+comes to rescue. One could start with a prior distribution ascribed
+to each $w_k$ and then update the prior based on the new observations.
+Since all observations are assumed to be independant, one would expect 
+posterior estimate to converge to true distribution as more observations
+are made.
+
+The parameters associated with the distributions for all $w_k$,
+are obtained based on maximum likelihood estimate similar to MLE. 
+The likelihood estimate however is
+now weighted with prior probabilities.
+
+Although it is not essential, for illustration purpose, we would
+assume that all parameters $w_k$ are normally distributed 
+$\mathcal{N}(0, \sigma_w) $with zero mean and $\sigma_w$ standard deviation.
+\[
+P(w_j) = \NDist{w_j}{0}{\sigma_w}  j = 1..N
+\]
+
+The likelihood of estimated parameters are $\wv$ given the
+data $(\xv, \yv), \sigma, \sigma_w$ can now be written as follows.
+
+\begin{align*}
+P (\wv | \xv, \yv, \sigma, \sigma_w) \propto
+  \prod_{k=1}^{M} \NDist{y_k}{\phi(x_k, \wv)}{\sigma}     
+  \prod_{i=1}^{N} \NDist{w_i}{0}{\sigma_w}     \\
+\end{align*}
+
+Once again, we seek to maximize the log of the above likelihood with
+respect to $\sigma, \sigma_w, \wv$. Essentially, we have now introduced
+one additional degree of freedom $\sigma_w$ allowing some variability
+in the estimated parameters $\wv$, with the constraint that mean of
+each $w_k$ is zero. 
+
+It is worth re-iterating that such a construct is still a type of model
+that we arbitrarily chose to fit the data. In statistical jargon, this
+introduction of additional degree of freedom along with some
+constraint is termed as "regularization"
+
+The log of the above likelihood can now be written as follows
+\[
+\begin{align*}
+\psi(\sigma, \sigma_w, \wv) =
+ - \sum_{i=1}^{M}   \frac{1}{2} ln(2\pi\sigma^2)
+                 + \frac{(y_i - \phi(x_i,\wv))^2}{2\sigma^2} \\
+ -\sum_{k=1}^{N} \frac{1}{2} ln(2\pi\sigma_w^2) 
+                 + \frac{1}{2} \left( \frac{w_k}{\sigma_w} \right)^2 \\
+		 \textrm{where }   \phi(x_i,\wv) =  \sum_{k=1}^N w_k  x_i^{k-1}
+\end{align*}
+\]
+
+Now we can determine the values of $\sigma, $sigma_w, \xv$ that maximize
+the above likelihood function as follows..
+
+\[
+\left.\begin{align*}
+\frac{\partial \psi}{\partial w_j} = 0 \\
+\therefore 
+    \sum_{i=1}^{M} \left( 
+         y_i - \sum_{k=1}^{N} w_k x_i^{k-1} 
+         \right) x_i^{j-1} 
+         - \frac{1}{2} \left(\frac{\sigma}{\sigma_w}\right)^2 w_j = 0 
+\end{align*}\right\} j=1..N
+\]
+
+\[
+\begin{align*}
+\frac{\partial \psi}{\partial \sigma} = 0 \\
+\therefore \sum_{i=1}^{M} \left\{ \left(y_i - \phi(x_i,\wv)\right)^2 - \sigma^2 \right\}    = 0 \\
+\sigma =  \sqrt{ \frac{\sum_{i=1}^{M} (y_i - \phi(x_i,\wv))^2}{M}}  
+\end{align*}
+\]
+
+\[
+\begin{align*}
+\frac{\partial \psi}{\partial \sigma_w} = 0 \\
+\therefore \sum_{i=1}^{N} \left\{ 
+    - \frac{1}{\sigma_w} + \frac{w_i^2}{\sigma_w^3}
+    \right\}    = 0 \\
+    \sigma_w =  \sqrt{ \frac{\sum_{j=1}^{N} w_j^2}{N}}  
+\end{align*}
+\]
+ </div></div>
+
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js"> </script>
+<script src="https://cdn.plot.ly/plotly-2.4.2.min.js"></script>
+<script type="text/javascript" src="pdfD.js"></script>
+<script type="text/javascript" src="pdfBeta.js"></script>
+<script type="text/javascript" src="ballGame.js"></script>
+<script type="text/javascript" src="lreg.js"></script>
+<script>
+  MathJax = {
+    tex: {
+      tags: 'all',  // should be 'ams', 'none', or 'all'
+      inlineMath: [['$', '$'], ['\\(', '\\)']] ,
+    }
+  };
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+
+<script>
+function test(N) { 
+    var pdf = new pdfD(3) ;
+    pdf.x = [1,2,3];
+    pdf.p = [0.2,0.5,0.3] ; 
+    var y = pdf.sample(N); 
+    pdf.update(y); 
+    console.log(pdf);
+  } // end test
+
+  // Show a sample of beta distributions
+  var bpdf = new pdfBeta() ;
+  bpdf.plot("fig2", 20, 5) ;
+  bpdf.plot("fig2", 5, 20) ;
+  bpdf.plot("fig2", 20, 20) ;
+  bpdf.plot("fig2", 5, 5) ;
+
+  function estimate() {
+  // Finally I get Bayesian update for discrete distribution
+  var game = new ballGame("fig1", 0.3, 0.5) ;
+  for(var i=0 ; i<3 ; i++)  game.sample(100) ;
+  }
+  estimate() ;
+
+  function testMLE(std, Nrep) {
+  // Show how standard deviation and
+     // data size effect regression based on MLE
+  var lr = new lreg() ;
+  lr.genData(std, Nrep) ;
+  lr.mle() ;
+  lr.plot("fig3") ;
+  }
+  testMLE(0.5, 20) ;
+
+</script>
+</body>
+</html>
