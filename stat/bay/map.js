@@ -20,7 +20,13 @@ class map {
   */
 
   constructor () {
-      this.data = {x: [] , y: [], std: 0, stdw: 0};
+      this.N = 3 ; // Polynomial Degree + 1 
+      this.M = 10 ; // Sample Size
+      this.data = {x: [] , y: [], //this data is generated with
+	           std: 0, // Standard Deviation of  error in y-Poly(w,x)
+	          stdw: 0}; // Standard deviation of noise in <w>
+     // w in the following is just to track how w's are evolving
+    //  they are not hyperparameters. <w> is random variable.
       this.prior = {w: [], std: 0.3, stdw: 0.2} ;
       this.post = {w: [],  std: 0.3, stdw: 0.2} ;
       this.series = [] ;
@@ -32,20 +38,22 @@ class map {
   map() { 
     // Get <w> through maximization of apriori prob
     var X = [] ; 
-    for (var i = 0 ; i < this.M ; i++) {
+    for(var j = 0 ; j <= this.N ; j++) {
       var row = [] ;
-      for(var j = 0 ; j <= this.N ; j++)
+      for (var i = 0 ; i < this.M ; i++) 
 	 row.push(Math.pow(this.data.x[i], j)) ; 
-         X.push(row) ;
+      X.push(row) ;
     }
-
-    var S = jStat.identity(N).multiply(prior.std / (2 * prior.stdw)) ;
-    var Xt = jStat(X).transpose() ;
-    var A = jStat(X).multiply(Xt).subtract(S).inverse() ;
+    
     var Y = jStat(this.data.y).transpose() ;
-    var W = jStat.inv(A).multiply(X).multiply(Y) ;
-    var Phi = jStat(W).transpose().multiply(X).transpose() ;
-    A = jStat(Y).subtract(Phi) ;
+    var S = jStat(jStat.identity(this.N)) 
+             .multiply(this.prior.std / (2 * this.prior.stdw)) ;
+    var Xt = jStat(X).transpose() ;
+    var A = jStat(X).multiply(Xt) ;
+    console.log("A,S",A,S);
+    var W = jStat(jStat.inv(A)).multiply(X).multiply(Y) ;
+    var Phi = W.transpose().multiply(X).transpose() ;
+    var B = jStat(Y).subtract(Phi) ;
     this.std = A.multiply(A.transpose) ;    
     console.log(this.post, this.prior);
   }   // end map
@@ -91,14 +99,14 @@ class map {
      return {M: x.length , N: x[0].length}; 
   }
 
-  genData(M, std, stdw) { 
+  genData(std, stdw) { 
     // Generate data from Polynomial with 
     // random noise in output (std)
     // Select polynomial coefficeints from
     // a Normal distribution (N(0,stdw))
-    this.N = 3 ;  //Polynomial degree + 1
     var scale = 1 ;
-    for (var i = 0 ; i < M ; i ++) {
+
+    for (var i = 0 ; i < this.M ; i ++) {
       var x = Math.random()*10 ; // Assume x range is 0-10
       let w = [] ;
       let wPdf = jStat.normal(0, stdw, scale) ;
@@ -112,7 +120,7 @@ class map {
       this.data.std = std ;
       this.data.stdw = stdw ;
    }
-       console.log(this.data) ;
+       console.log("DATA:", this.data) ;
   } // end genData
 
   poly(c, x) {
