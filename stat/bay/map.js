@@ -20,25 +20,28 @@ class map {
   */
 
   constructor () {
-      this.N = 3 ; // Polynomial Degree + 1 
-      this.M = 10 ; // Sample Size
+      this.N = 3 ; // Polynomial Degree 
+      this.M = 100 ; // Sample Size
       this.data = {x: [] , y: [], //this data is generated with
 	           std: 0, // Standard Deviation of  error in y-Poly(w,x)
 	          stdw: 0}; // Standard deviation of noise in <w>
      // w in the following is just to track how w's are evolving
     //  they are not hyperparameters. <w> is random variable.
-      this.prior = {w: [], std: 0.3, stdw: 0.2} ;
-      this.post = {w: [],  std: 0.3, stdw: 0.2} ;
+      this.prior = {w: [], std: 0, stdw: 0} ;
+      this.post = {w: [],  std: 0, stdw: 0} ;
       this.series = [] ;
-      this.genData(10, 0.1, 0.2);
-      this.plot("fig4");
+      this.genData(0.1, 0.02);
+      this.prior.std = 0.05;
+      this.prior.stdw = 0.01 ;
       this.map();
+      this.plot("fig4");
   }
 
   map() { 
+
     // Get <w> through maximization of apriori prob
     var X = [] ; 
-    for(var j = 0 ; j <= this.N ; j++) {
+    for(var j = 0 ; j < this.N+1 ; j++) {
       var row = [] ;
       for (var i = 0 ; i < this.M ; i++) 
 	 row.push(Math.pow(this.data.x[i], j)) ; 
@@ -46,16 +49,18 @@ class map {
     }
     
     var Y = jStat(this.data.y).transpose() ;
-    var S = jStat(jStat.identity(this.N)) 
+    var S = jStat(jStat.identity(this.N+1)) 
              .multiply(this.prior.std / (2 * this.prior.stdw)) ;
     var Xt = jStat(X).transpose() ;
-    var A = jStat(X).multiply(Xt) ;
-    console.log("A,S",A,S);
+    var A = jStat(X).multiply(Xt).subtract(S) ;
     var W = jStat(jStat.inv(A)).multiply(X).multiply(Y) ;
     var Phi = W.transpose().multiply(X).transpose() ;
-    var B = jStat(Y).subtract(Phi) ;
-    this.std = A.multiply(A.transpose) ;    
-    console.log(this.post, this.prior);
+    A = jStat(Y).subtract(Phi) ;
+
+    this.post.std  = Math.pow(A.transpose().multiply(A) / this.M, 0.5) ;    
+    this.post.stdw = Math.pow(W.transpose().multiply(W) / this.N, 0.5) ;    
+    this.post.w = W ;
+    console.log("Prior:", this.prior, "Post:", this.post);
   }   // end map
 
   plot(fig) {
@@ -65,17 +70,15 @@ class map {
                         mode: 'markers',
 		        name: 'data' });
           let yf = [] ; 
-          let stdSum = 0 ;
-          for (var i = 0 ; i < this.M ; i++) {
+          let xf = [] ; 
+          for (var i = 0 ; i < 50 ; i++) {
+            xf.push(i/50.0) ;
             let s = 0 ;
             for(var j = 0 ; j <= this.N ; j++)
-	       s =  s + this.post.w[j] * Math.pow(this.data.x[i], j) ; 
+	       s =  s + this.post.w[j] * Math.pow(xf[i], j) ; 
             yf.push(s) ;
-	    stdSum = stdSum + Math.pow((this.data.y[i] - s), 2) ;
 	  }
-         this.std = Math.pow(stdSum / this.M , 0.5);
-	 this.series.push({x: this.data.x,
-		           y: yf,
+	 this.series.push({x: xf, y: yf,
 	                type: 'line',
 		      name: 'fit' });
 
@@ -107,19 +110,19 @@ class map {
     var scale = 1 ;
 
     for (var i = 0 ; i < this.M ; i ++) {
-      var x = Math.random()*10 ; // Assume x range is 0-10
+      var x = Math.random()*1 ; // Assume x range is 0-10
       let w = [] ;
       let wPdf = jStat.normal(0, stdw, scale) ;
-      for (var j = 0 ; j < this.N ; j++)
+      for (var j = 0 ; j < this.N+1 ; j++)
 	  w.push(wPdf.sample()); // sample
       var ym = this.poly(w, x) ;
       var yPdf = jStat.normal(ym, std, scale) ; 
 
       this.data.x.push(x) ; 
       this.data.y.push(yPdf.sample()) ;
+   }
       this.data.std = std ;
       this.data.stdw = stdw ;
-   }
        console.log("DATA:", this.data) ;
   } // end genData
 
