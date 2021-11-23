@@ -404,6 +404,24 @@ the above quantity.
 \end{align*}\right\} j=1..N
 \]
 
+\[
+\begin{align*}
+\frac{\partial \psi}{\partial \sigma} = 0 \\
+\therefore \sum_{i=1}^{M} \left\{ \left(y_i - \phi(x_i,\wv)\right)^2 - \sigma^2 \right\}    = 0 \\
+\sigma =  \sqrt{ \frac{\sum_{i=1}^{M} (y_i - \phi(x_i,\wv))^2}{M}}  
+\end{align*}
+\]
+
+\[
+\begin{align*}
+\frac{\partial \psi}{\partial \sigma_w} = 0 \\
+\therefore \sum_{i=1}^{N} \left\{ 
+    - \frac{1}{\sigma_w} + \frac{w_i^2}{\sigma_w^3}
+    \right\}    = 0 \\
+    \sigma_w =  \sqrt{ \frac{\sum_{j=1}^{N} w_j^2}{N}}  
+\end{align*}
+\]
+  <figure class=figure  id="fig4"></figure>
  </div></div>
 
 
@@ -416,6 +434,7 @@ the above quantity.
 <script type="text/javascript" src="pdfBeta.js"></script>
 <script type="text/javascript" src="ballGame.js"></script>
 <script type="text/javascript" src="lreg.js"></script>
+<script type="text/javascript" src="map.js"></script>
 <script>
   MathJax = {
     tex: {
@@ -460,6 +479,8 @@ function test(N) {
   lr.plot("fig3") ;
   }
   testMLE(0.5, 20) ;
+
+  var amap = new map();
 
 </script>
 </body>

@@ -80,10 +80,10 @@ class lreg {
 
       // Take several samples at same x
       var scale = 1 ;
-      var yd = jStat.normal(yt, std, scale) ;
+      var yPdf = jStat.normal(yt, std, scale) ; // specify Pdf
       for (var k = 0 ; k < Nrepeat ; k++) { // repeat measurements
         this.data.x.push(x) ;
-        this.data.y.push(yd.sample()) ;
+        this.data.y.push(yPdf.sample()) ;
       }
     }
 
