@@ -20,25 +20,33 @@ class map {
   */
 
   constructor () {
+      this.fig = "fig4";
       this.N = 3 ; // Polynomial Degree 
-      this.M = 100 ; // Sample Size
+      this.M = 10 ; // Sample Size
       this.data = {x: [] , y: [], //this data is generated with
 	           std: 0, // Standard Deviation of  error in y-Poly(w,x)
 	          stdw: 0}; // Standard deviation of noise in <w>
      // w in the following is just to track how w's are evolving
     //  they are not hyperparameters. <w> is random variable.
       this.prior = {w: [], std: 0, stdw: 0} ;
-      this.post = {w: [],  std: 0, stdw: 0} ;
+      this.post = this.prior ;
       this.series = [] ;
-      this.genData(0.1, 0.02);
-      this.prior.std = 0.05;
-      this.prior.stdw = 0.01 ;
-      this.map();
-      this.plot("fig4");
+      this.prior.std = 0.001;
+      this.prior.stdw = 0.001 ;
+
+      for(var j=0 ; j < 10 ; j++) {
+      for(var i=0 ; i < 10 ; i++) {
+        this.genData(0.002, 0.002);
+        this.plotData("Data") ;
+	this.map();
+	this.prior = this.post ;
+      }
+	this.plotFit(sprintf("fit%d",j));
+      }
+
   }
 
   map() { 
-
     // Get <w> through maximization of apriori prob
     var X = [] ; 
     for(var j = 0 ; j < this.N+1 ; j++) {
@@ -49,9 +57,10 @@ class map {
     }
     
     var Y = jStat(this.data.y).transpose() ;
+    var Xt = jStat(X).transpose() ;
     var S = jStat(jStat.identity(this.N+1)) 
              .multiply(this.prior.std / (2 * this.prior.stdw)) ;
-    var Xt = jStat(X).transpose() ;
+
     var A = jStat(X).multiply(Xt).subtract(S) ;
     var W = jStat(jStat.inv(A)).multiply(X).multiply(Y) ;
     var Phi = W.transpose().multiply(X).transpose() ;
@@ -60,19 +69,13 @@ class map {
     this.post.std  = Math.pow(A.transpose().multiply(A) / this.M, 0.5) ;    
     this.post.stdw = Math.pow(W.transpose().multiply(W) / this.N, 0.5) ;    
     this.post.w = W ;
-    console.log("Prior:", this.prior, "Post:", this.post);
+    console.log("Prior:", this.prior, "\nPost:", this.post);
   }   // end map
 
-  plot(fig) {
-	 this.series.push({x: this.data.x,
-		           y: this.data.y,
-	                type: 'scatter',
-                        mode: 'markers',
-		        name: 'data' });
-          let yf = [] ; 
-          let xf = [] ; 
-          for (var i = 0 ; i < 50 ; i++) {
-            xf.push(i/50.0) ;
+  plotFit(legend) {
+          let yf = [] ; let xf = [] ; 
+          for (var i = 0 ; i < 5 ; i++) {
+            xf.push(i/5.0) ;
             let s = 0 ;
             for(var j = 0 ; j <= this.N ; j++)
 	       s =  s + this.post.w[j] * Math.pow(xf[i], j) ; 
@@ -80,11 +83,10 @@ class map {
 	  }
 	 this.series.push({x: xf, y: yf,
 	                type: 'line',
-		      name: 'fit' });
-
+	                markers: 'False',
+		      name: legend });
     
-     var info = "" ; // sprintf("Fit:  std = %4.2f  w = [%4.1f %4.1f %4.1f %4.1f] ", 
-                        //      this.std, this.w[0], this.w[1], this.w[2], this.w[3] );
+     var info = "" ; 
      var layout = { title: 'Linear Regression - MAP',               
                	    xaxis: {title: {text: "x"}},
 	            yaxis: {title: {text: "y"}},
@@ -93,9 +95,9 @@ class map {
                     showlegend: true,
                   };
    
-     Plotly.newPlot(fig, this.series, layout, 
+     Plotly.newPlot(this.fig, this.series, layout, 
                     {scrollZoom: false});     
-  } // end plot
+  } // end plotfit
 
   getSize(x)  {
     // Get size of 2D matrix
@@ -108,11 +110,13 @@ class map {
     // Select polynomial coefficeints from
     // a Normal distribution (N(0,stdw))
     var scale = 1 ;
+    let wPdf = jStat.normal(0, stdw, scale) ;
 
-    for (var i = 0 ; i < this.M ; i ++) {
-      var x = Math.random()*1 ; // Assume x range is 0-10
+    this.data.x = [] ; this.data.y = [] ;
+    for (var i = 0 ; i < this.M/2 ; i ++) {
+      for(var k=0 ; k < 2 ; k++) {
+      var x = i/5  ; // Assume x range is 0-1
       let w = [] ;
-      let wPdf = jStat.normal(0, stdw, scale) ;
       for (var j = 0 ; j < this.N+1 ; j++)
 	  w.push(wPdf.sample()); // sample
       var ym = this.poly(w, x) ;
@@ -120,11 +124,19 @@ class map {
 
       this.data.x.push(x) ; 
       this.data.y.push(yPdf.sample()) ;
+      }
    }
       this.data.std = std ;
       this.data.stdw = stdw ;
-       console.log("DATA:", this.data) ;
   } // end genData
+
+  plotData(legend) {
+	 this.series.push({x: this.data.x,
+		           y: this.data.y,
+	                type: 'scatter',
+                        mode: 'markers',
+		        name: legend });
+  }
 
   poly(c, x) {
     // Evaluate polynomial at x
