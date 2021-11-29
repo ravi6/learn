@@ -34,24 +34,25 @@ class map {
       this.prior.std = 0.001;
       this.prior.stdw = 0.001 ;
 
-      for(var j=0 ; j < 10 ; j++) {
-      for(var i=0 ; i < 10 ; i++) {
+      for(var j=0 ; j < 6 ; j++) {
+      for(var i=0 ; i < 50 ; i++) {
         this.genData(0.002, 0.002);
-        this.plotData("") ;
+        //this.plotData("") ;
 	this.map();
 	this.prior = this.post ;
       }
 	this.plotFit(sprintf("fit%d",j));
       }
 
-  }
+  } // end constructor
 
   map() { 
     // Get <w> through maximization of apriori prob
     var X = [] ; 
+    console.log("Length: ", this.data.x.length);
     for(var j = 0 ; j < this.N+1 ; j++) {
       var row = [] ;
-      for (var i = 0 ; i < this.M ; i++) 
+      for (var i = 0 ; i < this.data.x.length ; i++) 
 	 row.push(Math.pow(this.data.x[i], j)) ; 
       X.push(row) ;
     }
@@ -89,11 +90,13 @@ class map {
 		      name: legend });
     
      var info = "" ; 
-     var layout = { title: 'Linear Regression - MAP1',               
+     var layout = { title: 'Linear Regression - MAP',               
                	    xaxis: {title: {text: "x"}},
 	            yaxis: {title: {text: "y"}},
-              annotations: [{text: info, xref: 'paper', yref: 'paper', 
-	                        x: 0.1, y: 0.9, showarrow: false}],
+              annotations: [{text: info, 
+		             xref: 'paper', yref: 'paper', 
+	                        x: 0.1, y: 0.9,
+		        showarrow: false}],
                   };
    
      Plotly.newPlot(this.fig, this.series, layout, 
@@ -113,34 +116,29 @@ class map {
     var scale = 1 ;
     let wPdf = jStat.normal(0, stdw, scale) ;
 
-    this.data.x = [] ; this.data.y = [] ;
-    for (var i = 0 ; i < this.M/2 ; i ++) {
-      for(var k=0 ; k < 2 ; k++) {
-      var x = i/5  ; // Assume x range is 0-1
-      let w = [] ;
-      for (var j = 0 ; j < this.N+1 ; j++)
+    let x = [0, 0.2, 0.4, 0.6, 0.8, 1.0] ;
+  //  this.data.x = [] ; this.data.y = [] ;
+      for(var k=0 ; k < x.length ; k++) {
+        let w = [] ;
+        for (var j = 0 ; j < this.N+1 ; j++)
 	  w.push(wPdf.sample()); // sample
-      var ym = this.poly(w, x) ;
+       var ym = this.poly(w, x[k]) ;
       var yPdf = jStat.normal(ym, std, scale) ; 
 
-      this.data.x.push(x) ; 
+      this.data.x.push(x[k]) ; 
       this.data.y.push(yPdf.sample()) ;
-      }
    }
       this.data.std = std ;
       this.data.stdw = stdw ;
   } // end genData
 
   plotData(legend) {
-    /*
-	 this.series.push({x: this.data.x,
-		           y: this.data.y,
-	                type: 'scatter',
-                        mode: 'markers',
-	                name: 'none',
-		        });
-			*/
-  }
+    this.series.push({x: this.data.x,
+                      y: this.data.y,
+                   type: 'scatter',
+		        showlegend: false,
+                   mode: 'markers' });
+  } // end plotData
 
   poly(c, x) {
     // Evaluate polynomial at x
