@@ -37,7 +37,7 @@ class map {
       for(var j=0 ; j < 10 ; j++) {
       for(var i=0 ; i < 10 ; i++) {
         this.genData(0.002, 0.002);
-        this.plotData("Data") ;
+        this.plotData("") ;
 	this.map();
 	this.prior = this.post ;
       }
@@ -66,8 +66,10 @@ class map {
     var Phi = W.transpose().multiply(X).transpose() ;
     A = jStat(Y).subtract(Phi) ;
 
-    this.post.std  = Math.pow(A.transpose().multiply(A) / this.M, 0.5) ;    
-    this.post.stdw = Math.pow(W.transpose().multiply(W) / this.N, 0.5) ;    
+//    this.post.std  = Math.pow(A.transpose().multiply(A) / this.M, 0.5) ;    
+//    this.post.stdw = Math.pow(W.transpose().multiply(W) / this.N, 0.5) ;    
+    this.post.std = this.prior.std ;
+    this.post.stdw = this.prior.stdw ;
     this.post.w = W ;
     console.log("Prior:", this.prior, "\nPost:", this.post);
   }   // end map
@@ -83,16 +85,15 @@ class map {
 	  }
 	 this.series.push({x: xf, y: yf,
 	                type: 'line',
-	                markers: 'False',
+	                markers: false,
 		      name: legend });
     
      var info = "" ; 
-     var layout = { title: 'Linear Regression - MAP',               
+     var layout = { title: 'Linear Regression - MAP1',               
                	    xaxis: {title: {text: "x"}},
 	            yaxis: {title: {text: "y"}},
               annotations: [{text: info, xref: 'paper', yref: 'paper', 
 	                        x: 0.1, y: 0.9, showarrow: false}],
-                    showlegend: true,
                   };
    
      Plotly.newPlot(this.fig, this.series, layout, 
@@ -131,11 +132,14 @@ class map {
   } // end genData
 
   plotData(legend) {
+    /*
 	 this.series.push({x: this.data.x,
 		           y: this.data.y,
 	                type: 'scatter',
                         mode: 'markers',
-		        name: legend });
+	                name: 'none',
+		        });
+			*/
   }
 
   poly(c, x) {
