@@ -21,35 +21,42 @@ class map {
 
   constructor () {
       this.fig = "fig4";
-      this.N = 3 ; // Polynomial Degree 
-      this.M = 10 ; // Sample Size
+      this.N = 2 ; // Polynomial Degree 
       this.data = {x: [] , y: [], //this data is generated with
 	           std: 0, // Standard Deviation of  error in y-Poly(w,x)
 	          stdw: 0}; // Standard deviation of noise in <w>
      // w in the following is just to track how w's are evolving
     //  they are not hyperparameters. <w> is random variable.
       this.prior = {w: [], std: 0, stdw: 0} ;
-      this.post = this.prior ;
-      this.series = [] ;
       this.prior.std = 0.001;
       this.prior.stdw = 0.001 ;
+      this.post = this.prior ;
 
+      this.series = [] ;
+      this.layout = { title: 'Linear Regression - MAP',               
+               	    xaxis: {title: {text: "x"}},
+	            yaxis: {title: {text: "y"}},
+              annotations: [{text: " ", 
+		             xref: 'paper', yref: 'paper', 
+	                        x: 0.1, y: 0.9,
+		        showarrow: false}],
+                  };
+   
       for(var j=0 ; j < 6 ; j++) {
-      for(var i=0 ; i < 50 ; i++) {
-        this.genData(0.002, 0.002);
-        //this.plotData("") ;
+      for(var i=0 ; i < 1 ; i++) {
+        this.genData(0.00002, 0.02);
 	this.map();
 	this.prior = this.post ;
       }
-	this.plotFit(sprintf("fit%d",j));
+	this.plotFit(sprintf("Np=%d",this.data.x.length));
       }
+         this.plotData("Data") ;
 
   } // end constructor
 
   map() { 
     // Get <w> through maximization of apriori prob
     var X = [] ; 
-    console.log("Length: ", this.data.x.length);
     for(var j = 0 ; j < this.N+1 ; j++) {
       var row = [] ;
       for (var i = 0 ; i < this.data.x.length ; i++) 
@@ -72,34 +79,27 @@ class map {
     this.post.std = this.prior.std ;
     this.post.stdw = this.prior.stdw ;
     this.post.w = W ;
-    console.log("Prior:", this.prior, "\nPost:", this.post);
+   // console.log("Prior:", this.prior, "\nPost:", this.post);
   }   // end map
 
   plotFit(legend) {
           let yf = [] ; let xf = [] ; 
-          for (var i = 0 ; i < 5 ; i++) {
-            xf.push(i/5.0) ;
+          for (var i = 0 ; i < 50 ; i++) {
+            xf.push(i*0.02) ;
             let s = 0 ;
             for(var j = 0 ; j <= this.N ; j++)
 	       s =  s + this.post.w[j] * Math.pow(xf[i], j) ; 
             yf.push(s) ;
 	  }
+
 	 this.series.push({x: xf, y: yf,
 	                type: 'line',
 	                markers: false,
 		      name: legend });
     
      var info = "" ; 
-     var layout = { title: 'Linear Regression - MAP',               
-               	    xaxis: {title: {text: "x"}},
-	            yaxis: {title: {text: "y"}},
-              annotations: [{text: info, 
-		             xref: 'paper', yref: 'paper', 
-	                        x: 0.1, y: 0.9,
-		        showarrow: false}],
-                  };
-   
-     Plotly.newPlot(this.fig, this.series, layout, 
+     console.log("Series",this.series.length);
+     Plotly.newPlot(this.fig, this.series, this.layout, 
                     {scrollZoom: false});     
   } // end plotfit
 
@@ -114,16 +114,18 @@ class map {
     // Select polynomial coefficeints from
     // a Normal distribution (N(0,stdw))
     var scale = 1 ;
-    let wPdf = jStat.normal(0, stdw, scale) ;
 
     let x = [0, 0.2, 0.4, 0.6, 0.8, 1.0] ;
-  //  this.data.x = [] ; this.data.y = [] ;
+    let wm = [1,2,3,4];
+
       for(var k=0 ; k < x.length ; k++) {
         let w = [] ;
-        for (var j = 0 ; j < this.N+1 ; j++)
+        for (var j = 0 ; j < this.N+1 ; j++) {
+          let wPdf = jStat.normal(wm[j], stdw, scale) ;
 	  w.push(wPdf.sample()); // sample
+	}
        var ym = this.poly(w, x[k]) ;
-      var yPdf = jStat.normal(ym, std, scale) ; 
+       var yPdf = jStat.normal(ym, std, scale) ; 
 
       this.data.x.push(x[k]) ; 
       this.data.y.push(yPdf.sample()) ;
@@ -136,8 +138,11 @@ class map {
     this.series.push({x: this.data.x,
                       y: this.data.y,
                    type: 'scatter',
-		        showlegend: false,
+                   name: legend,
+		        showlegend: true,
                    mode: 'markers' });
+     Plotly.newPlot(this.fig, this.series, this.layout, 
+                    {scrollZoom: false});     
   } // end plotData
 
   poly(c, x) {
