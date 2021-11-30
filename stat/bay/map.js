@@ -27,30 +27,34 @@ class map {
       this.stdw = 0.3; // Standard deviation of noise in <w>
 
       this.series = [] ;
-      var info = sprintf("std:%4.2f  stdw:%4.2f  wm: [%4.1f %4.1f %4.1f] ", 
-                         this.std, this.stdw,
-	                 this.wm[0], this.wm[1], this.wm[2] );
-      this.layout = { title: 'Linear Regression - MAP & MLE',               
+      this.layout = {title: 'Linear Regression - MAP & MLE',               
                	    xaxis: {title: {text: "x"}},
 	            yaxis: {title: {text: "y"}},
-              annotations: [{text: info, 
-		             xref: 'paper', yref: 'paper', 
-	                        x: 0.1, y: 0.9,
-		        showarrow: false}],
-                  };
+	            annotations: [],
+                    };
    
-        this.genData(10);
+      this.annotate(0.1, 0.9, "Data Generated with:");
+      var info = JSON.stringify({std: this.std, stdw: this.stdw, wm: this.wm});
+      this.annotate(0.1, 0.8, info);
+      this.genData(10);
         
         this.plotData("Data") ;
-	this.map();
-        info = sprintf("map: w = [%4.1f %4.1f %4.1f] ", 
-                             this.w[0], this.w[1], this.w[2] );
-	this.plotFit(info);
 
 	this.mle();
         info = sprintf("mle: w = [%4.1f %4.1f %4.1f] ", 
-                             this.w[0], this.w[1], this.w[2] );
+	                     this.w[0], this.w[1], this.w[2] );
+                           
 	this.plotFit(info);
+
+	this.map();
+        this.annotate(0.1, 0.7, "map Prior:");
+        info = JSON.stringify({std: this.std, stdw: this.stdw, wm: this.wm});
+        this.annotate(0.1, 0.6, info);
+
+        info = sprintf("map: w = [%4.1f %4.1f %4.1f] ", 
+	                     this.w[0], this.w[1], this.w[2] );
+	this.plotFit(info);
+
 
   } // end constructor
 
@@ -163,5 +167,10 @@ class map {
        pval = pval * x + c[i] ; 
     return(pval);
   }
-
+ 
+  annotate(x, y, txt) { // Relative to paper no arrrow
+     this.layout.annotations.push(
+	 {text: txt, xref: 'paper', yref: 'paper', 
+	  x: x, y: y, showarrow: false});
+  }
 } // end lreg
