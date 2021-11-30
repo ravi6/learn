@@ -15,8 +15,7 @@ class map {
 
      Maximize Posteriori probability
      density (unNormalized) w.r.t <w>
-     given <x,y> data, sigma & sigma_w
-     and prior product distribution of
+     given <x,y> data, and prior distribution of <w>
   */
 
   constructor () {
@@ -27,10 +26,6 @@ class map {
 	          stdw: 0}; // Standard deviation of noise in <w>
      // w in the following is just to track how w's are evolving
     //  they are not hyperparameters. <w> is random variable.
-      this.prior = {w: [], std: 0, stdw: 0} ;
-      this.prior.std = 0.001;
-      this.prior.stdw = 0.001 ;
-      this.post = this.prior ;
 
       this.series = [] ;
       this.layout = { title: 'Linear Regression - MAP',               
@@ -43,11 +38,8 @@ class map {
                   };
    
       for(var j=0 ; j < 6 ; j++) {
-      for(var i=0 ; i < 1 ; i++) {
-        this.genData(0.00002, 0.02);
+        this.genData(0.5, 0.02);
 	this.map();
-	this.prior = this.post ;
-      }
 	this.plotFit(sprintf("Np=%d",this.data.x.length));
       }
          this.plotData("Data") ;
@@ -67,19 +59,11 @@ class map {
     var Y = jStat(this.data.y).transpose() ;
     var Xt = jStat(X).transpose() ;
     var S = jStat(jStat.identity(this.N+1)) 
-             .multiply(this.prior.std / (2 * this.prior.stdw)) ;
+             .multiply(this.std / (2 * this.stdw)) ;
 
     var A = jStat(X).multiply(Xt).subtract(S) ;
     var W = jStat(jStat.inv(A)).multiply(X).multiply(Y) ;
-    var Phi = W.transpose().multiply(X).transpose() ;
-    A = jStat(Y).subtract(Phi) ;
-
-//    this.post.std  = Math.pow(A.transpose().multiply(A) / this.M, 0.5) ;    
-//    this.post.stdw = Math.pow(W.transpose().multiply(W) / this.N, 0.5) ;    
-    this.post.std = this.prior.std ;
-    this.post.stdw = this.prior.stdw ;
-    this.post.w = W ;
-   // console.log("Prior:", this.prior, "\nPost:", this.post);
+    this.w = W ;
   }   // end map
 
   plotFit(legend) {
@@ -98,7 +82,6 @@ class map {
 		      name: legend });
     
      var info = "" ; 
-     console.log("Series",this.series.length);
      Plotly.newPlot(this.fig, this.series, this.layout, 
                     {scrollZoom: false});     
   } // end plotfit
@@ -130,8 +113,6 @@ class map {
       this.data.x.push(x[k]) ; 
       this.data.y.push(yPdf.sample()) ;
    }
-      this.data.std = std ;
-      this.data.stdw = stdw ;
   } // end genData
 
   plotData(legend) {
