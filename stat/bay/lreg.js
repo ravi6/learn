@@ -9,6 +9,13 @@ class lreg {
   constructor () {
       this.series = [] ;
       this.data = { x: [] , y: [] } ;
+     this.layout = { title: 'Linear Regression - MLE',               
+               	    xaxis: {title: {text: "x"}},
+	            yaxis: {title: {text: "y"}},
+              annotations: [],
+                    showlegend: true,
+                  };
+   
   }
 
   mle() { // Find optimal W_i and std based on (Max Likelyhood Estimate)
@@ -48,17 +55,13 @@ class lreg {
 	                type: 'line',
 		      name: 'fit' });
 
-     var info = sprintf("Fit:  std = %4.2f  w = [%4.1f %4.1f %4.1f %4.1f] ", 
-                            this.std, this.w[0], this.w[1], this.w[2], this.w[3] );
-     var layout = { title: 'Linear Regression - MLE',               
-               	    xaxis: {title: {text: "x"}},
-	            yaxis: {title: {text: "y"}},
-              annotations: [{text: info, xref: 'paper', yref: 'paper', 
-	                        x: 0.1, y: 0.9, showarrow: false}],
-                    showlegend: true,
-                  };
    
-     Plotly.newPlot(fig, this.series, layout, 
+     var info = "Data:  std = 0.5  w = [1, 2, 3, 4] "; 
+     this.annotate(0.1, 0.9, info) ;
+     info = sprintf("Fit:  std = %4.2f  w = [%4.1f %4.1f %4.1f %4.1f] ", 
+                            this.std, this.w[0], this.w[1], this.w[2], this.w[3] );
+     this.annotate(0.1, 0.8, info) ;
+     Plotly.newPlot(fig, this.series, this.layout, 
                     {scrollZoom: false});     
   } // end plot
 
@@ -103,4 +106,9 @@ class lreg {
     return(pval);
   }
 
+  annotate(x, y, txt) { // Relative to paper no arrrow
+     this.layout.annotations.push(
+	 {text: txt, xref: 'paper', yref: 'paper', 
+	  x: x, y: y, showarrow: false});
+  }
 } // end lreg
