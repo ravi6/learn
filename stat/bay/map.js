@@ -11,7 +11,7 @@ class map {
       are normally distributed as follows
 
       P(e) = N(0, sigma)
-      P(w_j) = N(0, sigma_w) for all w_j
+      P(w_j) = N(wm_j, sigma_w) for all w_j
 
      Maximize Posteriori probability
      density (unNormalized) w.r.t <w>
@@ -20,29 +20,37 @@ class map {
 
   constructor () {
       this.fig = "fig4";
+      this.data = {x: [] , y: []} //this data is generated with
       this.N = 2 ; // Polynomial Degree 
-      this.data = {x: [] , y: [], //this data is generated with
-	           std: 0, // Standard Deviation of  error in y-Poly(w,x)
-	          stdw: 0}; // Standard deviation of noise in <w>
-     // w in the following is just to track how w's are evolving
-    //  they are not hyperparameters. <w> is random variable.
+      this.wm = [1, 2, 3] ;
+      this.std =  0.1; // Standard Deviation of  error in y-Poly(w,x)
+      this.stdw = 0.3; // Standard deviation of noise in <w>
 
       this.series = [] ;
-      this.layout = { title: 'Linear Regression - MAP',               
+      var info = sprintf("std:%4.2f  stdw:%4.2f  wm: [%4.1f %4.1f %4.1f] ", 
+                         this.std, this.stdw,
+	                 this.wm[0], this.wm[1], this.wm[2] );
+      this.layout = { title: 'Linear Regression - MAP & MLE',               
                	    xaxis: {title: {text: "x"}},
 	            yaxis: {title: {text: "y"}},
-              annotations: [{text: " ", 
+              annotations: [{text: info, 
 		             xref: 'paper', yref: 'paper', 
 	                        x: 0.1, y: 0.9,
 		        showarrow: false}],
                   };
    
-      for(var j=0 ; j < 6 ; j++) {
-        this.genData(0.5, 0.02);
+        this.genData(10);
+        
+        this.plotData("Data") ;
 	this.map();
-	this.plotFit(sprintf("Np=%d",this.data.x.length));
-      }
-         this.plotData("Data") ;
+        info = sprintf("map: w = [%4.1f %4.1f %4.1f] ", 
+                             this.w[0], this.w[1], this.w[2] );
+	this.plotFit(info);
+
+	this.mle();
+        info = sprintf("mle: w = [%4.1f %4.1f %4.1f] ", 
+                             this.w[0], this.w[1], this.w[2] );
+	this.plotFit(info);
 
   } // end constructor
 
@@ -62,9 +70,27 @@ class map {
              .multiply(this.std / (2 * this.stdw)) ;
 
     var A = jStat(X).multiply(Xt).subtract(S) ;
-    var W = jStat(jStat.inv(A)).multiply(X).multiply(Y) ;
-    this.w = W ;
+    var B = jStat(X).multiply(Y).add( 
+               S.multiply(jStat(this.wm).transpose()));
+    this.w = jStat(jStat.inv(A)).multiply(B);
+    console.log (B);
   }   // end map
+
+  mle() { // Find optimal W_i and std based on (Max Likelyhood Estimate)
+    var X = [] ; 
+    for (var i = 0 ; i < this.data.x.length ; i++) {
+      var row = [] ;
+      for(var j = 0 ; j <= this.N ; j++)
+	 row.push(Math.pow(this.data.x[i], j)) ; 
+         X.push(row) ;
+    }
+
+    var Xt = jStat(X).transpose() ;
+    var W = jStat.inv(Xt.multiply(X)) ;
+        W = jStat(W).multiply(Xt);
+        W = W.multiply(jStat(this.data.y).transpose()) ;
+    this.w = W ;
+  }   // end Max. Likelyhood Estimate
 
   plotFit(legend) {
           let yf = [] ; let xf = [] ; 
@@ -72,7 +98,7 @@ class map {
             xf.push(i*0.02) ;
             let s = 0 ;
             for(var j = 0 ; j <= this.N ; j++)
-	       s =  s + this.post.w[j] * Math.pow(xf[i], j) ; 
+	       s =  s + this.w[j] * Math.pow(xf[i], j) ; 
             yf.push(s) ;
 	  }
 
@@ -91,28 +117,31 @@ class map {
      return {M: x.length , N: x[0].length}; 
   }
 
-  genData(std, stdw) { 
+  genData(M) { 
     // Generate data from Polynomial with 
     // random noise in output (std)
     // Select polynomial coefficeints from
-    // a Normal distribution (N(0,stdw))
+    // a Normal distributions (N(<wm>, stdw))
     var scale = 1 ;
 
+    // x values at which y's are measured repeatedly
     let x = [0, 0.2, 0.4, 0.6, 0.8, 1.0] ;
-    let wm = [1,2,3,4];
 
+    for (var i=0 ; i < M ; i++) {
       for(var k=0 ; k < x.length ; k++) {
         let w = [] ;
         for (var j = 0 ; j < this.N+1 ; j++) {
-          let wPdf = jStat.normal(wm[j], stdw, scale) ;
+          let wPdf = jStat.normal(this.wm[j], this.stdw, scale) ;
 	  w.push(wPdf.sample()); // sample
 	}
-       var ym = this.poly(w, x[k]) ;
-       var yPdf = jStat.normal(ym, std, scale) ; 
+        var ym = this.poly(w, x[k]) ;
+        var yPdf = jStat.normal(ym, this.std, scale) ; 
 
-      this.data.x.push(x[k]) ; 
-      this.data.y.push(yPdf.sample()) ;
-   }
+        this.data.x.push(x[k]) ; 
+        this.data.y.push(yPdf.sample()) ;
+      }
+    }
+
   } // end genData
 
   plotData(legend) {
@@ -120,7 +149,7 @@ class map {
                       y: this.data.y,
                    type: 'scatter',
                    name: legend,
-		        showlegend: true,
+	        showlegend: true,
                    mode: 'markers' });
      Plotly.newPlot(this.fig, this.series, this.layout, 
                     {scrollZoom: false});     
