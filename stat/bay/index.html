@@ -443,7 +443,7 @@ the above quantity.
     }
   };
 </script>
-<!--script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"--></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 
 
 <script>
@@ -470,18 +470,9 @@ function test(N) {
   }
   estimate() ;
 
-  function testMLE(std, Nrep) {
-  // Show how standard deviation and
-     // data size effect regression based on MLE
-  var lr = new lreg() ;
-  lr.genData(std, Nrep) ;
-  lr.mle() ;
-  lr.plot("fig3") ;
-  }
-  testMLE(0.5, 20) ;
-
- var amap = new map();
-
+ var reg = new lreg();
+ reg.testMLE("fig3");
+ reg.testMAP("fig4");
 </script>
 </body>
 </html>
