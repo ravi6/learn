@@ -177,11 +177,23 @@ class lreg {
       this.mle();
       this.plotPoly("mle: w=" + this.strVec(this.w), this.w);
 
+      this.wm = [0, 0, 0] ;
+      this.stdw = 10 ;
       this.map();
-      this.annotate(0.1, 0.7, "map Prior:");
+      this.annotate(0.1, 0.7, "map1 Prior:");
       info = JSON.stringify({std: this.std, stdw: this.stdw, wm: this.wm});
       this.annotate(0.1, 0.6, info);
-      this.plotPoly("map: w=" + this.strVec(this.w), this.w);
+      this.plotPoly("map1: w=" + this.strVec(this.w), this.w);
+
+
+      this.wm = [0, 0, 0] ;
+      this.stdw = 0.01 ;
+      this.map();
+      this.annotate(0.1, 0.5, "map2 Prior:");
+      info = JSON.stringify({std: this.std, stdw: this.stdw, wm: this.wm});
+      this.annotate(0.1, 0.4, info);
+      this.plotPoly("map2: w=" + this.strVec(this.w), this.w);
+
   }
 
 
