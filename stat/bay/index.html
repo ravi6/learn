@@ -45,7 +45,7 @@
   <h1 class="text-center text-primary">My Random Explorations of Statistics </h1>
   <h6 class="text-center text-success">Ravi Saripalli</h6>
   </div>
-<nav class="navbar bg-light sticky-top">
+<nav class="navbar navbar-fixed-top ">
   <div class="container-fluid">
       <ul class="nav">
         <li class="nav-item">
@@ -56,9 +56,12 @@
             Topics
           </a>
           <ul class="dropdown-menu" >
-            <li><a class="dropdown-item" href="#">Action</a></li>
-            <li><a class="dropdown-item" href="#">Another action</a></li>
-            <li><a class="dropdown-item" href="#">Something else here</a></li>
+           <li><a class="dropdown-item" href="#item1">Bayesian Estimate of Discrete Distribution</a></li>
+           <li><a class="dropdown-item" href="#item4">Beta Distribution</a></li>
+           <li><a class="dropdown-item" href="#item2">Express discrete PDF as Contiuous PDF</a></li>
+           <li><a class="dropdown-item" href="#item3">Transformed Variable PDF</a></li>
+           <li><a class="dropdown-item" href="#item5">Linear Regression -MLE</a></li>
+           <li><a class="dropdown-item" href="#item6">Linear Regression - MAP</a></li>
           </ul>
         </li>
       </ul>
@@ -183,7 +186,7 @@ can be seen in the graph.
 </div> </div>
 
 <!-- ******************************************************** -->
-<div class="card">
+<div class="card" id=item3>
   <div class=card-header>
   <h5>Expressing Discrete PDF as a continuous function </h5>
   </div>
@@ -219,7 +222,7 @@ $$
  </div></div>
 
 <!-- ******************************************************** -->
-<div class="card">
+<div class="card"  id=item4>
   <div class=card-header>
     <h5> PDF of transformed random variable</h5>
   </div>
@@ -280,7 +283,7 @@ But my interest is to find PDF of a function $g(x1, x2, x3)$  given
 $x1, x2, x3$ are members of a random variables with their respective PDF functions are known.
  </div></div>
 <!-- ******************************************************** -->
-<div class=card-header>
+<div class=card-header id=item5>
   <h5>Linear Regression - MLE </h5></div>
  <div class="card-body">
 Assume that we have a set of measurements of $y_i$ corresponding to $x_i$,
@@ -364,7 +367,7 @@ the standard deviation.
  </div></div>
 
 <!-- ******************************************************** -->
-<div class=card-header>
+<div class=card-header id=item6>
 <h5> Linear Regression - MAP  </h5>
 </div>
  <div class="card-body">
