@@ -16,7 +16,7 @@
 
 .watermark::after {
   content: "";
- background:url(https://www.google.co.in/images/srpr/logo11w.png);
+  background:url(https://www.google.co.in/images/srpr/logo11w.png);
   opacity: 0.2;
   top: 0;
   left: 0;
@@ -26,27 +26,50 @@
   z-index: -1;
 }
 </style>
-  </head>
- <body>
+</head>
 
+<body>
 <div class=container-fluid>
-
 <!-- Stick all tex macros here -->
 <div id=macros>
-$\newcommand{\NDist}[3]{\frac{1}{\sqrt{2\pi}#3} 
- e^{-\left({\frac{#1 - #2}{#3}}\right)^2}}$
-$\newcommand{\xv}{\mathbf{x}}$
-$\newcommand{\Xv}{\mathbf{X}}$
-$\newcommand{\yv}{\mathbf{y}}$
-$\newcommand{\wv}{\textbf{w}}$
+  $\newcommand{\NDist}[3]{\frac{1}{\sqrt{2\pi}#3} 
+   e^{-\left({\frac{#1 - #2}{#3}}\right)^2}}$
+  $\newcommand{\xv}{\mathbf{x}}$
+  $\newcommand{\Xv}{\mathbf{X}}$
+  $\newcommand{\yv}{\mathbf{y}}$
+  $\newcommand{\wv}{\textbf{w}}$
 </div>
 
+
+<div class=row>
+  <h1 class="text-center text-primary">My Random Explorations of Statistics </h1>
+  <h6 class="text-center text-success">Ravi Saripalli</h6>
+</div>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+<div class=container>
+<ul class="navbar-nav">
+  <li class="nav-item dropdown">
+         <ul class="dropdown-menu" >
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" 
+		role="button" data-bs-toggle="dropdown" aria-expanded="false">
+           Topics 
+          </a>
+           <li><a class="dropdown-item" href="#item1">Discrete Distribution</a></li>
+           <li><a class="dropdown-item" href="#item2">Beta Distribution</a></li>
+           <li><a class="dropdown-item" href="#">MAP Estimate</a></li>
+        </ul>
+   </li>
+</ul>
+</div>
+</nav>
+
 <!-- ******************************************************** -->
-<div class="card">
-  <div class=card-header>Random Explorations of Statistics (Ravi Saripalli)</div>
- <div class="card-body">
-    <h5 class="card-title">
+<div class="card" id=item1>
+  <div class=card-header><h5>
     Bayesian Estimation of Discrete Distribution </h5>
+  </div>
+ <div class="card-body">
     <p class="card-text">
   Let us consider a large batch of balls with three
   possible colors. By sampling from this batch we want
@@ -57,6 +80,7 @@ $\newcommand{\wv}{\textbf{w}}$
 
   The discrete distribution of the coloured balls in the batch 
   can be represented as 
+    </p>
 
 <div class="border border-info rounded bg-light bg-gradient">
 \[
@@ -142,30 +166,27 @@ can be seen in the graph.
 
   <button class="btn btn-info" onClick="estimate();">ReSample</button>
   <figure class=figure  id="fig1"></figure>
-    <a href="#" class="btn btn-primary">Top</a>
 </div>
-
 <!-- ******************************************************** -->
-<div class="card">
-  <div class=card-header>Random Explorations of Statistics (Ravi Saripalli)</div>
+<div class="card" id=item2>
+  <div class=card-header>
+    <h5>Beta Distribution</h5></div>
  <div class="card-body">
-    <h5 class="card-title"> Beta Distribution </h5>
     <p class="card-text" >
   Beta distribution is useful when domain of interest
   is finite. It has two parameters "a" and "b". The following
   figure illustrates how these parameters influence the
   distribution function.
     </p>
-          <figure class="figure"  class="w-50" id="fig2"></figure>
+   <figure class="figure"  class="w-50" id="fig2"></figure>
 </div> </div>
 
 <!-- ******************************************************** -->
 <div class="card">
-  <div class=card-header>Random Explorations of Statistics (Ravi Saripalli)</div>
+  <div class=card-header>
+  <h5>Expressing Discrete PDF as a continuous function </h5>
+  </div>
  <div class="card-body">
-    <h5 class="card-title">
-      Expressing Discrete PDF as a continuous function </h5>
-
 Consider a discrete distribution  function  
 
 $$
@@ -198,10 +219,10 @@ $$
 
 <!-- ******************************************************** -->
 <div class="card">
-  <div class=card-header>Random Explorations of Statistics (Ravi Saripalli)</div>
+  <div class=card-header>
+    <h5> PDF of transformed random variable</h5>
+  </div>
  <div class="card-body">
-    <h5 class="card-title">
-      PDF of transformed random variable</h5>
 Given a random continuous variable $x$ with known PDF $P_X(x)$ determine the PDF of a transformed variable
 $P_Y(y)$ with transformation $Y=g(X)$.
 
@@ -258,10 +279,9 @@ But my interest is to find PDF of a function $g(x1, x2, x3)$  given
 $x1, x2, x3$ are members of a random variables with their respective PDF functions are known.
  </div></div>
 <!-- ******************************************************** -->
-<div class=card-header>Random Explorations of Statistics (Ravi Saripalli)</div>
+<div class=card-header>
+  <h5>Linear Regression - MLE </h5></div>
  <div class="card-body">
-    <h5 class="card-title"> Linear Regression - MLE  </h5>
-
 Assume that we have a set of measurements of $y_i$ corresponding to $x_i$,
 and the measurement is not deterministic. That is $y$ values are not 
 uniquely determined for any given x but have a distribution. And we will assume this
@@ -343,9 +363,10 @@ the standard deviation.
  </div></div>
 
 <!-- ******************************************************** -->
-<div class=card-header>Random Explorations of Statistics (Ravi Saripalli)</div>
+<div class=card-header>
+<h5> Linear Regression - MAP  </h5>
+</div>
  <div class="card-body">
-    <h5 class="card-title"> Linear Regression - MAP  </h5>
 
 In the MLE method of linear regression described earlier, the model parameters
 $w_k$ have no uncertainity associated with them and can lead to 
@@ -474,7 +495,6 @@ the above quantity.
 </div>
   <figure class=figure  id="fig4"></figure>
  </div></div>
-
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
@@ -484,7 +504,7 @@ the above quantity.
 <script type="text/javascript" src="pdfBeta.js"></script>
 <script type="text/javascript" src="ballGame.js"></script>
 <script type="text/javascript" src="lreg.js"></script>
-<script type="text/javascript" src="map.js"></script>
+<script type="text/javascript" src="util.js"></script>
 <script>
   MathJax = {
     tex: {
@@ -493,39 +513,13 @@ the above quantity.
     }
   };
 </script>
-<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 
-
-<script>
-function test(N) { 
-    var pdf = new pdfD(3) ;
-    pdf.x = [1,2,3];
-    pdf.p = [0.2,0.5,0.3] ; 
-    var y = pdf.sample(N); 
-    pdf.update(y); 
-    console.log(pdf);
-  } // end test
-
-  // Show a sample of beta distributions
-  var bpdf = new pdfBeta() ;
-  bpdf.plot("fig2", 20, 5) ;
-  bpdf.plot("fig2", 5, 20) ;
-  bpdf.plot("fig2", 20, 20) ;
-  bpdf.plot("fig2", 5, 5) ;
-
-  function estimate() {
-  // Finally I get Bayesian update for discrete distribution
-  var game = new ballGame("fig1", 0.3, 0.5) ;
-  for(var i=0 ; i<3 ; i++)  game.sample(100) ;
-  }
-  estimate() ;
-
- var reg = new lreg();
- reg.testMLE("fig3");
- reg.testMAP("fig4");
-
+<script id="MathJax-script" async
+ src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
 </script>
 
-
+<script>
+  doall();
+</script>
 </body>
 </html>
