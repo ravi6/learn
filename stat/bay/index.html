@@ -36,8 +36,18 @@
    e^{-\left({\frac{#1 - #2}{#3}}\right)^2}}$
   $\newcommand{\xv}{\mathbf{x}}$
   $\newcommand{\Xv}{\mathbf{X}}$
+  $\newcommand{\Av}{\mathbf{A}}$
+  $\newcommand{\Sv}{\mathbf{S}}$
   $\newcommand{\yv}{\mathbf{y}}$
-  $\newcommand{\wv}{\textbf{w}}$
+  $\newcommand{\wv}{\mathbf{w}}$
+  $\newcommand{\wmv}{\mathbf{w_m}}$
+  $\newcommand{\muv}{\boldsymbol{\mu}}$
+  $\newcommand{\muvn}{\boldsymbol{\mu}^0}$
+  $\newcommand{\sigmawv}{\boldsymbol{\sigma}_{w}}$
+  $\newcommand{\sigmawvs}{\boldsymbol{\sigma}_w^0}$
+  $\newcommand{\Svn}{{\Sv}^0}$
+  $\newcommand{\psiv}{\boldsymbol{\psi}}$
+  $\newcommand{\psivn}{\boldsymbol{\psi}^0}$
 </div>
 
 
@@ -45,7 +55,7 @@
   <h1 class="text-center text-primary">My Random Explorations of Statistics </h1>
   <h6 class="text-center text-success">Ravi Saripalli</h6>
   </div>
-<nav class="navbar navbar-fixed-top ">
+<nav class="navbar navbar_default bg-light sticky-top ">
   <div class="container-fluid">
       <ul class="nav">
         <li class="nav-item">
@@ -70,7 +80,7 @@
 
 <!-- ******************************************************** -->
 <div class="card" id=item1>
-  <div class=card-header><h5>
+  <div class=card-header ><h5>
     Bayesian Estimation of Discrete Distribution </h5>
   </div>
  <div class="card-body">
@@ -172,7 +182,7 @@ can be seen in the graph.
   <figure class=figure  id="fig1"></figure>
 </div>
 <!-- ******************************************************** -->
-<div class="card" id=item2>
+<div class="card" id=item2 >
   <div class=card-header>
     <h5>Beta Distribution</h5></div>
  <div class="card-body">
@@ -464,8 +474,8 @@ the above quantity.
 \require{cancel}
 \cancel{
 \begin{align*}
-\frac{\partial \psi}{\partial \sigma_w} = 0 \\
-\therefore \sum_{i=1}^{N} \left\{ 
+  \frac{\partial \psi}{\partial \sigma_w} = 0 \\
+  \therefore \sum_{i=1}^{N} \left\{ 
     - \frac{1}{\sigma_w} + \frac{w_i^2}{\sigma_w^3}
     \right\}    = 0 \\
     \sigma_w =  \sqrt{ \frac{\sum_{j=1}^{N} w_j^2}{N}}  
@@ -484,7 +494,7 @@ the above quantity.
   The following figure shows results of polynomial fit
   based on maximal a posterior distribution. Input data
   set is generated from known distributions of polynomial
-  coeffiecients $\lt w \gt$ and random error in observed $y$.
+  coeffiecients $\wmv$ and random error in observed $y$.
   All of these distributions are assumed to be Normal with
   corresponding mean and standard deviations specified.
  
@@ -492,7 +502,7 @@ the above quantity.
   estimate of polynomial coefficients based on MAP algorithm
   described earlier. The effect of 
   assumed prior distribution parameters $\sigma$, $\sigma_w$ and
-  $\lt w_m \gt$ on the point estimate of $\lt w \gt$ and associated polynomial
+  $\wmv$ on the point estimate of $\wmv$ and associated polynomial
   trend is shown. The trend shows how prio can influence the fit.
   Also, a corresponding MLE fit with the same input data is
   shown, to demonstrate over fitting by MLE.
@@ -501,6 +511,40 @@ the above quantity.
  </div></div>
 </div>
 
+<!-- ******************************************************** -->
+<div class="card" id=item6>
+  <div class=card-header ><h5>
+    Bayesian Posterior Distribution - with Conjugate Prior </h5>
+  </div>
+  <div class="card-body">
+    A useful identiy that will come in handy when deriving posterior
+    distribution with conjugate prior (eg. normal distributions)
+    Consider symmetrix square matrix $\Av$ of size $n \times n$, and two column
+    vectors $\muv, \wv$ of size $n$. Then
+    $$ \wv^T  \Av \xv  = (\wv^T  \Av \xv )^T \  \text{because the product is a scalar} \nonumber $$
+    It follows then 
+    $$ \wv^T  \Av \xv  = {\xv}^T  \Av \wv  \nonumber $$
+    And
+       \[
+	\begin{align*}
+	  (\xv - \wv)^T \Av (\xv - \wv) &=
+	   {\xv}^T \Av \xv - 2 {\xv}^T \Av \wv + {\wv}^T \Av \wv \\
+	   &={\xv}^T \Av \xv - 2 {\wv}^T \Av \xv + {\wv}^T \Av \wv \\
+	\end{align*}
+       \]
+  To begin with we will assume that prior distribution of weights 
+  of the linear fit of functions $\psiv(\xv)$ (In the case of polynomial
+  fit they will be simple powers of $x$)
+  are normally distributed with means ${\muv}^0$ with corresponding standard deviations
+  $\sigmawvs$. We will also assume that the random error in measurement $\yv$ is also
+  normal with mean zero and known standard deviation $\sigma$.
+       \[
+         p(\wv | Data) \propto \alpha (\yv - \psiv \wv)^T (\yv -\psiv \wv)
+	 + (\wv -{\muvn})^T \Svn (\wv - \muvn) 
+       \]
+  </div>
+</div> 
+<!-- ******************************************************** -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js"> </script>
 <script src="https://cdn.plot.ly/plotly-2.4.2.min.js"></script>
