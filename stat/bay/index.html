@@ -42,10 +42,10 @@
   $\newcommand{\wv}{\mathbf{w}}$
   $\newcommand{\wmv}{\mathbf{w_m}}$
   $\newcommand{\muv}{\boldsymbol{\mu}}$
-  $\newcommand{\muvn}{\boldsymbol{\mu}^0}$
+  $\newcommand{\muvn}{\boldsymbol{\mu}_{0}}$
   $\newcommand{\sigmawv}{\boldsymbol{\sigma}_{w}}$
   $\newcommand{\sigmawvs}{\boldsymbol{\sigma}_w^0}$
-  $\newcommand{\Svn}{{\Sv}^0}$
+  $\newcommand{\Svn}{{\Sv}_0}$
   $\newcommand{\psiv}{\boldsymbol{\psi}}$
   $\newcommand{\psivn}{\boldsymbol{\psi}^0}$
 </div>
@@ -517,6 +517,33 @@ the above quantity.
     Bayesian Posterior Distribution - with Conjugate Prior </h5>
   </div>
   <div class="card-body">
+  To begin with we will assume that prior distribution of weights 
+  of the linear fit of functions $\psiv(\xv)$ (In the case of polynomial
+  fit they will be simple powers of $x$)
+  are normally distributed with means ${\muv}^0$ with corresponding standard deviations
+  $\sigmawvs$. We will also assume that the random error in measurement $\yv$ is also
+  normal with mean zero and known standard deviation $\sigma$.
+       \[
+       \begin{align*}
+         p(\wv | Data) \propto \sigma^{-2}
+	    (\yv - \psiv \wv)^T (\yv -\psiv \wv)
+	 + (\wv -{\muvn})^T \Svn (\wv - \muvn) \\ 
+	 \text{where } \Svn = 
+	 \begin{pmatrix}
+	 \sigma_{w1}^{-2} & 0 & 0 & \cdots & 0 & 0 \\
+	 0  & \sigma_{w2}^{-2} & 0  & \cdots  & 0 & 0 \\
+	 0  & 0  & \sigma_{w3}^{-2} & \cdots  & 0  & 0\\
+         \vdots  &   &   & \ddots \\
+	 0  & \cdots & & 0 & \sigma_{w_{n-1}}^{-2} & 0 \\
+	 0  & \cdots & & & 0  & \sigma_{w_n}^{-2}  
+	 \end{pmatrix}
+	 \end{align*}
+       \]
+
+    Note that suffix zero to denote prior values of standard deviations
+    of distributions of weights $\wv$ was dropped in above 
+    matrix to reduce clutter.
+
     A useful identiy that will come in handy when deriving posterior
     distribution with conjugate prior (eg. normal distributions)
     Consider symmetrix square matrix $\Av$ of size $n \times n$, and two column
@@ -532,16 +559,70 @@ the above quantity.
 	   &={\xv}^T \Av \xv - 2 {\wv}^T \Av \xv + {\wv}^T \Av \wv \\
 	\end{align*}
        \]
-  To begin with we will assume that prior distribution of weights 
-  of the linear fit of functions $\psiv(\xv)$ (In the case of polynomial
-  fit they will be simple powers of $x$)
-  are normally distributed with means ${\muv}^0$ with corresponding standard deviations
-  $\sigmawvs$. We will also assume that the random error in measurement $\yv$ is also
-  normal with mean zero and known standard deviation $\sigma$.
+
+We can now expand the terms of the conditional distribution of
+weights $\wv$ using the useful identity described previously.
+
        \[
-         p(\wv | Data) \propto \alpha (\yv - \psiv \wv)^T (\yv -\psiv \wv)
-	 + (\wv -{\muvn})^T \Svn (\wv - \muvn) 
+       \begin{align*}
+         p(\wv | Data) \ \propto \ & 
+	 \sigma^{-2} \left(
+	 \yv^T \yv - 2  \yv^T \psiv \wv + \psiv \wv (\psiv \wv)^T
+	 \right) \\
+	 & + {\wv}^T \Svn \wv - 2 \wv^T \Svn {\muvn} + {\muvn}^T \Svn \muv \\
+	 & = \sigma^{-2} \left(
+	 \yv^T \yv - 2  \yv^T \psiv \wv + (\psiv \wv)^T (\psiv \wv) 
+	 \right) \\
+	 & \hspace{5mm} + {\wv}^T \Svn \wv - 2 \wv^T \Svn {\muvn} + {\muvn}^T \Svn \muv \\
+	 & = \sigma^{-2} \left(
+	 \yv^T \yv - 2 (\psiv \wv)^T \yv + \wv^T \psiv^T \psiv \wv 
+	 \right) \\
+	 & \hspace{5mm} + {\wv}^T \Svn \wv - 2 \wv^T \Svn {\muvn} + {\muvn}^T \Svn \muv \\
+	 & = \sigma^{-2} \left(
+	 \yv^T \yv - \color{blue}2  \wv^T \psiv^T \yv  + \color{red}\wv^T \psiv^T \psiv \wv 
+	 \right) \\
+	 & \hspace{5mm} + \color{red}{\wv}^T \Svn \wv \color{blue}
+	 - 2 \wv^T \Svn {\muvn} \color{black} + {\muvn}^T \Svn \muvn \\
+	 & = \color{red} \wv^T (\sigma^{-2} \psiv^T \psiv + \Svn) \wv 
+	      \color{blue} - 2 \wv^T (\sigma^{-2} \psiv^T \yv + \Svn \muvn)
+	      \color{black} + \sigma^{-2} \yv^T \yv + \muvn^T \Svn \muvn
+	 \end{align*}
        \]
+Now let us define
+       \[
+            \begin{align*}
+	    \Sv &= \color{red} \sigma^{-2} \psiv^T \psiv + \Svn \\
+		   \muv &= \Sv^{-1} 
+	            \color{blue} (\sigma^{-2} \psiv^T \yv + \Svn \muvn) \\
+	    \end{align*}
+       \]
+
+Then
+       \[
+       \begin{align*}
+         p(\wv | Data) \ \propto \ & 
+	   \color{red} \wv^T \Sv \wv 
+	      \color{blue} - 2 \wv^T \Sv \muv
+	      \color{black} + \sigma^{-2} \yv^T \yv + \muvn^T \Svn \muvn \\
+          & \hspace{5mm} =  
+	   \color{red} \wv^T \Sv \wv 
+	      \color{blue} - 2 \wv^T \Sv \muv
+	      \color{green}  + \muv^T \Sv \muv
+	       - \muv^T \Sv \muv
+	      \color{black} + \sigma^{-2} \yv^T \yv + \muvn^T \Svn \muvn \\
+          & \hspace{5mm} =  
+	      \color{green}  (\wv - \muv)^T \Sv (\wv - \muv) 
+	      \color{black} - \muv^T \Sv \muv
+	      + \sigma^{-2} \yv^T \yv + \muvn^T \Svn \muvn \\
+	    \end{align*}
+       \]
+ Since our interest is the posterior distribution of $\wv$, the last
+ three terms in the proportionality can be treated as constant since they
+ do not involve $\wv$. The first term has the form of normal distribution
+ of $\wv$ with associated mean $\muv$ and stadandar deviation $\Sv^{-1}$.
+
+ Now one can see how posterior distribution of $\wv$ can be updated easily
+ with the help of expressions for $\Sv$ and $\muv$ with new data $(\xv, \yv)$
   </div>
 </div> 
 <!-- ******************************************************** -->
