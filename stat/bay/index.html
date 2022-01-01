@@ -38,6 +38,8 @@
   $\newcommand{\Xv}{\mathbf{X}}$
   $\newcommand{\Av}{\mathbf{A}}$
   $\newcommand{\Sv}{\mathbf{S}}$
+  $\newcommand{\Lv}{\mathbf{L}}$
+  $\newcommand{\Mv}{\mathbf{M}}$
   $\newcommand{\yv}{\mathbf{y}}$
   $\newcommand{\wv}{\mathbf{w}}$
   $\newcommand{\wmv}{\mathbf{w_m}}$
@@ -48,6 +50,9 @@
   $\newcommand{\Svn}{{\Sv}_0}$
   $\newcommand{\psiv}{\boldsymbol{\psi}}$
   $\newcommand{\psivn}{\boldsymbol{\psi}^0}$
+  $\newcommand{\psivs}{\boldsymbol{\psi}^*}$
+  $\newcommand{\ys}{y^*}$
+  $\newcommand{\ysq}{{y^*}^2}$
 </div>
 
 
@@ -522,7 +527,7 @@ the above quantity.
   of the linear fit of functions $\psiv(\xv)$ (In the case of polynomial
   fit they will be simple powers of $x$)
   are normally distributed with means ${\muv}^0$ with corresponding standard deviations
-  $\sigmawvs$. We will also assume that the random error in measurement $\yv$ is also
+  $\sigma, \wvs$. We will also assume that the random error in measurement $\yv$ is also
   normal with mean zero and known standard deviation $\sigma$.
        \[
        \begin{align*}
@@ -624,6 +629,86 @@ Then
 
  Now one can see how posterior distribution of $\wv$ can be updated easily
  with the help of expressions for $\Sv$ and $\muv$ with new data $(\xv, \yv)$
+
+ Also, it is now possible to derive distribution of predicted value
+ of $y^*$ at any new $x^*$ value as following.
+
+Using Bayesian rule
+       \[
+       \begin{align*}
+         p(y^* | Data) \ = p(y^* | \wv, \muv, \Sv) * p(\wv | Data) \\
+       \end{align*}
+       \]
+
+Noting that the $y^*$ is distributed normallay around mean value of
+$\wv^T \psiv^*$ with variance of $\sigma$. (Note that $\psiv^* = 
+[\phi_1(x^*),\ \phi_2(x^*),\ \dots\ \phi_N(x^*)]^T$
+       \[
+       \begin{align*}
+         p(y^* | Data) \ \propto \ &
+            \sigma^{-2} (\ys - \wv^T \psiv^*)^2 + 
+	    (\wv - \muv)^T \Sv (\wv - \muv)
+	     \\
+          & \hspace{3mm} =  
+	  \sigma^{-2} \left \{ \ysq - 2 \ys \wv^T \psiv^* + (\wv^T \psiv^*)^2 \right \} +
+	    \wv^T \Sv \wv 
+	       - 2 \wv^T \Sv \muv
+	       + \muv^T \Sv \muv
+	       \\
+          & \hspace{5mm} =  
+	  \sigma^{-2} \left \{ \ysq - 2 \ys \wv^T \psiv^* + \wv^T {\psiv^*} {\psiv^*}^T \wv \right \} +
+	    \wv^T \Sv \wv 
+	       - 2 \wv^T \Sv \muv
+	       + \muv^T \Sv \muv \\
+
+          & \hspace{5mm} =  
+	  \sigma^{-2} {\ys}^2 + \muv^T \Sv \muv
+	  - 2  \wv^T (\Sv \muv + \sigma^{-2} \ys \psiv^* )
+	  + \wv^T (\Sv + \sigma^{-2} {\psiv^*} {\psiv^*}^T) \wv
+	    \end{align*}
+       \]
+
+Defining
+       \[
+            \begin{align*}
+	    \Lv &= \Sv + \sigma^{-2} {\psiv^*} {\psiv^*}^T \\
+	    \Mv &= \Lv^{-1} (\Sv \muv + \sigma^{-2} \ys \psiv^{*}) \\
+	    \end{align*}
+       \]
+       \[
+        \begin{align*}
+         p(y^* | Data) \ \propto \ 
+	  + \color{blue} (\wv - \Mv)^T \Lv (\wv - \Mv) \color{green}
+	  + \sigma^{-2} {\ys}^2 + 
+	  - \Mv^T \Lv \Mv  + \color{red} \muv^T \Sv \muv
+	    \end{align*}
+       \]
+Noting that the last term in the above does not invlolve either $\ys$ or $\wv$ terms,
+it can be deemed constant and ignored. And now we have the predictive distribution as function product of 
+two functions (1) One involving only $\wv$ and other involving just $\ys$. Since the term in blue 
+represents the form of a Normal distribution and is the only term containing $\wv$ it integrates
+out over all possible $\wv$ to unity. As a consequence, the predictive distribution of
+$\ys$ is proportional to
+
+       \[
+        \begin{align*}
+         p(y^* | Data) \ \propto \ & 
+	   \sigma^{-2} {\ys}^2  - \Mv^T \Lv \Mv  \\
+          & \hspace{2mm} =  
+	  \sigma^{-2} \ysq  - (\Sv \muv + \sigma^{-2} \ys \psiv^*)^T \Lv^{-1} \Lv \Lv^{-1} 
+	   (\Sv \muv + \sigma^{-2} \ys \psiv^*) \\
+	  & = \sigma^{-2} \ysq  
+	  - \sigma^{-4} \ysq {\psiv^{*}}^T \Lv^{-1} \psiv^{*}
+	  - 2 \sigma^{-2} \ys {\psiv^{*}}^T \Lv^{-1} \Sv \muv 
+	  -  \muv^T \Sv^T \Lv^{-1} \Sv \muv \\
+	  & = \ysq \left( \sigma^{-2}   
+	  - \sigma^{-4}  {\psiv^{*}}^T \Lv^{-1} \psiv^{*} \right)
+	  - 2 \sigma^{-2} {\psiv^{*}}^T \Lv^{-1} \Sv \muv \ys 
+	  -  \color{red} \muv^T \Sv^T \Lv^{-1} \Sv \muv \\
+
+	    \end{align*}
+       \]
+
   </div>
 </div> 
 <!-- ******************************************************** -->
