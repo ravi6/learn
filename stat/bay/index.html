@@ -707,7 +707,7 @@ $\ys$ is proportional to
 	  & = \half \ysq \left( \sigma^{-2}   
 	  - \sigma^{-4}  {\psiv^{*}}^T \Lv^{-1} \psiv^{*} \right)
 	  -  \sigma^{-2} {\psiv^{*}}^T \Lv^{-1} \Sv \muv \ys 
-	  -  \color{red} \half \muv^T \Sv^T \Lv^{-1} \Sv \muv \\
+	  -  \color{red} \half \muv^T \Sv^T \Lv^{-1} \Sv \muv 
 	    \end{align*}
        \]
 
@@ -724,10 +724,9 @@ Defining
          p(y^* | Data) \ \propto \ & 
 	 \frac{(y^* - \muys)^2}{2 {\sigys}^{2}}
 	 - {{\muys}^2}{{\sigys}^{2}}
-	  -  \color{red} \half \muv^T \Sv^T \Lv^{-1} \Sv \muv \\
-	    \end{align*}
+	  -  \color{red} \half \muv^T \Sv^T \Lv^{-1} \Sv \muv 
+         \end{align*}
       \]
-  </div>
 Neglecting the last two terms that are not dependant on $y^*$, clearly
 the predictive distribution is also a normal distribution 
 $\NDist{y^*}{\muys}{\sigys}$.
@@ -755,22 +754,26 @@ as follows.
 
 	    \Sv &= \Lv - \sigma^{-2} \psiv^{*} {\psiv^{*}}^T \\
 	    \text{then} \\
-	    \Sv^T L^{-1} &= I - \sigma^{-2} \psiv^{*} {\psiv^{*}}^T \Lv^{-1} \\
-	    \Sv^T L^{-1} \psiv^{*}  &= \psiv^{*} - \sigma^{-2} \psiv^{*} {\psiv^{*}}^T \Lv^{-1} \psiv^{*} \\
+	    \Sv^T \Lv^{-1} &= I - \sigma^{-2} \psiv^{*} {\psiv^{*}}^T \Lv^{-1} \\
+	    \Sv^T \Lv^{-1} \psiv^{*}  &= \psiv^{*} - \sigma^{-2} \psiv^{*} {\psiv^{*}}^T \Lv^{-1} \psiv^{*} \\
 	     &= \psiv^{*} (1  - \sigma^{-2} {\psiv^{*}}^T \Lv^{-1} \psiv^{*}) \\
 	    \end{align*}
      \]
  Substituting the above expression the mean of the predicted 
  variable $\muys$ simply turns out to be 
  \[
- \color{blue} \muys = \muv^T \psiv^{*}
-    \]
+  \begin{align*}
+     \color{blue} \muys = \muv^T \psiv^{*}
+  \end{align*}
+ \]
  In essence the mean of predicted value coresponds to linear regression
  fit corresponding to mean of corresponding weights which are normally distributed.
  Since regression is linear in weights, intutively one should expect the result
  we found.
 
- It is of interest to find the variance  $\sigys$ of the predicted value $y^*$.
+ It is of interest to find the variance $\sigys$
+ of the predicted value $y^*$.
+  </div>
 </div> 
 
 <!-- ******************************************************** -->
