@@ -32,8 +32,9 @@
 <div class=container-fluid>
 <!-- Stick all tex macros here -->
 <div id=macros>
+  $\newcommand{\half}{\frac{1}{2}}$
   $\newcommand{\NDist}[3]{\frac{1}{\sqrt{2\pi}#3} 
-   e^{-\left({\frac{#1 - #2}{#3}}\right)^2}}$
+   e^{-\half\left({\frac{#1 - #2}{#3}}\right)^2}}$
   $\newcommand{\xv}{\mathbf{x}}$
   $\newcommand{\Xv}{\mathbf{X}}$
   $\newcommand{\Av}{\mathbf{A}}$
@@ -53,6 +54,8 @@
   $\newcommand{\psivs}{\boldsymbol{\psi}^*}$
   $\newcommand{\ys}{y^*}$
   $\newcommand{\ysq}{{y^*}^2}$
+  $\newcommand{\sigys}{{\sigma^*}}$
+  $\newcommand{\muys}{\mu^*}$
 </div>
 
 
@@ -678,9 +681,9 @@ Defining
        \[
         \begin{align*}
          p(y^* | Data) \ \propto \ 
-	  + \color{blue} (\wv - \Mv)^T \Lv (\wv - \Mv) \color{green}
-	  + \sigma^{-2} {\ys}^2 + 
-	  - \Mv^T \Lv \Mv  + \color{red} \muv^T \Sv \muv
+	  + \color{blue} \half (\wv - \Mv)^T \Lv (\wv - \Mv) \color{green}
+	  + \half \sigma^{-2} {\ys}^2 
+	  - \half \Mv^T \Lv \Mv  + \color{red} \half \muv^T \Sv \muv
 	    \end{align*}
        \]
 Noting that the last term in the above does not invlolve either $\ys$ or $\wv$ terms,
@@ -693,24 +696,83 @@ $\ys$ is proportional to
        \[
         \begin{align*}
          p(y^* | Data) \ \propto \ & 
-	   \sigma^{-2} {\ys}^2  - \Mv^T \Lv \Mv  \\
+	   \half \sigma^{-2} {\ys}^2  - \half \Mv^T \Lv \Mv  \\
           & \hspace{2mm} =  
-	  \sigma^{-2} \ysq  - (\Sv \muv + \sigma^{-2} \ys \psiv^*)^T \Lv^{-1} \Lv \Lv^{-1} 
-	   (\Sv \muv + \sigma^{-2} \ys \psiv^*) \\
-	  & = \sigma^{-2} \ysq  
+	  \half \left( \sigma^{-2} \ysq  - (\Sv \muv + \sigma^{-2} \ys \psiv^*)^T \Lv^{-1} \Lv \Lv^{-1} 
+	   (\Sv \muv + \sigma^{-2} \ys \psiv^*) \right) \\
+	  & = \half \left( \sigma^{-2} \ysq  
 	  - \sigma^{-4} \ysq {\psiv^{*}}^T \Lv^{-1} \psiv^{*}
 	  - 2 \sigma^{-2} \ys {\psiv^{*}}^T \Lv^{-1} \Sv \muv 
-	  -  \muv^T \Sv^T \Lv^{-1} \Sv \muv \\
-	  & = \ysq \left( \sigma^{-2}   
+	  -  \muv^T \Sv^T \Lv^{-1} \Sv \muv \right) \\
+	  & = \half \ysq \left( \sigma^{-2}   
 	  - \sigma^{-4}  {\psiv^{*}}^T \Lv^{-1} \psiv^{*} \right)
-	  - 2 \sigma^{-2} {\psiv^{*}}^T \Lv^{-1} \Sv \muv \ys 
-	  -  \color{red} \muv^T \Sv^T \Lv^{-1} \Sv \muv \\
-
+	  -  \sigma^{-2} {\psiv^{*}}^T \Lv^{-1} \Sv \muv \ys 
+	  -  \color{red} \half \muv^T \Sv^T \Lv^{-1} \Sv \muv \\
 	    \end{align*}
        \]
 
+Defining
+      \[
+            \begin{align*}
+	    {\sigys}^{-2}&= \sigma^{-2}(1 - \sigma^{-2} {\psiv^{*}}^T \Lv^{-1} \psiv^{*}) \\
+	    \muys {\sigys}^{-2}&= \sigma^{-2} {\psiv^{*}}^T \Lv^{-1} \Sv \muv \\
+	    \end{align*}
+      \]
+
+       \[
+        \begin{align*}
+         p(y^* | Data) \ \propto \ & 
+	 \frac{(y^* - \muys)^2}{2 {\sigys}^{2}}
+	 - {{\muys}^2}{{\sigys}^{2}}
+	  -  \color{red} \half \muv^T \Sv^T \Lv^{-1} \Sv \muv \\
+	    \end{align*}
+      \]
   </div>
+Neglecting the last two terms that are not dependant on $y^*$, clearly
+the predictive distribution is also a normal distribution 
+$\NDist{y^*}{\muys}{\sigys}$.
+
+We can now evaluate the distribution parameters using the above definitions
+as follows.
+
+      \[
+            \begin{align*}
+	    \muys =  \frac { {\psiv^{*}}^T \Lv^{-1} \Sv \muv }
+	    {1 - \sigma^{-2} {\psiv^{*}}^T \Lv^{-1} \psiv^{*} } \\
+	    \end{align*}
+      \]
+
+      Noting that (being scalar expression)
+      \[
+            \begin{align*}
+	        {\psiv^{*}}^T \Lv^{-1} \Sv \muv
+		&= ({\psiv^{*}}^T \Lv^{-1} \Sv \muv )^T \\
+		&= \muv^T \Sv^T \Lv^{-1} \psiv^{*}  \text{ ... note that inverse of L is symmetric} \\
+
+	    \muys &=  \frac { \muv^T \Sv^T \Lv^{-1} \psiv^{*} } 
+	    {1 - \sigma^{-2} {\psiv^{*}}^T \Lv^{-1} \psiv^{*} } \\
+	    and \\
+
+	    \Sv &= \Lv - \sigma^{-2} \psiv^{*} {\psiv^{*}}^T \\
+	    \text{then} \\
+	    \Sv^T L^{-1} &= I - \sigma^{-2} \psiv^{*} {\psiv^{*}}^T \Lv^{-1} \\
+	    \Sv^T L^{-1} \psiv^{*}  &= \psiv^{*} - \sigma^{-2} \psiv^{*} {\psiv^{*}}^T \Lv^{-1} \psiv^{*} \\
+	     &= \psiv^{*} (1  - \sigma^{-2} {\psiv^{*}}^T \Lv^{-1} \psiv^{*}) \\
+	    \end{align*}
+     \]
+ Substituting the above expression the mean of the predicted 
+ variable $\muys$ simply turns out to be 
+ \[
+ \color{blue} \muys = \muv^T \psiv^{*}
+    \]
+ In essence the mean of predicted value coresponds to linear regression
+ fit corresponding to mean of corresponding weights which are normally distributed.
+ Since regression is linear in weights, intutively one should expect the result
+ we found.
+
+ It is of interest to find the variance  $\sigys$ of the predicted value $y^*$.
 </div> 
+
 <!-- ******************************************************** -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js"> </script>
