@@ -772,7 +772,18 @@ as follows.
  we found.
 
  It is of interest to find the variance $\sigys$
- of the predicted value $y^*$.
+ of the predicted value $y^*$. From above analysis it is clear that $\sigys$
+ depends on $\Lv^{-1}$. This in turn it is sum of $\Sv$ and $\psiv^*$. 
+ Since $\Sv$ does not change for each new predicted value, it is of interest
+ to see if inverse $\Lv$ can be expressed in terms of inverse of $\Sv$ which
+ need evaluated only once. And indeed there exist a matrix identity that
+ can decompose inverse of sum of two matrices into its constituents.
+
+ \[
+  \begin{align*}
+  (A+B)^{-1} = A^{-1}(I - (I+BA^{-1})^{-1}BA^{-1})
+  \end{align*}
+ \]
   </div>
 </div> 
 
