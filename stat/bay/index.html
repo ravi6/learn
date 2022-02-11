@@ -49,13 +49,16 @@
   $\newcommand{\sigmawv}{\boldsymbol{\sigma}_{w}}$
   $\newcommand{\sigmawvs}{\boldsymbol{\sigma}_w^0}$
   $\newcommand{\Svn}{{\Sv}_0}$
+  $\newcommand{\Svinv}{{\Sv}^{-1}}$
   $\newcommand{\psiv}{\boldsymbol{\psi}}$
   $\newcommand{\psivn}{\boldsymbol{\psi}^0}$
   $\newcommand{\psivs}{\boldsymbol{\psi}^*}$
+  $\newcommand{\psivsT}{{\boldsymbol{\psi}^*}^T}$
   $\newcommand{\ys}{y^*}$
   $\newcommand{\ysq}{{y^*}^2}$
   $\newcommand{\sigys}{{\sigma^*}}$
   $\newcommand{\muys}{\mu^*}$
+
 </div>
 
 
@@ -776,14 +779,74 @@ as follows.
  depends on $\Lv^{-1}$. This in turn it is sum of $\Sv$ and $\psiv^*$. 
  Since $\Sv$ does not change for each new predicted value, it is of interest
  to see if inverse $\Lv$ can be expressed in terms of inverse of $\Sv$ which
- need evaluated only once. And indeed there exist a matrix identity that
- can decompose inverse of sum of two matrices into its constituents.
+ need evaluated only once. And indeed there exists a matrix identity that
+ can decompose inverse of sum of two matrices into its constituents. One such 
+ identity that is specific to the form of our interest is given by 
+ <a href=https://en.wikipedia.org/wiki/Sherman%E2%80%93Morrison_formula">Sherman and Morrison</a>
 
  \[
   \begin{align*}
-  (A+B)^{-1} = A^{-1}(I - (I+BA^{-1})^{-1}BA^{-1})
+  (A+uv^T)^{-1} = \frac{A^{-1} - A^{-1}uv^TA{-1}}
+                       {1+v^TA^{-1}u}
   \end{align*}
  \]
+ Using the above identity the expression for the variance of the
+ predictive value $y^*$ can be expressed as follows.
+
+ \[
+  \begin{align*}
+    {\sigys}^{-2} &= \sigma^{-2}
+    \left( 
+        1 - \sigma^{-2} \psivsT \Lv^{-1} \psivs 
+     \right) \\
+    &= \sigma^{-2}
+    \left\{
+      1 - \sigma^{-2} \psivsT 
+        \left(
+           \Svinv \psivs - 
+	   \frac{\sigma^{-2} \Svinv \psivs \psivsT \Svinv \psivs} 
+            {1 + \sigma^{-2}\psivsT \Svinv \psivs}
+         \right)
+    \right\} \\
+  \end{align*}
+ \]
+
+ Noting that $\psivsT \Svinv \psivs$ is a scalar and defining that
+ quantity as $\beta$.
+
+ \[
+  \begin{align*}
+    {\sigys}^{-2} &= \sigma^{-2}
+    \left\{
+      1 - \sigma^{-2} \beta 
+        \left(
+           1 - 
+	   \frac{\sigma^{-2} \beta}
+	        {1 + \sigma^{-2} \beta}
+         \right)
+    \right\} \\
+    &= \frac{\sigma^{-2}}{1+\beta \sigma^{-2}}
+  \end{align*}
+ \]
+ This finally gives us a very neat expression for
+ variance of the distribution of the predicted value.
+\[
+  \begin{align*}
+ \color{blue}
+ {\sigys}^{2} = \sigma^{2} + \psivsT \Svinv \psivs
+  \end{align*}
+\]
+It is of interest to note that we can decompose the
+variance of predicted value into two components, one that
+is due to the error in measurement, and the other due to 
+the uncertainity associated with the weights of the linear regression.
+As much as it is such a gruelling process to get to this 
+very elegant result it was very satisfying 
+(albeit with lot of help from  web based lectures :()  
+In particular, I owe my comprehension of this derivation
+to the excellent lecture series on youtube
+by <a href=https://www.youtube.com/watch?v=vTcsacTqlfQ&t=3s>mathematicalmonk</a>
+
   </div>
 </div> 
 
