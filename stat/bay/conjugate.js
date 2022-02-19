@@ -33,21 +33,26 @@ class conjugate {
     // Updates prior distribution of <w>
     // given some data
     var X = [] ; 
-    for(var j = 0 ; j < this.N+1 ; j++) {
+    for (var i = 0 ; i < this.data.x.length ; i++) {
       var row = [] ;
-      for (var i = 0 ; i < this.data.x.length ; i++) 
+      for(var j = 0 ; j <= this.N ; j++)
 	 row.push(Math.pow(this.data.x[i], j)) ; 
-      X.push(row) ;
+         X.push(row) ;
     }
-    
+
     var Y = jStat(this.data.y).transpose() ;
     var Xt = jStat(X).transpose() ;
-    var S0 = jStat.diagonal(this.wprior.std);
+    var S0 = jStat(jStat.diagonal(this.wprior.std));
     var Mu0 = jStat(this.wprior.mu).transpose();
+    var S = jStat(Xt.multiply(X)) ;
+    console.log("S1",S);
+    S = S.multiply(0.15);
+    console.log("S2",S);
+    S = jStat(S).add(S0);
+    console.log("S3",S);
 
-    var S = S0.add(Xt.multiply(X).multiply(this.ystd)) ;
     var Sinv = jStat(jStat.inv(S)) ;
-    console.log("S", S) ;
+    console.log("S", S, "X",X, "ystd", this.ystd) ;
 
     var Mu = Xt.multiply(Y).multiply(this.ystd);
     Mu = S0.multiply(Mu0).add(Mu);
