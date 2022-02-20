@@ -20,13 +20,12 @@ class conjugate {
     // This is the true distribution from which
     // data is generated
     this.w = {mu: [1, 2, -3, -1],
-             std: [0.3, 0.4, 0.1, 0.1]} ; 
-
+             std: [0.03, 0.04, 0.01, 0.01]} ; 
 
     this.wprior = {mu: [0, 1, 2, -2],
                   std: [0.1, 0.1, 0.1, 0.2]} ; 
     this.wpost = this.wprior ;
-    this.ystd = 0.15 ; // distribution of errors in y
+    this.ystd = 0.01 ; // distribution of errors in y
   } // end constructor
 
   updateW() { 
@@ -44,22 +43,20 @@ class conjugate {
     var Xt = jStat(X).transpose() ;
     var S0 = jStat(jStat.diagonal(this.wprior.std));
     var Mu0 = jStat(this.wprior.mu).transpose();
-    var S = jStat(Xt.multiply(X)) ;
-    console.log("S1",S);
-    S = S.multiply(0.15);
-    console.log("S2",S);
-    S = jStat(S).add(S0);
-    console.log("S3",S);
 
+    var S = S0.add(Xt.multiply(X).multiply(this.ystd)) ;
     var Sinv = jStat(jStat.inv(S)) ;
-    console.log("S", S, "X",X, "ystd", this.ystd) ;
 
     var Mu = Xt.multiply(Y).multiply(this.ystd);
     Mu = S0.multiply(Mu0).add(Mu);
     Mu = Sinv.multiply(Mu) ; 
 
-    this.wpost.mu = Mu;
-    this.wpost.std = jStat.diag(S) ;
+    this.wpost.mu = Mu.transpose(); 
+    // Just pick diagnoal of S 
+    var diag = jStat(S).diag() ;
+    this.wpost.std = [] ;
+    for (var k=0 ; k < this.N + 1 ; k++)
+         this.wpost.std.push(diag[k][0]) ;  // a kludge to overcome jStat quirk 
   }   // end map
 
   plotPoly(legend, w) { // Plot a polynomial curve
@@ -164,13 +161,12 @@ class conjugate {
       this.genData(10);
       this.plotData("Data") ;
 
+      console.log("mu", this.wpost.mu.toString()) ;
       for (var i=0 ; i<5 ; i++){  // progressive updates with more data
        this.updateW();
-       this.plotPoly("xxx", this.wpost.mu);
-       console.log("wpost", this.wpost) ;
+       console.log("mu", this.wpost.mu.toString()) ;
+       this.plotPoly(this.wpost.mu, this.wpost.mu);
        this.wprior = this.wpost ;
-       console.log("wprior", this.wprior) ;
-          for(var j=0 ; j<1000 ; j++) {let p=0 ;}
       }
   } // end tryme
 
