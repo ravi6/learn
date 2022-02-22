@@ -41,22 +41,29 @@ class conjugate {
 
     var Y = jStat(this.data.y).transpose() ;
     var Xt = jStat(X).transpose() ;
-    var S0 = jStat(jStat.diagonal(this.wprior.std));
+    //var S0 = jStat(jStat.diagonal(this.wprior.std));
+    var S0 = this.Sold ;
     var Mu0 = jStat(this.wprior.mu).transpose();
 
     var S = S0.add(Xt.multiply(X).multiply(this.ystd)) ;
+    //console.log("S",S);
     var Sinv = jStat(jStat.inv(S)) ;
 
     var Mu = Xt.multiply(Y).multiply(this.ystd);
     Mu = S0.multiply(Mu0).add(Mu);
     Mu = Sinv.multiply(Mu) ; 
 
-    this.wpost.mu = Mu.transpose(); 
+    this.wpost.mu = jStat.rowa(Mu.transpose(),0); 
     // Just pick diagnoal of S 
-    var diag = jStat(S).diag() ;
+    this.wpost.std=jStat.rowa(S.diag().transpose(),0) ;
+    console.log(this.strVec(this.wpost.mu,2));
+    /*
     this.wpost.std = [] ;
     for (var k=0 ; k < this.N + 1 ; k++)
          this.wpost.std.push(diag[k][0]) ;  // a kludge to overcome jStat quirk 
+	 */
+    return(S) ;
+
   }   // end map
 
   plotPoly(legend, w) { // Plot a polynomial curve
@@ -89,6 +96,8 @@ class conjugate {
     // Select polynomial coefficeints from
     // a Normal distributions (N(<wm>, stdw))
     var scale = 1 ;
+    this.data.x = [] ;
+    this.data.y = [] ;
 
     // x values at which y's are measured repeatedly
     let x = [0, 0.2, 0.4, 0.6, 0.8, 1.0] ;
@@ -115,7 +124,7 @@ class conjugate {
                       y: this.data.y,
                    type: 'scatter',
                    name: legend,
-	        showlegend: true,
+	        showlegend: false,
                    mode: 'markers' });
      Plotly.newPlot(this.fig, this.series, this.layout, 
                     {scrollZoom: false});     
@@ -136,10 +145,10 @@ class conjugate {
 	  x: x, y: y, showarrow: false});
   }
 
-  strVec(v) { // Convert Vector to string
+  strVec(v, p) { // Convert Vector to string
     var str = "[";
      for(var i = 0 ; i < v.length ; i++) {
-       str = str + sprintf("%4.1f ",v[i])  ;
+       str = str + v[i].toPrecision(p) + " "  ;
      }
     return(str + "]");
   }
@@ -158,15 +167,14 @@ class conjugate {
       this.annotate(0.1, 0.9, "Data Generated with:");
       var info = JSON.stringify({std: this.ystd, stdw: this.w.std, wm: this.w.mu});
       this.annotate(0.1, 0.8, info);
+
+      for (var i=0 ; i<30 ; i++){  // progressive updates with more data
       this.genData(10);
       this.plotData("Data") ;
-
-      console.log("mu", this.wpost.mu.toString()) ;
-      for (var i=0 ; i<5 ; i++){  // progressive updates with more data
-       this.updateW();
-       console.log("mu", this.wpost.mu.toString()) ;
-       this.plotPoly(this.wpost.mu, this.wpost.mu);
-       this.wprior = this.wpost ;
+      this.Sold = jStat(jStat.diagonal(this.wprior.std));
+      this.updateW();
+      this.plotPoly(this.wpost.mu, this.wpost.mu);
+      this.wprior = this.wpost ;
       }
   } // end tryme
 
