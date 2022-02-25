@@ -22,15 +22,19 @@ class conjugate {
     this.w = {mu: [1, 2, -3, -1],
              std: [0.03, 0.04, 0.01, 0.01]} ; 
 
-    this.wprior = {mu: [0, 1, 2, -2],
-                  std: [0.1, 0.1, 0.1, 0.2]} ; 
-    this.wpost = this.wprior ;
-    this.ystd = 0.01 ; // distribution of errors in y
+    var wprior = {mu: [0, 1, 2, -2],
+                  std: [0.01, 0.01, 0.02, 0.005]} ; 
+    this.S0 = jStat(jStat.diagonal(
+                     jStat.pow(wprior.std, -2)));
+    this.Mu0 = jStat(wprior.mu).transpose();
+
+    this.ystd = 0.001 ; // distribution of errors in y
+
   } // end constructor
 
   updateW() { 
     // Updates prior distribution of <w>
-    // given some data
+    // given some data ; S, Mu matricies get updated
     var X = [] ; 
     for (var i = 0 ; i < this.data.x.length ; i++) {
       var row = [] ;
@@ -41,29 +45,15 @@ class conjugate {
 
     var Y = jStat(this.data.y).transpose() ;
     var Xt = jStat(X).transpose() ;
-    //var S0 = jStat(jStat.diagonal(this.wprior.std));
-    var S0 = this.Sold ;
-    var Mu0 = jStat(this.wprior.mu).transpose();
 
-    var S = S0.add(Xt.multiply(X).multiply(this.ystd)) ;
-    //console.log("S",S);
-    var Sinv = jStat(jStat.inv(S)) ;
+    //Update S
+    var sigpm2 = 1.0 / (this.ystd * this.ystd ) ;
+    this.S = this.S0.add(Xt.multiply(X).multiply(sigpm2)) ;
 
-    var Mu = Xt.multiply(Y).multiply(this.ystd);
-    Mu = S0.multiply(Mu0).add(Mu);
-    Mu = Sinv.multiply(Mu) ; 
-
-    this.wpost.mu = jStat.rowa(Mu.transpose(),0); 
-    // Just pick diagnoal of S 
-    this.wpost.std=jStat.rowa(S.diag().transpose(),0) ;
-    console.log(this.strVec(this.wpost.mu,2));
-    /*
-    this.wpost.std = [] ;
-    for (var k=0 ; k < this.N + 1 ; k++)
-         this.wpost.std.push(diag[k][0]) ;  // a kludge to overcome jStat quirk 
-	 */
-    return(S) ;
-
+    // Update Mu
+    this.Mu = Xt.multiply(Y).multiply(sigpm2);
+    this.Mu = (this.S0).multiply(this.Mu0).add(this.Mu);
+    this.Mu = jStat(jStat.inv(this.S)).multiply(this.Mu) ; 
   }   // end map
 
   plotPoly(legend, w) { // Plot a polynomial curve
@@ -101,6 +91,8 @@ class conjugate {
 
     // x values at which y's are measured repeatedly
     let x = [0, 0.2, 0.4, 0.6, 0.8, 1.0] ;
+   // let x = jStat.rand(1,6);
+    //x = jStat.rowa(x,0);
 
     for (var i=0 ; i < M ; i++) {
       for(var k=0 ; k < x.length ; k++) {
@@ -168,15 +160,25 @@ class conjugate {
       var info = JSON.stringify({std: this.ystd, stdw: this.w.std, wm: this.w.mu});
       this.annotate(0.1, 0.8, info);
 
-      for (var i=0 ; i<30 ; i++){  // progressive updates with more data
-      this.genData(10);
-      this.plotData("Data") ;
-      this.Sold = jStat(jStat.diagonal(this.wprior.std));
-      this.updateW();
-      this.plotPoly(this.wpost.mu, this.wpost.mu);
-      this.wprior = this.wpost ;
+      for (var i=0 ; i<3000 ; i++){  // progressive updates with more data
+        this.genData(10);
+        // this.plotData("Data") ;
+        this.updateW();
+  //    this.plotPoly(this.wpost.mu, this.wpost.mu);
+	this.S0 = this.S ;
+	this.Mu0 = this.Mu ;
       }
+    this.getW(this.Mu, this.S);
+    console.log(this.w);
   } // end tryme
 
+  getW(Mu, S) {
+    var mu = jStat.rowa(Mu.transpose(),0); 
+    var std = jStat(jStat.diag(S)).transpose();
+    std = jStat.pow(std,-0.5);
+    var W = {mu: mu , std: std};
+    console.log(W) ;
+    return(W) ;
+  }
 
 } // end conjugate
