@@ -20,15 +20,15 @@ class conjugate {
     // This is the true distribution from which
     // data is generated
     this.w = {mu: [1, 2, -3, -1],
-             std: [0.03, 0.04, 0.01, 0.01]} ; 
-
+             std: [0.01, 0.01, 0.01, 0.01]} ; 
     var wprior = {mu: [0, 1, 2, -2],
-                  std: [0.01, 0.01, 0.02, 0.005]} ; 
+                 std: [0.01, 0.01, 0.02, 0.005]} ; 
     this.S0 = jStat(jStat.diagonal(
                      jStat.pow(wprior.std, -2)));
+    
+    console.log("S0",this.S0);
     this.Mu0 = jStat(wprior.mu).transpose();
-
-    this.ystd = 0.001 ; // distribution of errors in y
+    this.ystd = 0.0001 ; // distribution of errors in y
 
   } // end constructor
 
@@ -47,14 +47,24 @@ class conjugate {
     var Xt = jStat(X).transpose() ;
 
     //Update S
-    var sigpm2 = 1.0 / (this.ystd * this.ystd ) ;
+    var sigpm2 = 1 / (this.ystd * this.ystd ) ;
     this.S = this.S0.add(Xt.multiply(X).multiply(sigpm2)) ;
 
     // Update Mu
     this.Mu = Xt.multiply(Y).multiply(sigpm2);
     this.Mu = (this.S0).multiply(this.Mu0).add(this.Mu);
     this.Mu = jStat(jStat.inv(this.S)).multiply(this.Mu) ; 
-  }   // end map
+
+   /*
+    // Snub all off diagonals
+    var A = jStat.inv(this.S) ;
+    A = jStat.diag(A) ;
+    A = jStat.diagonal(A) ;
+    A = jStat.inv(A) ;
+    this.S = jStat(A) ;
+    console.log("S",this.S);
+  */
+  }   // end updateW
 
   plotPoly(legend, w) { // Plot a polynomial curve
           let yf = [] ; let xf = [] ; 
@@ -91,8 +101,6 @@ class conjugate {
 
     // x values at which y's are measured repeatedly
     let x = [0, 0.2, 0.4, 0.6, 0.8, 1.0] ;
-   // let x = jStat.rand(1,6);
-    //x = jStat.rowa(x,0);
 
     for (var i=0 ; i < M ; i++) {
       for(var k=0 ; k < x.length ; k++) {
@@ -160,7 +168,7 @@ class conjugate {
       var info = JSON.stringify({std: this.ystd, stdw: this.w.std, wm: this.w.mu});
       this.annotate(0.1, 0.8, info);
 
-      for (var i=0 ; i<3000 ; i++){  // progressive updates with more data
+      for (var i=0 ; i<3 ; i++){  // progressive updates with more data
         this.genData(10);
         // this.plotData("Data") ;
         this.updateW();
@@ -174,9 +182,11 @@ class conjugate {
 
   getW(Mu, S) {
     var mu = jStat.rowa(Mu.transpose(),0); 
-    var std = jStat(jStat.diag(S)).transpose();
+    var Sinv = S ; //jStat.inv(S) ;
+    var std = jStat(jStat.diag(Sinv)).transpose();
     std = jStat.pow(std,-0.5);
-    var W = {mu: mu , std: std};
+    var rat = std.map((e,i)=>e/this.w.std[i]);
+    var W = {mu: mu , std: std, rat: rat};
     console.log(W) ;
     return(W) ;
   }
