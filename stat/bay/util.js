@@ -49,3 +49,16 @@ function doall() {
   var conj = new conjugate() ;
   conj.tryme("fig5") ;
 }
+
+function eigen(A) {
+  // Calculate Eigen Values of Matrix A
+  //var A = jStat([[2,1,0], [1,3,-1], [0, -1, 6]]);
+  var Q, R ;
+  for (var i=0; i<20 ; i++){
+    [Q, R] = jStat.QR(A) ; 
+    A = jStat(R).multiply(Q) ; 
+  }
+  var ev = jStat(jStat.diag(A)).transpose() ;
+  ev = jStat.rowa(ev,0);  // pure array of eigen vectors
+  return({ev: ev, A: A});;
+}
