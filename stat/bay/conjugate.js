@@ -16,21 +16,69 @@ class conjugate {
   */
 
   constructor () {
-    this.N = 3 ; // Degree of polynomial
+    this.N = 1 ; // Degree of polynomial
     // This is the true distribution from which
     // data is generated
+
+    /*
     this.w = {mu: [1, 2, -3, -1],
-             std: [0.01, 0.01, 0.01, 0.01]} ; 
+             std: [0.01, 0.01, 0.02, 0.01]} ; 
     var wprior = {mu: [0, 1, 2, -2],
-                 std: [0.01, 0.01, 0.02, 0.005]} ; 
+                 std: [0.01, 0.01, 0.02, 0.005]} ;
+    */
+    this.count = 500;
+    this.w = {mu: [1, 2],
+             std: [2, 1]} ; 
+    var wprior = {mu: [0, 1],
+                 std: [0.01, 0.01]} ; 
+
     this.S0 = jStat(jStat.diagonal(
                      jStat.pow(wprior.std, -2)));
     
     console.log("S0",this.S0);
     this.Mu0 = jStat(wprior.mu).transpose();
-    this.ystd = 0.0001 ; // distribution of errors in y
+    this.ystd = 0.001 ; // distribution of errors in y
 
   } // end constructor
+
+  tryme(fig) {
+      this.fig = fig ;
+      this.data = {x: [] , y: []} //this data is generated with
+
+      this.series = [] ;
+      this.layout = {title: 'Linear Regression - Bayesian (Conjugate Priors)',               
+               	    xaxis: {title: {text: "x"}},
+	            yaxis: {title: {text: "y"}},
+	            annotations: [],
+                    };
+   
+      this.annotate(0.1, 0.9, "Data Generated with:");
+      var info = JSON.stringify({std: this.ystd, stdw: this.w.std, wm: this.w.mu});
+      this.annotate(0.1, 0.8, info);
+
+      for (var i=0 ; i<this.count ; i++){  // progressive updates with more data
+        this.genData(1000);
+        // this.plotData("Data") ;
+        this.updateW();
+  //    this.plotPoly(this.wpost.mu, this.wpost.mu);
+	this.S0 = this.S ;
+	this.Mu0 = this.Mu ;
+      }
+    this.getW(this.Mu, this.S);
+    console.log(this.w);
+  } // end tryme
+
+  getW(Mu, S) {
+    var mu = jStat.rowa(Mu.transpose(),0); 
+    var Sinv = jStat.inv(S) ;
+    var std = jStat(jStat.diag(Sinv)).transpose();
+    std = jStat.pow(std,0.5);
+    var v = this.w.std ;
+    var srat = std.map((e,i)=>e/v[i]);
+    var W = {mu: mu , std: std, srat: srat};
+    console.log(W);
+    return(W) ;
+  }
 
   updateW() { 
     // Updates prior distribution of <w>
@@ -151,44 +199,6 @@ class conjugate {
        str = str + v[i].toPrecision(p) + " "  ;
      }
     return(str + "]");
-  }
-
-  tryme(fig) {
-      this.fig = fig ;
-      this.data = {x: [] , y: []} //this data is generated with
-
-      this.series = [] ;
-      this.layout = {title: 'Linear Regression - Bayesian (Conjugate Priors)',               
-               	    xaxis: {title: {text: "x"}},
-	            yaxis: {title: {text: "y"}},
-	            annotations: [],
-                    };
-   
-      this.annotate(0.1, 0.9, "Data Generated with:");
-      var info = JSON.stringify({std: this.ystd, stdw: this.w.std, wm: this.w.mu});
-      this.annotate(0.1, 0.8, info);
-
-      for (var i=0 ; i<3 ; i++){  // progressive updates with more data
-        this.genData(10);
-        // this.plotData("Data") ;
-        this.updateW();
-  //    this.plotPoly(this.wpost.mu, this.wpost.mu);
-	this.S0 = this.S ;
-	this.Mu0 = this.Mu ;
-      }
-    this.getW(this.Mu, this.S);
-    console.log(this.w);
-  } // end tryme
-
-  getW(Mu, S) {
-    var mu = jStat.rowa(Mu.transpose(),0); 
-    var Sinv = S ; //jStat.inv(S) ;
-    var std = jStat(jStat.diag(Sinv)).transpose();
-    std = jStat.pow(std,-0.5);
-    var rat = std.map((e,i)=>e/this.w.std[i]);
-    var W = {mu: mu , std: std, rat: rat};
-    console.log(W) ;
-    return(W) ;
   }
 
 } // end conjugate
