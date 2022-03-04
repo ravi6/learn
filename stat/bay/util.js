@@ -53,7 +53,7 @@ function doall() {
 function eigen(A) {
   // Calculate Eigen Values of Matrix A
   //var A = jStat([[2,1,0], [1,3,-1], [0, -1, 6]]);
-  var Q, R ;
+  var Q, R;
   for (var i=0; i<20 ; i++){
     [Q, R] = jStat.QR(A) ; 
     A = jStat(R).multiply(Q) ; 
