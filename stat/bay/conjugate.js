@@ -25,7 +25,8 @@ class conjugate {
     // var wprior = {mu: [0, 1, 2, -2],
     //   std: [0.01, 0.01, 0.02, 0.005]} ;
 
-    this.count = 5;
+    this.count = 100;
+    this.nData = 100 ;
     this.w = {mu: [2, 2],
              std: [1,3]} ; 
     var wprior = {mu: [0, 1],
@@ -56,39 +57,26 @@ class conjugate {
       this.annotate(0.1, 0.8, info);
 
       for (var i=0 ; i<this.count ; i++){  // progressive updates with more data
-        this.genData(100);
-        // this.plotData("Data") ;
+        this.genData(this.nData);
         this.updateW();
-  //    this.plotPoly(this.wpost.mu, this.wpost.mu);
-	console.log("diff", this.S.subtract(this.S0));
+	console.log("S", this.S);
 	this.S0 = this.S ;
 	this.Mu0 = this.Mu ;
+
+  //      this.plotData("Data") ;
+	var wm =this.Mu.transpose();
+	wm = jStat.rowa(wm,0);
+        this.plotPoly(i, wm);
+
+	console.log("S0", this.S0);
+	console.log("Mu0", this.Mu0);
       }
   } // end tryme
-
-  snubOffDiag(A) {
-    var diag = jStat.diag(A);
-    diag = diag.map((c,i)=>c[0]);
-    diag = jStat.diagonal(diag);
-    return(jStat(diag));
-  }
-  
-  getW(Mu, S) {
-    var mu = jStat.rowa(Mu.transpose(),0); 
-    var Sinv = jStat.inv(S.multiply(0.5)) ;
-    var std = jStat(jStat.diag(Sinv)).transpose();
-    std = jStat.pow(std,0.5);
-    var v = this.w.std ;
-    var srat1 = std.map((e,i)=>e/std[0]);
-    var srat2 = v.map((e,i)=>e/v[0]);
-    var W = {mu: mu , srat1: srat1, srat2: srat2};
-    console.log(W);
-    return(W) ;
-  }
 
   updateW() { 
     // Updates prior distribution of <w>
     // given some data ; S, Mu matricies get updated
+
     var X = [] ; 
     for (var i = 0 ; i < this.data.x.length ; i++) {
       var row = [] ;
@@ -111,13 +99,33 @@ class conjugate {
 
   }   // end updateW
 
+  snubOffDiag(A) {
+    var diag = jStat.diag(A);
+    diag = diag.map((c,i)=>c[0]);
+    diag = jStat.diagonal(diag);
+    return(jStat(diag));
+  }
+  
+  getW(Mu, S) {
+    var mu = jStat.rowa(Mu.transpose(),0); 
+    var Sinv = jStat.inv(S.multiply(0.5)) ;
+    var std = jStat(jStat.diag(Sinv)).transpose();
+    std = jStat.pow(std,0.5);
+    var v = this.w.std ;
+    var srat1 = std.map((e,i)=>e/std[0]);
+    var srat2 = v.map((e,i)=>e/v[0]);
+    var W = {mu: mu , srat1: srat1, srat2: srat2};
+    console.log(W);
+    return(W) ;
+  }
+
   plotPoly(legend, w) { // Plot a polynomial curve
           let yf = [] ; let xf = [] ; 
           for (var i = 0 ; i < 50 ; i++) {
             xf.push(i*0.02) ;
             let s = 0 ;
             for(var j = 0 ; j < w.length ; j++)
-	       s =  s + this.w[j] * Math.pow(xf[i], j) ; 
+	       s =  s + w[j] * Math.pow(xf[i], j) ; 
             yf.push(s) ;
 	  }
 
@@ -147,6 +155,7 @@ class conjugate {
     // x values at which y's are measured repeatedly
     let x = [0, 0.2, 0.4, 0.6, 0.8, 1.0] ;
         x = x.map((c,i)=>x[i]=Math.random());
+
     for (var i=0 ; i < M ; i++) {
       for(var k=0 ; k < x.length ; k++) {
         let w = [] ;
@@ -155,10 +164,10 @@ class conjugate {
 	  w.push(wPdf.sample()); // sample
 	}
         var ym = this.poly(w, x[k]) ;
-        var yPdf = jStat.normal(0, this.ystd, scale) ; 
+        var yPdf = jStat.normal(ym, this.ystd, scale) ; 
 
         this.data.x.push(x[k]) ; 
-        this.data.y.push(ym + yPdf.sample()) ;
+        this.data.y.push(yPdf.sample()) ;
       }
     }
 

@@ -341,7 +341,7 @@ L(\yv | \boldsymbol{\mu}, \sigma) = \prod_{i=1}^{M}  \NDist{y_i}{\mu_i}{\sigma} 
 \end{align*}
 \]
 
-Maximising the above function with respect to parameters $\wv, \sigma$
+Maximising the above function with respect to parameters $\wv , \sigma$
 will yield the distribution of random variable with assumed functional dependance
 on x. Noting that maximisation of above likelihood  is equivalent to maximising the
 logarithem of the likelihood, the parameters of interest can be evaluated as follows.
@@ -848,8 +848,39 @@ In particular, I owe my comprehension of this derivation
 to the excellent lecture series on youtube
 by <a href=https://www.youtube.com/watch?v=vTcsacTqlfQ&t=3s>mathematicalmonk</a>
 
-  </div>
+<div>
+Following my intial statement that using the posterior estimate
+of joint distribution of weights $\wv$ can be used iteratively as
+prior to a new data set of $\xv, \yv$, I tried the following experiment.
+Generated data with first sampling all weights from corresponding
+individual normal distributions with known means and associated standard
+deviations. Using the sampled weights determine $y_m$ for an arbitrary $x$
+as polynomial value. The $y$ value corresponding to the chosen $x$ is sampled
+from $\NDist{y}{y_m}{\sigma}$.
+The $\Muv, \Sv$ parameters of the posterior distribution of
+the joint distribution of $\wv$ of each data set is used as a prior
+to the following set of data generated. These experiments revealed the
+follwoing trends
+<ul>
+  <li> The $\Muv$ vector of posterior is close to the mean but
+       but does not converge to the true mean values from which
+       data is being generated.
+  </li>
+  <li> The covariance vector $\Sv$ off diagonal components do 
+       not converge to small values as I initially anticipated
+       because I was expecting this posterior to converge to
+       joint distribution of $\wv$ from which data is generated.
+  </li>
+  <li> Even the diagonal elements of the $\Sv$ have not approached
+       values that correspond to the $\sigma_w^{-2}$ of correspnding
+       weight distributions.
+  </li>
+</ul>
 
+
+</div>
+
+  </div>
   <figure class=figure  id="fig5"></figure>
 </div> 
 
