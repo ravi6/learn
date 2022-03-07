@@ -25,10 +25,10 @@ class conjugate {
     // var wprior = {mu: [0, 1, 2, -2],
     //   std: [0.01, 0.01, 0.02, 0.005]} ;
 
-    this.count = 100;
-    this.nData = 100 ;
-    this.w = {mu: [2, 2],
-             std: [1,3]} ; 
+    this.count = 5;
+    this.nData = 1000 ;
+    this.w = {mu: [1, 2],
+             std: [0.01, 0.03]} ; 
     var wprior = {mu: [0, 1],
                  std: [0.01, 0.01]} ; 
     wprior = this.w ; // try this first
@@ -37,7 +37,7 @@ class conjugate {
                      jStat.pow(wprior.std, -2)));
     
     this.Mu0 = jStat(wprior.mu).transpose();
-    this.ystd = 0.1 ; // distribution of errors in y
+    this.ystd = 0.0001 ; // distribution of errors in y
 
   } // end constructor
 
@@ -63,7 +63,7 @@ class conjugate {
 	this.S0 = this.S ;
 	this.Mu0 = this.Mu ;
 
-  //      this.plotData("Data") ;
+        this.plotData("Data") ;
 	var wm =this.Mu.transpose();
 	wm = jStat.rowa(wm,0);
         this.plotPoly(i, wm);
@@ -120,6 +120,7 @@ class conjugate {
   }
 
   plotPoly(legend, w) { // Plot a polynomial curve
+
           let yf = [] ; let xf = [] ; 
           for (var i = 0 ; i < 50 ; i++) {
             xf.push(i*0.02) ;
@@ -153,23 +154,23 @@ class conjugate {
     this.data.y = [] ;
 
     // x values at which y's are measured repeatedly
-    let x = [0, 0.2, 0.4, 0.6, 0.8, 1.0] ;
-        x = x.map((c,i)=>x[i]=Math.random());
+        let x = [0, 0.2, 0.4, 0.6, 0.8, 1.0] ;
 
-    for (var i=0 ; i < M ; i++) {
-      for(var k=0 ; k < x.length ; k++) {
-        let w = [] ;
-        for (var j = 0 ; j < this.N+1 ; j++) {
-          let wPdf = jStat.normal(this.w.mu[j], this.w.std[j], scale) ;
-	  w.push(wPdf.sample()); // sample
-	}
-        var ym = this.poly(w, x[k]) ;
-        var yPdf = jStat.normal(ym, this.ystd, scale) ; 
+    for (var i=0 ; i < M/10 ; i++) {
+      for (var r=0 ; r < 10 ; r++) {
+        for(var k=0 ; k < x.length ; k++) {
+	  let w = [] ;
+	  for (var j = 0 ; j < this.N+1 ; j++) {
+	    let wPdf = jStat.normal(this.w.mu[j], this.w.std[j], scale) ;
+	    w.push(wPdf.sample()); // sample
+	  }
+	  var ym = this.poly(w, x[k]) ;
+	  var yPdf = jStat.normal(ym, this.ystd, scale) ; 
 
-        this.data.x.push(x[k]) ; 
-        this.data.y.push(yPdf.sample()) ;
-      }
-    }
+	  this.data.x.push(x[k]) ; 
+	  this.data.y.push(yPdf.sample()) ;
+        }
+    }}
 
   } // end genData
 
