@@ -16,22 +16,17 @@ class conjugate {
   */
 
   constructor () {
-    this.N = 1 ; // Degree of polynomial
+    this.N = 3 ; // Degree of polynomial
     // This is the true distribution from which
     // data is generated
 
-    // this.w = {mu: [1, 2, -3, -1],
-    //          std: [0.01, 0.01, 0.02, 0.01]} ; 
-    // var wprior = {mu: [0, 1, 2, -2],
-    //   std: [0.01, 0.01, 0.02, 0.005]} ;
+     this.w = {mu: [1, 2, -3, -1],
+              std: [0.01, 0.01, 0.02, 0.01]} ; 
+     var wprior = {mu: [0, 1, 2, -2],
+                  std: [0.01, 0.01, 0.02, 0.005]} ;
 
     this.count = 5;
     this.nData = 1000 ;
-    this.w = {mu: [1, 2],
-             std: [0.01, 0.03]} ; 
-    var wprior = {mu: [0, 1],
-                 std: [0.01, 0.01]} ; 
-    wprior = this.w ; // try this first
 
     this.S0 = jStat(jStat.diagonal(
                      jStat.pow(wprior.std, -2)));
@@ -70,6 +65,7 @@ class conjugate {
 
 	console.log("S0", this.S0);
 	console.log("Mu0", this.Mu0);
+	this.getW(this.Mu0, this.S0);
       }
   } // end tryme
 
@@ -208,4 +204,10 @@ class conjugate {
     return(str + "]");
   }
 
+  normMat(A) {
+    for (int i=0 ; i < A.rows() ; i++) {
+      let row = A.rowa(A,i);
+
+    }
+  }
 } // end conjugate
