@@ -849,8 +849,10 @@ In particular, I owe my comprehension of this derivation
 to the excellent lecture series on youtube
 by <a href=https://www.youtube.com/watch?v=vTcsacTqlfQ&t=3s>mathematicalmonk</a>
 
+
 <div>
-Following my intial statement that using the posterior estimate
+  <p>
+  Following my intial statement that using the posterior estimate
 of joint distribution of weights $\wv$ can be used iteratively as
 prior to a new data set of $\xv, \yv$, I tried the following experiment.
 Generated data with first sampling all weights from corresponding
@@ -860,7 +862,10 @@ as polynomial value. The $y$ value corresponding to the chosen $x$ is sampled
 from $\NDist{y}{y_m}{\sigma}$.
 The $\muv, \Sv$ parameters of the posterior distribution of
 the joint distribution of $\wv$ of each data set is used as a prior
-to the following set of data generated. These experiments revealed the
+to the following set of data generated. 
+  </p>
+<div>
+These experiments revealed the
 follwoing trends
 
 <ul>
@@ -879,11 +884,11 @@ follwoing trends
   <li>
        Finally the penny dropped for me (I think).
        The joint distribution of $\wv$
-       condioned on $set of x,y$ data is not the same as the 
+       condtioned on set of $x,y$ data is not the same as the 
        joint distribution of the $\wv$ that is unconditional.
        In the later case the  co-variance matrix is indeed diagonal
        for all members of $\wv$ are independant of each other.
-       However, in the conditional case $wv$ members are 
+       However, in the conditional case $\wv$ members are 
        no longer independant variables but are inter linked
        through $x,y$ data.
    </li>
@@ -897,15 +902,16 @@ follwoing trends
        normal distributions. As an extension, one could
        see that a measurement error in $y$ that is Normally distributed
        can be included as additional random variable.</li>
-
+  </li>
+   <li>
        But one need to ask how it was possible to
        write the posterior estimate where the multiplicant
        of the likelyhood function is joint distribution
-       of $\wv$ as if they were independant.(perhaps it is
+       of $\wv$ as if $\wv$ memebers were independant.(perhaps it is
        a good starting point??).
-       
   </li>
 </ul>
+</div>
 
 </div>
 
