@@ -21,18 +21,20 @@ class conjugate {
     // data is generated
 
      this.w = {mu: [1, 2, -3, -1],
-              std: [0.01, 0.01, 0.02, 0.01]} ; 
+              std: [.01, .01, .01, .01]} ; 
      var wprior = {mu: [0, 1, 2, -2],
-                  std: [0.01, 0.01, 0.02, 0.005]} ;
+                  std: [1, 1, 1, 1]} ;
 
     this.count = 5;
-    this.nData = 1000 ;
+    this.nData = 200 ;
 
     this.S0 = jStat(jStat.diagonal(
-                     jStat.pow(wprior.std, -2)));
+                    jStat.pow(wprior.std, -2)));
+   // this.S0 = jStat().rand(this.N+1).multiply(0) ; //null matrix
+                   
     
     this.Mu0 = jStat(wprior.mu).transpose();
-    this.ystd = 0.0001 ; // distribution of errors in y
+    this.ystd = .1 ; // distribution of errors in y
 
   } // end constructor
 
@@ -54,7 +56,8 @@ class conjugate {
       for (var i=0 ; i<this.count ; i++){  // progressive updates with more data
         this.genData(this.nData);
         this.updateW();
-	console.log("S", this.S);
+        console.log("Sdiff", this.S.subtract(this.S0));
+        console.log("Mudiff", this.Mu.subtract(this.Mu0));
 	this.S0 = this.S ;
 	this.Mu0 = this.Mu ;
 
@@ -63,9 +66,7 @@ class conjugate {
 	wm = jStat.rowa(wm,0);
         this.plotPoly(i, wm);
 
-	console.log("S0", this.S0);
-	console.log("Mu0", this.Mu0);
-	this.getW(this.Mu0, this.S0);
+//	this.getW(this.Mu0, this.S0);
       }
   } // end tryme
 
@@ -83,10 +84,14 @@ class conjugate {
 
     var Y = jStat(this.data.y).transpose() ;
     var Xt = jStat(X).transpose() ;
+    var XXt = Xt.multiply(X) ;
 
     //Update S
     var sigpm2 = 1 / (this.ystd * this.ystd ) ;
-    this.S = this.S0.add(Xt.multiply(X).multiply(sigpm2)) ;
+    console.log("XXtm", XXt.multiply(sigpm2)) ;
+    console.log("S0", this.S0) ;
+    this.S = this.S0.add(XXt.multiply(sigpm2)) ;
+    console.log("S",this.S);
 
     // Update Mu
     this.Mu = Xt.multiply(Y).multiply(sigpm2);
@@ -150,7 +155,7 @@ class conjugate {
     this.data.y = [] ;
 
     // x values at which y's are measured repeatedly
-        let x = [0, 0.2, 0.4, 0.6, 0.8, 1.0] ;
+    let x = [0, 0.2, 0.4, 0.6, 0.8, 1.0] ;
 
     for (var i=0 ; i < M/10 ; i++) {
       for (var r=0 ; r < 10 ; r++) {
@@ -205,9 +210,8 @@ class conjugate {
   }
 
   normMat(A) {
-    for (int i=0 ; i < A.rows() ; i++) {
+    for (var i=0 ; i < A.rows() ; i++) {
       let row = A.rowa(A,i);
-
     }
   }
 } // end conjugate
