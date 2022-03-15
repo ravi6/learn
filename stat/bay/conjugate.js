@@ -27,6 +27,7 @@ class conjugate {
 
     this.count = 5;
     this.nData = 200 ;
+    this.xrand = true ;
 
     this.S0 = jStat(jStat.diagonal(
                     jStat.pow(wprior.std, -2)));
@@ -66,7 +67,7 @@ class conjugate {
 	wm = jStat.rowa(wm,0);
         this.plotPoly(i, wm);
 
-//	this.getW(this.Mu0, this.S0);
+	this.getW(this.Mu0, this.S0);
       }
   } // end tryme
 
@@ -154,10 +155,15 @@ class conjugate {
     this.data.x = [] ;
     this.data.y = [] ;
 
-    // x values at which y's are measured repeatedly
-    let x = [0, 0.2, 0.4, 0.6, 0.8, 1.0] ;
 
     for (var i=0 ; i < M/10 ; i++) {
+      // x values at which y's are measured repeatedly
+         let x = [0, 0.2, 0.4, 0.6, 0.8, 1.0] ;
+         if (this.xrand) { 
+	     for (var m=0 ; m < 6 ; m++)
+	         x[m] = Math.random() ;
+	 }
+
       for (var r=0 ; r < 10 ; r++) {
         for(var k=0 ; k < x.length ; k++) {
 	  let w = [] ;
