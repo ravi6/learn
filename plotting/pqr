@@ -1,0 +1,78 @@
+Const PI = 3.14159265358979
+Global Const tinc = 0.01
+Global Const tmpfile = "/Users/padma/Documents/tmpfile"
+Global Const outfile = "/Users/padma/Documents/bpat"
+Sub writeit()
+   Open outfile For Output As #2
+   Open tmpfile For Input As #1
+   t = 0
+   Do Until EOF(1)
+      Line Input #1, aline
+      v = CDbl(aline)
+      Write #2, t, v
+      t = t + tinc
+   Loop
+   Close #1
+   Close #2
+   MsgBox ("File Generated: " + outfile)
+End Sub
+
+Sub genPattern(dt, si, f, a)
+
+   ncycles = Math.Round(dt * f)     ' If not integral number round it
+   
+            If (si = 1) Then     ' Sinusoidal(full wave rectified
+                  For j = 1 To ncycles
+                        t = 0#
+                         For i = 1 To (1# / f) / tinc
+                          yVal = a * Abs(Sin(PI * f * t))
+                           Write #1, yVal
+                           t = t + tinc
+                         Next
+                  Next
+            ElseIf (si = 2) Then   'Triangular full wave rectified
+                   For j = 1 To ncycles
+                        t = 0#
+                        Delta = 1# / (2 * f)
+                             For i = 1 To (Delta / tinc) 'Rising portion
+                               yVal = a * t / Delta
+                               Write #1, yVal
+                                t = t + tinc
+                              Next
+                 
+                            t = 0#
+                             For i = 1 To (Delta / tinc) 'Falling portion
+                              yVal = a * (1 - t / Delta)
+                              Write #1, yVal
+                              t = t + tinc
+                            Next
+                  Next
+            ElseIf (si = 3) Then  'pause
+                             For i = 1 To (dt / tinc) 'just pause
+                                  yVal = 0
+                                  Write #1, yVal
+                              Next
+            Else
+                 ' We dont do anything
+            End If
+
+            
+    
+End Sub
+
+Sub makeit()
+
+    Open tmpfile For Output As #1
+    Dim rng As Range
+        Set rng = Application.ActiveSheet.Range("input")
+        For i = 1 To rng.Rows.Count
+            dt = rng.Cells(i, 1)
+            si = rng.Cells(i, 2)
+            f = rng.Cells(i, 3)
+            a = rng.Cells(i, 4)
+            Call genPattern(dt, si, f, a)
+        Next
+    Close #1
+    Call writeit
+    
+End Sub
