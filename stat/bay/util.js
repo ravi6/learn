@@ -44,8 +44,8 @@ function doall() {
   estimate() ;
   showBeta() ;
   var reg = new lreg();
-//  reg.testMLE("fig3");
-//  reg.testMAP("fig4");
+  reg.testMLE("fig3");
+  reg.testMAP("fig4");
   var conj = new conjugate() ;
   conj.tryme("fig5") ;
 }
