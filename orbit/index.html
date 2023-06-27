@@ -1,3 +1,4 @@
+
 <html>
 <!doctype html>
 <!-- Satellite Orbit Calculations (Ravi Saripalli) 19th Jun 2023  -->
@@ -35,6 +36,15 @@
   <div id=macros>
     $\newcommand{\half}{\frac{1}{2}}$
     $\newcommand{\rs}{r^*}$
+    $\newcommand{\rps}{r_p^*}$
+    $\newcommand{\res}{r_e^*}$
+    $\newcommand{\Hs}{H^*}$
+    $\newcommand{\Hss}{{\Hs}^2}$
+    $\newcommand{\Hsf}{{\Hs}^4}$
+    $\newcommand{\rss}{{\rs}^2}$
+    $\newcommand{\rsc}{{\rs}^3}$
+    $\newcommand{\rsf}{{\rs}^4}$
+    $\newcommand{\Es}{E^*}$
     $\newcommand{\vt}{v_t}$
     $\newcommand{\vts}{v_t^*}$
     $\newcommand{\vr}{v_r}$
@@ -43,6 +53,7 @@
     $\newcommand{\half}{\frac{1}{2}}$
     $\newcommand{\der}[1]{\frac{d#1}{dt}}$
     $\newcommand{\ders}[1]{\frac{d#1}{dt^*}}$
+    $\newcommand{\dert}[1]{\frac{d#1}{d\theta}}$
     $\newcommand{\B}[1]{\left({#1}\right)}$
   </div>
 
@@ -217,7 +228,7 @@
           \color{blue}
           \ders{\vrs}  &= \color{blue}
                     \frac{{\vts}^2}{\rs} -
-                  \frac{1}{2{\rs}^2}  \\
+                  \frac{1}{2\rss}  \\
                 \color{black}
                 \text{with}\ \ \  r^* &= \frac{r}{R} \ \ ; \ \ t^* = t R / \ve  \ \  ; \      \vts = H^* \rs  \nonumber \\   
                  {\vr}^* &= \frac{\vr}{\ve} \ \ ;\ \  
@@ -239,6 +250,163 @@
   </div>
 </div>
 
+<!-- ******************************************************** -->
+<div class="card" id=item2>
+  <div class=card-header ><h5>
+      Orbit Calculation </h5>
+  </div>
+  <div class="card-body">
+    <p class="card-text">
+    Noting that radial velocity $\vrs=\ders{\rs}$ , and expressing tangential
+    velocity $\vt$ in terms of angular velocity $\der{\theta}$ the energy
+    equation can written as follows.
+    equaiton as follows.
+    </p>
+
+    <div class="border border-info rounded bg-light bg-gradient">
+      \[
+      \begin{align}
+      \B{\ders{\rs}}^2 + \rss \B{\ders{\theta}}^2
+                  -\frac{1}{\rs} =  \Es  \\
+      \end{align}
+      \]
+      Dividng both sides with $\B{\ders{\theta}}^2$  and noting that 
+      $\ders{\theta}=\frac{\Hs}{\rss}$
+      \[
+	\begin{align}
+	\B{\dert{\rs}}^2  & =
+	\frac{\Es\rsf}{\Hss} - \rss + \frac{\rsc}{\Hss} \\
+	\end{align}
+      \]
+      It is now possible to integrate the above diffenretial equation
+      to obtain the dependence of $\rs$ on $\theta$. 
+      Introducing a transofrmed
+      varible $u =\frac{1}{\rs}$
+      the above equation simplifies to
+      \[
+	\begin{align}
+	\B{\dert{u}}^2  & =
+	\frac{\Es}{\Hss} - u^2 + \frac{u}{\Hss} \nonumber \\
+	&= \frac{4\Es\Hss-1}{4\Hsf} - \B{u-\frac{1}{2\Hss}}^2 
+	\end{align}
+      \]
+     Defining   
+     $\alpha = \frac{\sqrt{4\Es\Hss-1}}{2\Hss}$ and
+     $\beta = \frac{1}{\sqrt{2}\Hs}$
+      \[
+	\begin{align}
+	d\theta  & = \frac{du}{\sqrt{\alpha^2-(u-\beta)^2}}
+	\end{align}
+      \]
+Integrating the above equation, it is trivial to show that the solution to the above equation is follows
+      \[
+	\begin{align}
+	\theta = sin^{-1}\B{\frac{\frac{1}{\rs}-\beta}{\alpha}} - k \\
+	 \text{where  }    k =  sin^{-1}\B{\frac{\frac{1}{\rps}-\beta}{\alpha}} \nonumber \\
+          \text{and  defining } \rs = \rps  \text{ at }  \theta = 0  \nonumber 
+	\end{align}
+      \]
+Alternately, we can rewirte $\rs$ in terms of $\theta$ as follows.
+
+  \[
+  \begin{align}
+	   \rs = \frac{1}{\beta + \alpha sin(\theta + k)}
+	\end{align}
+  \]
+
+  Defining $\res$ to be $\rs$ at $\theta=\pi$  
+  \[
+  \begin{align}
+	   \res = \frac{1}{\beta - \alpha sin(k)} \\
+	   \rps = \frac{1}{\beta + \alpha sin(k)} \\
+	\end{align}
+  \]
+  From the above relations 
+  \[
+     \frac{1}{\rps} + \frac{1}{\res} = 2\beta  \\
+  \]
+
+    </div>
+  </div>
+</div>
+<!-- ******************************************************** -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- ******************************************************** -->
+<div class="card" id=item2>
+  <div class=card-header ><h5>
+      Origin Shifting in Polar Coordinates </h5>
+  </div>
+  <div class="card-body">
+    <p class="card-text">
+        Using simple vector additions, transformation of a given 
+        polar co-ordinate system to an new polar cooridnate system when the origin
+        is shifted to an arbitray positon, is described here.
+    </p>
+
+    <div class="border border-info rounded bg-light bg-gradient">
+ Translation of orgin to new position $(\rho, \alpha)$ in polar co-ordinates 
+  \[
+  \begin{align*}
+     \vec{V_r} &= r ( \vec{i} \cos\theta +  \vec{j} \sin\theta ) \hspace{5mm} \text{... orginal vector}\\
+     \vec{V_o} &= \rho ( \vec{i}  \cos\alpha +  \vec{j} \sin\alpha ) \hspace{5mm} \text{... new origin}\\
+     \vec{V_s} &= \vec{V_r} - \vec{V_0} \hspace{5mm} \text{... translated vector}\\
+               &=  \vec{i} (r \cos\theta - \rho \cos\alpha ) 
+                  + \vec{j} (r \sin\theta - \rho \sin\alpha) 
+	\end{align*}
+  \]
+  Therefore, shifed polar coodinate system $(R, \Phi)$ is related to original
+  co-ordinate system as follows
+  \[
+  \begin{align*}
+     R \cos(\Phi) &=  r \cos\theta - \rho \cos\alpha  \\
+     R \sin(\Phi) &=  r \sin\theta - \rho \sin\alpha   \\
+     \text{then} \\
+     R &= \sqrt{r^2 + \rho^2 - 2 r \rho \cos(\theta - \alpha)} \\
+       \Phi & = \tan^{-1} \B{
+       \frac{r\sin\theta - \rho\sin\alpha }  
+            {r\cos\theta - \rho\cos\alpha }  
+       }
+
+
+	\end{align*}
+  \]
+    </div>
+  </div>
+</div>
+<!-- ******************************************************** -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js"> </script>
 <script src="https://cdn.plot.ly/plotly-2.4.2.min.js"></script>
