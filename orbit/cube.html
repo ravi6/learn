@@ -1,6 +1,6 @@
 <html>
 <head>
-  <!--script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"--></script>
+  <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
   <script type="importmap">
       {
 	"imports": {
@@ -10,16 +10,18 @@
 	      "https://unpkg.com/three@v0.154.0/examples/jsm/"
 	}
       }
+	
   </script>
 </head>
 
-<body>
-        Payload Thermal Model5
-        <p id="msg"></p>
 <script type=module>
+ 
   import * as THREE from 'three' ;
   import WebGL from 'three/addons/capabilities/WebGL.js';
-  if ( WebGL.isWebGLAvailable() ) { console.log("You have WebGL"); } 
+ 	
+  if ( ! WebGL.isWebGLAvailable() ) { alert("No WebGL support") } 
+
+  const loader = new THREE.TextureLoader();
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(
                 75, window.innerWidth / window.innerHeight,
@@ -28,12 +30,59 @@
   renderer.setSize(window.innerWidth, window.innerHeight);
   document.body.appendChild(renderer.domElement); 
 
-  const geom = new THREE.BoxGeometry(1,1,1);
-  const mat = new THREE.MeshBasicMaterial({color: 0x00ff00 }); //Green Cube
+  const geom = new THREE.BoxGeometry(3,3,3);
+  let tex1 ;
+	
+ // load a resource
+let loaded = false ;
+ loader.load(
+	'tex1.jpg',
+	 function(texture){
+		 tex1 = texture ;
+	     loaded = true ;	 
+	 } ,
+	undefined,  // no progress monitoring
+	
+	function ( err ) { // errpr ca;;nacl
+		console.error( 'An error happened.' );
+	}
+);
+
+/*	
+const prom = new Promise (
+	 (resolve, reject) => {
+		 setTimeout ( () => {
+							 if (loaded) resolve("loaded");
+							 else reject("failedi to load");
+						     }, 1000 );
+}); // end of promise
+	
+prom.then((goodMsg) => {console.log(goodMsg);})
+	.catch ((badMsg) => {console.log(badMsg);} );
+ 
+*/	
+	function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+   }
+ await sleep(1000);  // this works. Why Promise does not
+	                  // nor does pure sleep
+	
+console.log("tex1", tex1);	
+  const mat = new THREE.MeshPhongMaterial({
+//	                      color:     0x3f66f0,  
+//						  wireframe: false,
+	                      map: tex1
+                          }); 
+ 
+ 
   const cube = new THREE.Mesh(geom, mat);
+  
   camera.position.set(0,0,6);
   scene.add(cube);
-  scene.add(camera);
+	
+  const light = new THREE.AmbientLight(0xd8f808); //0xdd0808);
+  scene.add(light);    
+
 
   function animate(){
     requestAnimationFrame(animate);
@@ -42,6 +91,32 @@
     renderer.render(scene, camera);
   }
   animate();
+	
+document.getElementById("x").oninput = 
+	function(){light.color.r=this.value;}
+document.getElementById("y").oninput = 
+	function(){light.color.g=this.value};
+document.getElementById("z").oninput = 
+	function(){light.color.b=this.value};
+document.getElementById("go").addEventListener(
+	"click",
+	function(){
+		console.log("Hello");
+		console.log(light.color.r, light.color.g, light.color.b);
+	});
+	
 </script>
+
+<body>
+	
+        Payload Thermal Model5
+	    <div class="slidecontainer">
+           <input type="range" min=0 max=100 value=0 step=1 class="slider" id="x">
+           <input type="range" min=0 max=100 value=0 step=1 class="slider" id="y">
+           <input type="range" min=0 max=100 value=0 step=1  class="slider" id="z">
+		</div>
+	    <button id="go">show</button>
+        <p id="msg"></p>
+
 </body>
 </html>
