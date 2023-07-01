@@ -15,7 +15,6 @@
 </head>
 
 <script type=module>
- 
   import * as THREE from 'three' ;
   import WebGL from 'three/addons/capabilities/WebGL.js';
  	
@@ -27,50 +26,24 @@
                 75, window.innerWidth / window.innerHeight,
                 0.1, 1000);
   const renderer = new THREE.WebGLRenderer();
+ 
   renderer.setSize(window.innerWidth, window.innerHeight);
   document.body.appendChild(renderer.domElement); 
 
   const geom = new THREE.BoxGeometry(3,3,3);
-  let tex1 ;
-	
- // load a resource
-let loaded = false ;
- loader.load(
-	'tex1.jpg',
-	 function(texture){
-		 tex1 = texture ;
-	     loaded = true ;	 
-	 } ,
-	undefined,  // no progress monitoring
-	
-	function ( err ) { // errpr ca;;nacl
-		console.error( 'An error happened.' );
-	}
-);
-
-/*	
-const prom = new Promise (
-	 (resolve, reject) => {
-		 setTimeout ( () => {
-							 if (loaded) resolve("loaded");
-							 else reject("failedi to load");
-						     }, 1000 );
-}); // end of promise
-	
-prom.then((goodMsg) => {console.log(goodMsg);})
-	.catch ((badMsg) => {console.log(badMsg);} );
  
-*/	
-	function sleep(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
-   }
- await sleep(1000);  // this works. Why Promise does not
-	                  // nor does pure sleep
-	
-console.log("tex1", tex1);	
+  let tex1 ;
+  await loadMyTexture("textures/tex1.jpg")	
+     .then(function (tex) {
+           console.log("Loaded Texture", tex);
+           tex1 = tex})
+	 .catch (function (errMsg){console.log(errMsg);} );
+
+
+  console.log("tex1", tex1);	
   const mat = new THREE.MeshPhongMaterial({
-//	                      color:     0x3f66f0,  
-//						  wireframe: false,
+	                      color:     0x5f56f0,  
+//			  wireframe: false,
 	                      map: tex1
                           }); 
  
@@ -83,8 +56,36 @@ console.log("tex1", tex1);
   const light = new THREE.AmbientLight(0xd8f808); //0xdd0808);
   scene.add(light);    
 
+async function loadMyTexture(fname) {
+   // load a resource
+   var loaded = false ;
+   var tex ;
+   loader.load(
+   	 fname,
+   	 function(texture){ tex = texture; loaded = true; },
+   	 undefined,  // no progress monitoring
+   	 function ( err ) { console.error( 'An error happened.'); }
+   );
 
-  function animate(){
+   const prom =  new Promise (
+	   function (resolve, reject) {
+		 setTimeout ( function () {
+			 if (loaded) resolve(tex); // pass on texture
+			 else reject("failed to load in a second");
+				     }, 1000 );
+                   });
+return (prom) ;  // An async fn. alway returns a promise
+
+/*  A much simplified await
+function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+}
+await sleep(1000);  
+*/	
+
+} // end MyLoadTexture
+
+function animate(){
     requestAnimationFrame(animate);
     cube.rotation.x += 0.01;
     cube.rotation.y += 0.01;
