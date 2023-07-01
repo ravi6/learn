@@ -14,13 +14,14 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js" integrity="sha384-fbbOQedDUMZZ5KreZpsbe1LCZPVmfTnH7ois6mU1QK+m14rQ1l2bGBq41eYeM/fS" crossorigin="anonymous"></script>
 </head>
+<!--////////////////////////  END HEADERS ///////////////////-->
 
 <script type=module >
-
  /* Setup camera, scene, and render objects */
   import * as THREE from 'three' ;
   import WebGL from 'three/addons/capabilities/WebGL.js';
   if ( ! WebGL.isWebGLAvailable() ) { alert("No WebGL support") }; 
+  import {GUI} from 'three/addons/libs/lil-gui.module.min.js';
 
   const loader = new THREE.TextureLoader();
   const scene = new THREE.Scene();
@@ -35,28 +36,18 @@
 
   // Scene Creation and Manipulation 
   const geom = new THREE.BoxGeometry(3,3,3);
-
-    let tex1, loaded, fname;
-    fname = "textures/tex1.jpg"; loaded = false ;
-    loader.load(
-	   fname,
-	   function(texture){ tex1 = texture; loaded = true; },
-	   undefined,  // no progress monitoring
-	   function ( err ) { console.error( 'An error happened.'); }
-     );
-   
-   // We have to wait till above loads
-   await sleep(1000) ;  // A very basic wait with no messages 
-   if (loaded) console.log("Loaded " + fname) 
-    else console.log("Failed to load " + fname + " in 1s") ;;
-
-  const mat = new THREE.MeshPhongMaterial({
-	                      color:     0x5f56f0,  
-			  wireframe: false,
-   	                        map: tex1
-                          }); 
- 
- 
+	
+  const mat1 = new THREE.MeshPhongMaterial({  
+       map: loader.load("textures/tex1.jpg"),
+       color: 'rgb(200,100,0)',
+       shininess: 150,
+       }); 
+  const mat2 = new THREE.MeshPhongMaterial({  
+       map: loader.load("textures/tex2.jpg"),
+       color: 'rgb(200,100,0)',
+       shininess: 150,
+       }); 
+  const mat = [mat1, mat2, mat2, mat2, mat2, mat1] ; 
   const cube = new THREE.Mesh(geom, mat);
   
   camera.position.set(0,0,6);
@@ -64,7 +55,18 @@
 	
   const light = new THREE.AmbientLight(0xd8f808); 
   scene.add(light);    
+  animate();
 
+//Let us try GUI module instead of my GUI to contrrol stuff
+let gui = new GUI();
+gui.add(light.color,'r',0,1,0.1).name('lightr').onChange(callme);
+gui.add(light.color,'g',0,1,0.1).name('lightg').onChange(callme);
+gui.add(light.color,'b',0,1,0.1).name('lightb').onChange(callme);
+console.log(gui);
+
+/////////////////////////////////////////
+//          functions 
+/////////////////////////////////////////
 function animate(){
     requestAnimationFrame(animate);
     cube.rotation.x += 0.01;
@@ -75,18 +77,19 @@ function animate(){
 function sleep(ms) {
       return new Promise(resolve => setTimeout(resolve, ms));
   }
-animate();
 	
+function callme(){console.log(light.color);}
+
 ["x", "y", "z"].forEach(function(val){
                  document.getElementById(val).oninput = 
 	                   function(){setColor(light)};
 			   } );
 
 function setColor(obj){
-var str = "rgb(" + document.getElementById("x").value + ","
-                 + document.getElementById("y").value + ","
-                 + document.getElementById("z").value + ")"
-obj.color.set(str) ;
+  var str = "rgb(" + document.getElementById("x").value + ","
+		   + document.getElementById("y").value + ","
+		   + document.getElementById("z").value + ")"
+  obj.color.set(str) ;
 }
 
 document.getElementById("go").addEventListener(
@@ -94,10 +97,12 @@ document.getElementById("go").addEventListener(
 	function(){
 		console.log("Hello");
 		console.log(light.color.r, light.color.g, light.color.b);
+		console.log(myobj);
 	});
 	
 </script>
 
+<!--      WEB PAGE DOM ELEMENTS  ------>
 <body>
   <div class=container>
         Payload Thermal Model5
