@@ -49,13 +49,20 @@
        }); 
   const mat = [mat1, mat1, mat1, mat1, mat2, mat1] ; 
   const cube = new THREE.Mesh(geom, mat);
-  
+
+  const  points = [] ;
+  for (let i = 0; i <10 ; i++) {
+    points.push(new THREE.Vector2(3 * Math.sin(i*0.2) + 3,
+                                        (i-5) * 0.8));
+    console.log(points[i].x, points[i].y);
+  }
   camera.position.set(0,0,6);
+
   scene.add(cube);
 	
+  // Let there be LIGHT !!!
   const light = new THREE.AmbientLight(0xd8f808); 
   scene.add(light); 
-
 	
   const dlight = new THREE.DirectionalLight(0xd8f808,1);
 	// dlight.position.set(0, 10, 0);
@@ -145,55 +152,3 @@ document.getElementById("go").addEventListener(
   </div>
 </body>
 </html>
-
-
-<!--
-/*
-async function simple(fname) {
-    // This function did not work the way I thought it would
-    // Why
-    var tex;
-    var loaded = false ;
-    loader.load(
-	   fname,
-	   function(texture){ tex = texture; loaded = true; },
-	   undefined,  // no progress monitoring
-	   function ( err ) { console.error( 'An error happened.'); }
-     );
-   
-   // We have to wait till above loads
-   await sleep(5000) ;  // A very basic wait with no messages 
-   return (tex) ;
-}
-
-
-The following strategy works well but very verbose
-but robust
-
-async function loadMyTexture(fname) {
-   var loaded = false ;
-   var tex ;
-   loader.load(
-   	 fname,
-   	 function(texture){ tex = texture; loaded = true; },
-   	 undefined,  // no progress monitoring
-   	 function ( err ) { console.error( 'An error happened.'); }
-   );
-
-   const prom =  new Promise (
-	   function (resolve, reject) {
-		 setTimeout ( function () {
-			 if (loaded) resolve(tex); // pass on texture
-			 else reject("failed to load in a second");
-				     }, 1000 );
-                   });
-return (prom) ;  // An async fn. alway returns a promise
-
-} // end MyLoadTexture
-  await loadMyTexture("textures/tex1.jpg")	
-     .then(function (tex) {
-           console.log("Loaded Texture", tex);
-	   tex1 = tex})
-	 .catch (function (errMsg){console.log(errMsg);} );
-*/
--->
