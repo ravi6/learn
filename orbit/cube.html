@@ -39,34 +39,62 @@
 	
   const mat1 = new THREE.MeshPhongMaterial({  
        map: loader.load("textures/tex1.jpg"),
-       color: 'rgb(200,100,0)',
+       color: 'rgb(200,00,0)',
        shininess: 150,
        }); 
   const mat2 = new THREE.MeshPhongMaterial({  
-       map: loader.load("textures/tex2.jpg"),
-       color: 'rgb(200,100,0)',
+       map: loader.load("textures/tex1.jpg"),
+       color: 'rgb(100,200,100)',
        shininess: 150,
        }); 
-  const mat = [mat1, mat2, mat2, mat2, mat2, mat1] ; 
+  const mat = [mat1, mat1, mat1, mat1, mat2, mat1] ; 
   const cube = new THREE.Mesh(geom, mat);
   
   camera.position.set(0,0,6);
   scene.add(cube);
 	
   const light = new THREE.AmbientLight(0xd8f808); 
-  scene.add(light);    
-  animate();
+  scene.add(light); 
 
+	
+  const dlight = new THREE.DirectionalLight(0xd8f808,1);
+	// dlight.position.set(0, 10, 0);
+	// dlight.target.position.set(-5, 0, 0);
+	scene.add(dlight);
+	//scene.add(light.target);
+	
+  animate();
+	
+class hexColor {
+  constructor(obj) {
+    this.obj = obj;
+  }
+  get value() {
+    return `#${this.obj['color'].getHexString()}`;
+  }
+  set value(hexS) {
+    this.obj['color'].set(hexS);
+  }
+}
 //Let us try GUI module instead of my GUI to contrrol stuff
 let gui = new GUI();
-gui.add(light.color,'r',0,1,0.1).name('lightr').onChange(callme);
-gui.add(light.color,'g',0,1,0.1).name('lightg').onChange(callme);
-gui.add(light.color,'b',0,1,0.1).name('lightb').onChange(callme);
-console.log(gui);
+  gui.add(light.color,'r',0,1,0.1).name('lightR').onChange(callme);
+  gui.add(light.color,'g',0,1,0.1).name('lightG').onChange(callme);
+  gui.add(light.color,'b',0,1,0.1).name('lightB').onChange(callme);
+	
+    gui.addColor(new hexColor(dlight), 'value').name('color');
+	gui.add(dlight, 'intensity', 0, 2, 0.01);
+	gui.add(dlight.target.position, 'x', -10, 10);
+	gui.add(dlight.target.position, 'z', -10, 10);
+	gui.add(dlight.target.position, 'y', 0, 10);
+	
+//console.log(gui);
 
 /////////////////////////////////////////
 //          functions 
 /////////////////////////////////////////
+
+	
 function animate(){
     requestAnimationFrame(animate);
     cube.rotation.x += 0.01;
