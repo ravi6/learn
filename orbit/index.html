@@ -10,7 +10,10 @@
 	}
       }
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js" integrity="sha384-fbbOQedDUMZZ5KreZpsbe1LCZPVmfTnH7ois6mU1QK+m14rQ1l2bGBq41eYeM/fS" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js" 
+           integrity="sha384-fbbOQedDUMZZ5KreZpsbe1LCZPVmfTnH7ois6mU1QK+m14rQ1l2bGBq41eYeM/fS" 
+           crossorigin="anonymous">
+  </script>
 </head>
 <!--////////////////////////  END HEADERS ///////////////////-->
 <script type=module>
@@ -20,7 +23,8 @@
   import {Bishop} from "./chess.js" ;
 
   camera.position.set(0,0,6);
-  scene.add(Cube());
+  let cube = Cube() ;
+  scene.add(cube);
   scene.add(Bishop());
   scene.add(light); 
   scene.add(dlight);
@@ -54,20 +58,76 @@ document.getElementById("go").addEventListener(
 	function(){
 		console.log("Hello");
 		console.log(light.color.r, light.color.g, light.color.b);
-		console.log(myobj);
 	});
-	
 </script>
+<script>
+function doit(obj){
+  console.log(obj);
+}
 
+      function setXYZ(){
+         var xyz = {x: pop.document.getElementById("x").value,  
+                    y: pop.document.getElementById("y").value,  
+                    z: pop.document.getElementById("z").value} ;
+	console.log(xyz) ;
+      } 
+function popup(){
+      var pop = open("", "Popup", "width=300,height=200");
+      
+     // Create three sliders 
+      ["x", "y", "z"].forEach(function(val){
+          let div = pop.document.createElement("div"); 
+	  let input = document.createElement("input"); 
+	    input.id = val ;
+	    input.min = 0 ; input.max = 255 ; input.value=0 ; input.step = 1 ;
+	    input.class = "slider"; input.type = "range" ; 
+	    input.oninput = function (){setXYZ();}.bind(this);
+	    div.appendChild(input);
+            pop.document.body.appendChild(div);
+      }).bind(this);
+          let div = pop.document.createElement("div");
+	  let label = document.createElement("label"); 
+          label.innerText = "hello" ;
+          div.appendChild(label);
+          pop.document.body.appendChild(div) ;
+
+	/*
+      div.innerHTML = `
+
+          <div class=row>
+             x: <input type="range" class=form-range min=0 max=255 value=0 step=1 class="slider" 
+	     id="x" oninput="console.log('x')"> 
+          </di
+          <div class=row>
+             y: <input type="range" class=form-range min=0 max=255 value=0 step=1 class="slider" 
+	     id="y" oninput="console.log('y')">
+	  </div>
+          <div class=row>
+             z: <input type="range" class=form-range min=0 max=255 value=0 step=1 class="slider" 
+	     id="z" oninput="console.log('z')">
+          </div>
+          <div class=row>
+             <button class=btn id="alert('hello')">show</button>
+          </div>
+          ` ;
+         */ 
+       return(pop);
+
+       // Update xyz object on slider inputs
+}// end popup
+ 
+
+</script>
 <!--      WEB PAGE DOM ELEMENTS  ------>
 <body>
   <div class=container>
         Payload Thermal Model5
+<div id="divPopup" onclick="popup();">Create popup</div>
 	<div class=form>
            <input type="range" class=form-range min=0 max=255 value=0 step=1 class="slider" id="x">
            <input type="range" class=form-range min=0 max=255 value=0 step=1 class="slider" id="y">
            <input type="range" class=form-range min=0 max=255 value=0 step=1  class="slider" id="z">
-	    <button class=btn id="go">show</button>
+	    <button class=btn id=go>show</button>
 		</div>
         <p id="msg"></p>
 
