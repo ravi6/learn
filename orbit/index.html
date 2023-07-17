@@ -14,7 +14,27 @@
            integrity="sha384-fbbOQedDUMZZ5KreZpsbe1LCZPVmfTnH7ois6mU1QK+m14rQ1l2bGBq41eYeM/fS" 
            crossorigin="anonymous">
   </script>
+
+<style>
+  .dlgFrame
+  {
+    border-radius: 16px 16px 16px 16px;
+    box-shadow: 3px 3px 5px #535353;
+    background: lightYellow;
+  }
+
+  .dlgHeader
+  {
+     padding: 4px 4px 4px 4px;
+      background:  #003399 url(images/vertgradient.png) repeat-x;
+      text-align: center;
+      font-weight: bold;
+      text-decoration: none;
+      color: khaki;
+  }
+
 </head>
+</style>
 <!--////////////////////////  END HEADERS ///////////////////-->
 <script type=module>
   import  {THREE, GUI, loader, scene, camera, renderer} from "./init.js" ;
@@ -41,40 +61,47 @@ function animate(){
   }
 
  function setColor (obj){
-      // set Color of an object interactively
-      let pop = window.open("", "Popup", "width=140, height=100");
+    let  dlg = document.createElement("dialog"); 
+     dlg.classList.add("dlgFrame") ;
+    let  hdr = document.createElement("h5"); 
+     hdr.innerText = "Set Color" ;
+     dlg.appendChild(hdr);
+     
      // Create three sliders 
       ["r", "g", "b"].forEach(function(val){
-          let div = pop.document.createElement("div"); 
-	  let input = pop.document.createElement("input"); 
+          let div = document.createElement("div"); 
+	  let input = document.createElement("input"); 
 	    input.id = val ;
 	    input.min = 0 ; input.max = 255 ; input.value = 0 ; input.step = 1 ;
 	    input.class = "slider"; input.type = "range" ; 
   	    input.addEventListener("input", function(){
-	          let rgb = "rgb(" + pop.document.getElementById("r").value + ","
-		     + pop.document.getElementById("g").value + ","
-		     + pop.document.getElementById("b").value + ")" ;
-	          console.log(rgb) ;
-	          obj.color.set(rgb);
-	          pop.document.getElementById("msg").innerText = rgb ;
+	          let rgb = "rgb(" + document.getElementById("r").value + ","
+		     + document.getElementById("g").value + ","
+		     + document.getElementById("b").value + ")" ;
+	          console.log(rgb) ; obj.color.set(rgb);
+	          document.getElementById("msg").innerText = rgb ;
 	     }); // end evenlistener
 	    div.appendChild(input);
-            pop.document.body.appendChild(div);
-	    pop.document.title="Set Color" ;
+            dlg.appendChild(div);
       });
-          let div = pop.document.createElement("div");
-	  let label = pop.document.createElement("label"); 
-	  label.id="msg";
-          label.innerText = "hello" ;
-          div.appendChild(label);
-          pop.document.body.appendChild(div) ;
-	  //pop.addEventListener("beforeunload", function(){alert("DONE")});
+	  let label = document.createElement("label"); 
+	  label.id="msg"; label.innerText = "rgb(0,0,0)" ;
+          dlg.appendChild(label);
+	  document.body.appendChild(dlg);
+ return(dlg);
 }// setColor
 
 
  
 document.getElementById("setLight").addEventListener(
-       "click",function(){setColor(light);});
+       "click",function(){
+        setColor(light).showModal();
+        /*let dlg =  document.getElementById("dlgColor");
+	console.log(dlg);
+        if (dlg.open) {dlg.close}
+	else {dlg.showModal()};
+	*/
+       });
 </script>
 
 <!--      WEB PAGE DOM ELEMENTS  ------>
@@ -83,6 +110,22 @@ document.getElementById("setLight").addEventListener(
     <h2>Payload Thermal Model </h2>
    <button id="setLight">setLight</button>
   </div>
-  
+
+
+
+<!-- Modal Dialogue with For ColorSetting -->
+<div>
+  <dialog id=dlgColor class=dlgFrame>
+    <h3>Set Color </h3>
+	   <div class=row> <input type="range" min=0 max=255 value=0 step=1 class="slider" id="x"> </div>
+	   <div class=row> <input type="range" min=0 max=255 value=0 step=1 class="slider" id="y"> </div>
+	   <div class=row> <input type="range" min=0 max=255 value=0 step=1  class="slider" id="z"> </div>
+	   <label id=rgb></label>
+  </dialog>
+</div>
+<!----   End Color Setup Dialogue -->
+
+
+
 </body>
 </html>
