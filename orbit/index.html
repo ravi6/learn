@@ -28,7 +28,7 @@
   scene.add(Bishop());
   scene.add(light); 
   scene.add(dlight);
-  lightGUI() ; // GUI for controlling lighting
+//  lightGUI() ; // GUI for controlling lighting
   animate();
 	
 // Functions 
@@ -40,97 +40,49 @@ function animate(){
     renderer.render(scene, camera);
   }
 
-
-["x", "y", "z"].forEach(function(val){
-                 document.getElementById(val).oninput = 
-	                   function(){setColor(light)};
-			   } );
-
-function setColor(obj){
-  var str = "rgb(" + document.getElementById("x").value + ","
-		   + document.getElementById("y").value + ","
-		   + document.getElementById("z").value + ")"
-  obj.color.set(str) ;
-}
-
-document.getElementById("go").addEventListener(
-	"click",
-	function(){
-		console.log("Hello");
-		console.log(light.color.r, light.color.g, light.color.b);
-	});
-</script>
-<script>
-function doit(obj){
-  console.log(obj);
-}
-
-      function setXYZ(){
-         var xyz = {x: pop.document.getElementById("x").value,  
-                    y: pop.document.getElementById("y").value,  
-                    z: pop.document.getElementById("z").value} ;
-	console.log(xyz) ;
-      } 
-function popup(){
-      var pop = open("", "Popup", "width=300,height=200");
-      
+ function setColor (obj){
+      // set Color of an object interactively
+      let pop = window.open("", "Popup", "width=140, height=100");
      // Create three sliders 
-      ["x", "y", "z"].forEach(function(val){
+      ["r", "g", "b"].forEach(function(val){
           let div = pop.document.createElement("div"); 
-	  let input = document.createElement("input"); 
+	  let input = pop.document.createElement("input"); 
 	    input.id = val ;
-	    input.min = 0 ; input.max = 255 ; input.value=0 ; input.step = 1 ;
+	    input.min = 0 ; input.max = 255 ; input.value = 0 ; input.step = 1 ;
 	    input.class = "slider"; input.type = "range" ; 
-	    input.oninput = function (){setXYZ();}.bind(this);
+  	    input.addEventListener("input", function(){
+	          let rgb = "rgb(" + pop.document.getElementById("r").value + ","
+		     + pop.document.getElementById("g").value + ","
+		     + pop.document.getElementById("b").value + ")" ;
+	          console.log(rgb) ;
+	          obj.color.set(rgb);
+	          pop.document.getElementById("msg").innerText = rgb ;
+	     }); // end evenlistener
 	    div.appendChild(input);
             pop.document.body.appendChild(div);
-      }).bind(this);
+	    pop.document.title="Set Color" ;
+      });
           let div = pop.document.createElement("div");
-	  let label = document.createElement("label"); 
+	  let label = pop.document.createElement("label"); 
+	  label.id="msg";
           label.innerText = "hello" ;
           div.appendChild(label);
           pop.document.body.appendChild(div) ;
+	  //pop.addEventListener("beforeunload", function(){alert("DONE")});
+}// setColor
 
-	/*
-      div.innerHTML = `
 
-          <div class=row>
-             x: <input type="range" class=form-range min=0 max=255 value=0 step=1 class="slider" 
-	     id="x" oninput="console.log('x')"> 
-          </di
-          <div class=row>
-             y: <input type="range" class=form-range min=0 max=255 value=0 step=1 class="slider" 
-	     id="y" oninput="console.log('y')">
-	  </div>
-          <div class=row>
-             z: <input type="range" class=form-range min=0 max=255 value=0 step=1 class="slider" 
-	     id="z" oninput="console.log('z')">
-          </div>
-          <div class=row>
-             <button class=btn id="alert('hello')">show</button>
-          </div>
-          ` ;
-         */ 
-       return(pop);
-
-       // Update xyz object on slider inputs
-}// end popup
  
-
+document.getElementById("setLight").addEventListener(
+       "click",function(){setColor(light);});
 </script>
+
 <!--      WEB PAGE DOM ELEMENTS  ------>
 <body>
   <div class=container>
-        Payload Thermal Model5
-<div id="divPopup" onclick="popup();">Create popup</div>
-	<div class=form>
-           <input type="range" class=form-range min=0 max=255 value=0 step=1 class="slider" id="x">
-           <input type="range" class=form-range min=0 max=255 value=0 step=1 class="slider" id="y">
-           <input type="range" class=form-range min=0 max=255 value=0 step=1  class="slider" id="z">
-	    <button class=btn id=go>show</button>
-		</div>
-        <p id="msg"></p>
-
+    <h2>Payload Thermal Model </h2>
+   <button id="setLight">setLight</button>
   </div>
+  
 </body>
 </html>
