@@ -19,7 +19,16 @@
   .dlgFrame
   {
     border-radius: 16px 16px 16px 16px;
-    box-shadow: 3px 3px 5px #535353;
+#    box-shadow: 3px 3px 5px #535353;
+    box-shadow: 
+    rgba(0, 0, 0, 0.17) 0px -23px 25px 0px inset, 
+            rgba(0, 0, 0, 0.15) 0px -36px 30px 0px inset, 
+            rgba(0, 0, 0, 0.1) 0px -79px 40px 0px inset, 
+            rgba(0, 0, 0, 0.06) 0px 2px 1px, 
+            rgba(0, 0, 0, 0.09) 0px 4px 2px, 
+            rgba(0, 0, 0, 0.09) 0px 8px 4px, 
+            rgba(0, 0, 0, 0.09) 0px 16px 8px, 
+            rgba(0, 0, 0, 0.09) 0px 32px 16px;
     background: lightYellow;
   }
 
@@ -33,8 +42,8 @@
       color: khaki;
   }
 
-</head>
 </style>
+</head>
 <!--////////////////////////  END HEADERS ///////////////////-->
 <script type=module>
   import  {THREE, GUI, loader, scene, camera, renderer} from "./init.js" ;
@@ -63,7 +72,7 @@ function animate(){
  function setColor (obj){
     let  dlg = document.createElement("dialog"); 
      dlg.classList.add("dlgFrame") ;
-    let  hdr = document.createElement("h5"); 
+    let  hdr = document.createElement("header"); 
      hdr.innerText = "Set Color" ;
      dlg.appendChild(hdr);
      
@@ -83,24 +92,18 @@ function animate(){
 	     }); // end evenlistener
 	    div.appendChild(input);
             dlg.appendChild(div);
+	    document.body.appendChild(dlg);
       });
 	  let label = document.createElement("label"); 
 	  label.id="msg"; label.innerText = "rgb(0,0,0)" ;
           dlg.appendChild(label);
-	  document.body.appendChild(dlg);
+	  dlg.addEventListener("close", function(){dlg.remove();});
  return(dlg);
 }// setColor
-
-
  
 document.getElementById("setLight").addEventListener(
        "click",function(){
-        setColor(light).showModal();
-        /*let dlg =  document.getElementById("dlgColor");
-	console.log(dlg);
-        if (dlg.open) {dlg.close}
-	else {dlg.showModal()};
-	*/
+         setColor(light).showModal();
        });
 </script>
 
@@ -110,22 +113,5 @@ document.getElementById("setLight").addEventListener(
     <h2>Payload Thermal Model </h2>
    <button id="setLight">setLight</button>
   </div>
-
-
-
-<!-- Modal Dialogue with For ColorSetting -->
-<div>
-  <dialog id=dlgColor class=dlgFrame>
-    <h3>Set Color </h3>
-	   <div class=row> <input type="range" min=0 max=255 value=0 step=1 class="slider" id="x"> </div>
-	   <div class=row> <input type="range" min=0 max=255 value=0 step=1 class="slider" id="y"> </div>
-	   <div class=row> <input type="range" min=0 max=255 value=0 step=1  class="slider" id="z"> </div>
-	   <label id=rgb></label>
-  </dialog>
-</div>
-<!----   End Color Setup Dialogue -->
-
-
-
 </body>
 </html>
