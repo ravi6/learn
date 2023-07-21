@@ -19,8 +19,8 @@
   .dlgFrame
   {
     border-radius: 16px 16px 16px 16px;
-#    box-shadow: 3px 3px 5px #535353;
-    box-shadow: 
+    box-shadow: 3px 3px 5px #535353;
+#    box-shadow: 
     rgba(0, 0, 0, 0.17) 0px -23px 25px 0px inset, 
             rgba(0, 0, 0, 0.15) 0px -36px 30px 0px inset, 
             rgba(0, 0, 0, 0.1) 0px -79px 40px 0px inset, 
@@ -32,15 +32,6 @@
     background: lightYellow;
   }
 
-  .dlgHeader
-  {
-     padding: 4px 4px 4px 4px;
-      background:  #003399 url(images/vertgradient.png) repeat-x;
-      text-align: center;
-      font-weight: bold;
-      text-decoration: none;
-      color: khaki;
-  }
 
 </style>
 </head>
@@ -50,6 +41,7 @@
   import {Cube} from "./cube.js" ;
   import {light, dlight, lightGUI} from  "./lights.js" ;
   import {Bishop} from "./chess.js" ;
+  import {setColor, setPos} from "./util.js" ;
 
   camera.position.set(0,0,6);
   let cube = Cube() ;
@@ -69,41 +61,13 @@ function animate(){
     renderer.render(scene, camera);
   }
 
- function setColor (obj){
-    let  dlg = document.createElement("dialog"); 
-     dlg.classList.add("dlgFrame") ;
-    let  hdr = document.createElement("header"); 
-     hdr.innerText = "Set Color" ;
-     dlg.appendChild(hdr);
-     
-     // Create three sliders 
-      ["r", "g", "b"].forEach(function(val){
-          let div = document.createElement("div"); 
-	  let input = document.createElement("input"); 
-	    input.id = val ;
-	    input.min = 0 ; input.max = 255 ; input.value = 0 ; input.step = 1 ;
-	    input.class = "slider"; input.type = "range" ; 
-  	    input.addEventListener("input", function(){
-	          let rgb = "rgb(" + document.getElementById("r").value + ","
-		     + document.getElementById("g").value + ","
-		     + document.getElementById("b").value + ")" ;
-	          console.log(rgb) ; obj.color.set(rgb);
-	          document.getElementById("msg").innerText = rgb ;
-	     }); // end evenlistener
-	    div.appendChild(input);
-            dlg.appendChild(div);
-	    document.body.appendChild(dlg);
-      });
-	  let label = document.createElement("label"); 
-	  label.id="msg"; label.innerText = "rgb(0,0,0)" ;
-          dlg.appendChild(label);
-	  dlg.addEventListener("close", function(){dlg.remove();});
- return(dlg);
-}// setColor
- 
 document.getElementById("setLight").addEventListener(
        "click",function(){
          setColor(light).showModal();
+       });
+document.getElementById("setCamPos").addEventListener(
+       "click",function(){
+         setPos(camera).showModal();
        });
 </script>
 
@@ -112,6 +76,7 @@ document.getElementById("setLight").addEventListener(
   <div class=container>
     <h2>Payload Thermal Model </h2>
    <button id="setLight">setLight</button>
+   <button id="setCamPos">setCamPos</button>
   </div>
 </body>
 </html>
