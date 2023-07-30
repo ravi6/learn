@@ -1,0 +1,11 @@
+circ1
+    Exploring resistor heating with inductor in series
+circ2
+    Exploring resistor on primay with Ideal Transformer
+        that can take into magnetization Induction (core losses)
+        with 10mH ..  400C, 20mH .. 200C,  35mH ... 120C 
+        Transformer seconday is Open.
+
+circ3
+    Microwave Circuit Simulation with simplified Magnetron Model
+
