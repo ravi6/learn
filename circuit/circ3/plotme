@@ -17,18 +17,27 @@ set term qt 1  size 1200,600 font "Arial,12"
 set multiplot layout 5,1
 
 set xlabel  "time(s)"
-set ylabel  "Resitor T(C)" 
-plot data using (column("time")):(column("R.T")) w l  lw 2  
-
-set ylabel "Qgen(W)"
-plot data using (column("time")):(column("R.Qgen")) w l lw 2 
 
 set ylabel "i"
-plot data using (column("time")):(column("R.i")) w l lw 2  
-
-set ylabel  "R(Ohm)" 
-plot data using (column("time")):(column("R.R")) w l  lw 2  
+plot data using (column("time")):(column("MagRoff.i")) w l lw 2  
 
 set ylabel  "V2(v)" 
 plot data using (column("time")):(column("T.v2")) w l  lw 2 
+
+set ylabel "MagPower(W)"
+plot data using (column("time")):(column("MagRoff.LossPower")) w l lw 2 
+
+set ylabel "rmsMagPower"
+plot data using (column("time")):(column("rmsMagPower.y")) w l lw 2 
+set ylabel "rmsinputPower"
+plot data using (column("time")):(column("rmsVSi.y")) w l lw 2 
+
+if(1==2){
+set ylabel  "Resitor T(C)" 
+plot data using (column("time")):(column("R.T")) w l  lw 2  
+set ylabel "Qgen(W)"
+plot data using (column("time")):(column("R.Qgen")) w l lw 2 
+set ylabel  "R(Ohm)" 
+plot data using (column("time")):(column("R.R")) w l  lw 2  
+}
 pause(-1)

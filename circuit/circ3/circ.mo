@@ -4,25 +4,30 @@ model circ "Microwave Oven Circuit Simplified"
   import Modelica.Electrical.Analog.Ideal.IdealTransformer ;
   import Modelica.Electrical.Analog.Ideal.IdealDiode ;
   import Modelica.Electrical.Analog.Ideal.ControlledIdealTwoWaySwitch ;
+  import Modelica.Blocks.Math.RootMeanSquare ;
 
 // set negative alpha for NTC (negetive Temperature Coeff.)
 // Now testing using Nicrome wire Temp Coeff which is positive
 // Using 1.5Ohm ... 5W ceramic wire wound resitor
-// Inductance of primary is assumed to b 35mH
 
   RaviResistor R(Rref=1.5, Tref=15, alpha=3.0e-3, i(start=0)) ;
   Capacitor    C(C=1.06e-6) ; // The big Cap
   IdealDiode   D ; // Rectifying diode on Secondary Output
   Ground       G ; 
   SineVoltage  VS(V=240*1.4, f=50) ;
-  IdealTransformer T(n=0.1, Lm1=20e-3, considerMagnetization=true);
+  IdealTransformer T(n=0.1, Lm1=300e-3, considerMagnetization=true);
 
 // Components that make up Magnetron
-  ConstantVoltage MagVS(V = 3000) ;
+  ConstantVoltage MagVS(V = 2000) ;
   IdealDiode      MagD ;
-  Resistor        MagRon(R=20) ;   // Oscillatory mode resistance
-  Resistor        MagRoff(R=100) ;   // NonOscillatory mode resistance
-  ControlledIdealTwoWaySwitch  MagSW(level = -1000) ;
+  Resistor        MagRon(R = 5e3) ;   // Oscillatory mode resistance
+  Resistor        MagRoff(R = 100e3) ;   // NonOscillatory mode resistance
+  ControlledIdealTwoWaySwitch  MagSW(level = -2000) ;
+
+// RMS values calculating blocks
+  RootMeanSquare rmsVSi ;
+  RootMeanSquare rmsVSv ;
+  RootMeanSquare rmsMagPower ;
 
   Real  Qloss ;   // Heat lost to ambient by convection
   Real  h = 15 ;   // Natural convection heat transfer coeff. (W/m2C)
@@ -32,6 +37,8 @@ model circ "Microwave Oven Circuit Simplified"
   Real Ta = 15 ; // Ambient Temperature
   Real mass = 1e-3 ; //a gram of Resistor (Nichrome+Ceramics)
   Real  Cp = 750 ;  // J/kgC Ceramic Specific Heat
+  Real MagEff (min=0, max=100) ;
+  Real rmsPowerIn ; 
 
 equation
 
@@ -62,6 +69,13 @@ equation
           +    5.67e-8 *  0.9 * ( (R.T + 273)^4 - (Ta + 273)^4 ) ;
             // White Ceramic emissivity, Radiation loss
   mass * Cp * der(R.T) = R.Qgen - Qloss ;  // Transient Heat Balance
+
+// Overall Efficiency of the Microwave
+  rmsVSv.u = VS.v ; rmsVSi.u = VS.i ;
+  rmsPowerIn = rmsVSv.y * rmsVSi.y ;
+  rmsMagPower.u = MagRon.LossPower ;
+  MagEff =  100  ;
+
 initial equation
   R.T = Ta  ;   // Resistor at ambient to start with
   C.v = 0 ;
