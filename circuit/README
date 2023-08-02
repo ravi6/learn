@@ -1,33 +1,3 @@
-Simulation to troubleshoot my microwave oven project
-======================================================================
-Miele Tranny: Measurements
-    Primary:   Np = 225   26g wire   d=0.483mm   R=2.8ohm
-    Secondary: Ns = 1740  30g wire   d=0.296mm   R=185ohm
-            Secondary failed with repeated trials R=28ohm
-    Expected VRM on secondary = 240 * (1740/225) = 1856 V
-    Expected RMS current in secondary 900*0.8/1856 = 390mA
-         Assuming 900W rating , and overall efficiency is 80%
-
-        Front View
-                      ___________________
-                      |_________________|
-                      |  |           |12|         side view of winding
-                      |  |P     S    |  |
-                      |  |oo    ooooo|  |     o===o       o===o   |
-                      |  |oo    ooooo|  |     o===o       o===o   60
-                      |  |----|A|----|  |     o===o       o===o   |    
-           h=95       |  |----|I|----|  |     <20 > 
-	   w=80       |  |     R     |  |     <     110       >
-	   d=70       |  |oo    ooooo|  |
-                      |  |oo    ooooo|  |
-                      |  |           |  |
-                      |__|___________|__|
-                      |______12_________|
-
-I have the above dimension to see if I can estimate inductance 
-of primary and secondary from emperical relations
-
-
 circ1
     Exploring resistor heating with inductor in series
 circ2
