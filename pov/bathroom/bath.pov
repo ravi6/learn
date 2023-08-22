@@ -64,7 +64,7 @@ global_settings { assumed_gamma 1.8 }
         scale <shBaseWidth*0.5, shBaseHeight*0.5, shBaseLength*0.5>
 	translate <  (roomWidth  - shBaseWidth) * 0.5, 
 	             - (roomHeight - shBaseHeight) * 0.5, 
-		       - (roomLength -  shBaseLength) * 0.5   >
+		       - roomLength +  shBaseLength * 0.5   >
 	texture {sandalwood}
       }
 
@@ -73,7 +73,7 @@ global_settings { assumed_gamma 1.8 }
 //==============================
 
 // Reference Marker
-object { sphere {<0, 0 ,0>, 100} 
+object { sphere {<0, 0 ,0>, 30} 
           texture {pigment{ color Red }} }
 object {window}
 object {vanity}
@@ -87,30 +87,48 @@ object { UnitBox
 
 //left Wall
 object { UnitBox
-           scale <1, roomHeight*0.5, -roomLength*0.5> 
-	   translate <-roomWidth*0.5, 0, 0>
+           scale <1, roomHeight*0.5, roomLength*0.5> 
+	   translate <-roomWidth*0.5, 0, -roomLength*0.5>
 	   texture {wallMat}
 }
 
 //right Wall
 object { UnitBox
-           scale <1, roomHeight*0.5, -roomLength*0.5> 
-	   translate <roomWidth*0.5, 0, 0>
+           scale <1, roomHeight*0.5, roomLength*0.5> 
+	   translate <roomWidth*0.5, 0, -roomLength*0.5>
 	   texture {wallMat}
 }
 
 //Ceiling
 object { UnitBox
-           scale <roomWidth*0.5, 1, -roomLength*0.5> 
-	   translate <0, roomHeight*0.5, 0>
+           scale <roomWidth*0.5, 1, roomLength*0.5> 
+	   translate <0, roomHeight*0.5, -roomLength*0.5>
 	   texture {ceilMat}
 }
 
 //Floor
 object { UnitBox
-           scale <roomWidth*0.5, 1, -roomLength*0.5> 
-	   translate <0, -roomHeight*0.5, 0>
+           scale <roomWidth*0.5, 1, roomLength*0.5> 
+	   translate <0, -roomHeight*0.5, -roomLength*0.5>
 	   texture {floorMat}
+}
+
+light_source {
+   < 0, roomHeight*0.5, -roomLength*0.5 > 
+   color Grey
+   shadowless }
+
+camera {
+   //perspective
+   location  <-roomWidth*0.25, 0.0,  -roomLength*4.6>
+   //location  <-roomWidth*0.25, 0.0,  -roomLength*4.6>
+   //location  <+roomWidth*2, 0.0,  -roomLength*4.6>
+   angle     45
+   up        <0, 1, 0>
+   look_at   <roomWidth*0.5, -roomHeight*0.0, -roomLength*0.5>
+
+//   right     x*image_width/image_height
+// direction <0.0, 0.0, 2.0>
 }
 
 /*
@@ -119,18 +137,3 @@ object { UnitBox
    rotate 96.2052*z
    translate <1, 0, -5>
 */
-light_source {
-   < roomWidth*0.5, roomHeight*0.5, -roomLength*0.5 > 
-   color White
-   shadowless }
-
-camera {
-   perspective
-   location  <0, 0, -roomLength*0.4>
-   angle     55
-   up        <0.0, 1, 0.0>
-   look_at   <roomWidth*0.25, -roomHeight*0.55, -roomLength*0.25>
-//   right     x*image_width/image_height
-// direction <0.0, 0.0, 2.0>
-}
-
