@@ -78,8 +78,7 @@ global_settings { assumed_gamma 1.8 }
 	translate <  roomWidth * 0.5   - shBaseWidth, 
 	             - (roomHeight - shGlassHeight) * 0.5, 
 		       - roomLength +  shBaseLength * 0.5   >
-	//texture {pigment {color <0.0, 0.2, 0.8, 0.9> }}
-	texture {pigment {Col_Glass_General}}
+	texture {pigment {Col_Glass_Bluish}}
      }
 
 #declare shGlass2 = 
@@ -88,8 +87,8 @@ global_settings { assumed_gamma 1.8 }
 	translate <  (roomWidth  - shBaseWidth) * 0.5, 
 	             - (roomHeight - shGlassHeight) * 0.5, 
 		       - roomLength + shBaseLength    >
-	//texture {pigment {color <0.9, 0.0, 0.1, 0.9> }}
-	texture {pigment {Col_Glass_General}}
+	//texture {pigment {color <0.9, 0.94, 1, 0.8> }}
+	texture {pigment {Col_Glass_Bluish}}
      }
 //==============================
 // Place objects in the bathroom
