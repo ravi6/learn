@@ -4,23 +4,12 @@ global_settings { assumed_gamma 1.8 }
 #include "shapes.inc"
 #include "materials.inc"
 
-//   Lights, Camera ...
-camera {
-   perspective
-   location  <1000, 1000, -12000>
-   angle 60 // direction <0.0, 0.0, 2.0>
-   up        <0.0, 1.0, 0.0>
-//   right     x*image_width/image_height
-//   look_at   <95, 45, -400>
-}
-
-light_source { <500, 6000, -16000> color White }
 
 // Room and content dimensions
-#declare windowWidth = 1950 - 2 * 70 ; 
-#declare windowHeight = 1025 - 2 * 70;
 #declare skirtWidth = 70 ;
 #declare skirtDepth = 19 ;
+#declare windowWidth = 1950 - 2 * skirtWidth ; 
+#declare windowHeight = 1025 - 2 * skirtWidth;
 
 #declare roomWidth = 2075 ;
 #declare roomLength = 2350 ;
@@ -30,6 +19,11 @@ light_source { <500, 6000, -16000> color White }
 #declare vanityHeight = 900 ;
 #declare vanityDepth = 450 ;
 
+#declare shBaseWidth = 900 ;
+#declare shBaseHeight = 30 ;
+#declare shBaseLength = 1200 ;
+
+
 //==============================
 // Make  window frame with glass center
 //  and wooden skirting
@@ -37,14 +31,16 @@ light_source { <500, 6000, -16000> color White }
 #declare window = 
   difference {
      object {UnitBox
-	scale <windowWidth + skirtWidth, 
-	       windowHeight + skirtWidth, skirtDepth>
+	scale <(windowWidth + 2 *skirtWidth)*0.5, 
+	       (windowHeight + 2 * skirtWidth)*0.5, skirtDepth*0.5>
 	texture {sandalwood}
        }
      object {UnitBox
-	scale <windowWidth, windowHeight, skirtDepth>
+	scale <windowWidth*0.5, windowHeight*0.5, skirtDepth*0.5>
        }
-   translate <0, 0.5 * (-roomHeight + windowHeight) + skirtWidth + 1135 , 0>
+   translate <0, 0.5 * (-roomHeight + windowHeight)
+                         + skirtWidth + 1135  , 0>
+         texture { milkyglass }
  } // end Window
 
 //=============================
@@ -52,11 +48,23 @@ light_source { <500, 6000, -16000> color White }
 //=============================
 #declare vanity = 
      object {UnitBox
-        scale <vanityWidth, vanityHeight, vanityDepth>
+        scale <vanityWidth*0.5, vanityHeight*0.5, vanityDepth*0.5>
 	rotate y*90
-	translate <-roomWidth + vanityDepth, 
-	           -roomHeight + vanityHeight, 
+	translate <(-roomWidth + vanityDepth)*0.5
+	           (-roomHeight + vanityHeight)*0.5, 
 		   0>
+	texture {sandalwood}
+      }
+
+//=============================
+// Make ShowerBase
+//=============================
+#declare shBase = 
+     object {UnitBox
+        scale <shBaseWidth*0.5, shBaseHeight*0.5, shBaseLength*0.5>
+	translate <  (roomWidth  - shBaseWidth) * 0.5, 
+	             - (roomHeight - shBaseHeight) * 0.5, 
+		       - (roomLength -  shBaseLength) * 0.5   >
 	texture {sandalwood}
       }
 
@@ -64,44 +72,44 @@ light_source { <500, 6000, -16000> color White }
 // Place objects in the bathroom
 //==============================
 
-object { window 
-         texture { milkyglass }
-}
-
+// Reference Marker
+object { sphere {<0, 0 ,0>, 100} 
+          texture {pigment{ color Red }} }
+object {window}
 object {vanity}
-
+object {shBase}
 
 // Window wall
 object { UnitBox
-           scale <roomWidth, roomHeight, 1> 
+           scale <roomWidth*0.5, roomHeight*0.5, 1> 
            texture {wallMat}
 }
 
 //left Wall
 object { UnitBox
-           scale <1, roomHeight, -roomLength> 
-	   translate <-roomWidth, 0, 0>
+           scale <1, roomHeight*0.5, -roomLength*0.5> 
+	   translate <-roomWidth*0.5, 0, 0>
 	   texture {wallMat}
 }
 
 //right Wall
 object { UnitBox
-           scale <1, roomHeight, -roomLength> 
-	   translate <roomWidth, 0, 0>
+           scale <1, roomHeight*0.5, -roomLength*0.5> 
+	   translate <roomWidth*0.5, 0, 0>
 	   texture {wallMat}
 }
 
 //Ceiling
 object { UnitBox
-           scale <roomWidth, 1, -roomLength> 
-	   translate <0, roomHeight, 0>
+           scale <roomWidth*0.5, 1, -roomLength*0.5> 
+	   translate <0, roomHeight*0.5, 0>
 	   texture {ceilMat}
 }
 
 //Floor
 object { UnitBox
-           scale <roomWidth, 1, -roomLength> 
-	   translate <0, -roomHeight, 0>
+           scale <roomWidth*0.5, 1, -roomLength*0.5> 
+	   translate <0, -roomHeight*0.5, 0>
 	   texture {floorMat}
 }
 
@@ -111,3 +119,18 @@ object { UnitBox
    rotate 96.2052*z
    translate <1, 0, -5>
 */
+light_source {
+   < roomWidth*0.5, roomHeight*0.5, -roomLength*0.5 > 
+   color White
+   shadowless }
+
+camera {
+   perspective
+   location  <0, 0, -roomLength*0.4>
+   angle     55
+   up        <0.0, 1, 0.0>
+   look_at   <roomWidth*0.25, -roomHeight*0.55, -roomLength*0.25>
+//   right     x*image_width/image_height
+// direction <0.0, 0.0, 2.0>
+}
+

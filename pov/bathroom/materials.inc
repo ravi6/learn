@@ -36,7 +36,7 @@
 
 
 #declare floorMat  =  texture { 
-             pigment {LightBlue
+             pigment {marble
              turbulence 0.5 omega 0.7 rotate -40*y scale 6
 	   }
            finish {reflection 0.2 specular 0.4 roughness 1}
@@ -46,7 +46,7 @@
              pigment {LightBlue
              turbulence 0.5 omega 0.7 rotate -40*y scale 6
 	   }
-           finish {reflection 0.2 specular 0.4 roughness 1}
+           finish {reflection 0.0 specular 0.4 roughness 1}
 }
 
 #declare ceilMat  =  texture { 
