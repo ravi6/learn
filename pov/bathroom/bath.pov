@@ -3,6 +3,8 @@ global_settings { assumed_gamma 1.8 }
 #include "colors.inc"
 #include "shapes.inc"
 #include "materials.inc"
+#include "glass.inc"
+#include "stones.inc"
 
 
 // Room and content dimensions
@@ -22,6 +24,7 @@ global_settings { assumed_gamma 1.8 }
 #declare shBaseWidth = 900 ;
 #declare shBaseHeight = 30 ;
 #declare shBaseLength = 1200 ;
+#declare shGlassHeight = 1500 ;
 
 
 //==============================
@@ -66,8 +69,28 @@ global_settings { assumed_gamma 1.8 }
 	             - (roomHeight - shBaseHeight) * 0.5, 
 		       - roomLength +  shBaseLength * 0.5   >
 	texture {sandalwood}
-      }
+     }
 
+
+#declare shGlass1 = 
+     object {UnitBox
+        scale <1, shGlassHeight*0.5, shBaseLength*0.5>
+	translate <  roomWidth * 0.5   - shBaseWidth, 
+	             - (roomHeight - shGlassHeight) * 0.5, 
+		       - roomLength +  shBaseLength * 0.5   >
+	//texture {pigment {color <0.0, 0.2, 0.8, 0.9> }}
+	texture {pigment {Col_Glass_General}}
+     }
+
+#declare shGlass2 = 
+     object {UnitBox
+        scale <shBaseWidth*0.5, shGlassHeight*0.5, 1>
+	translate <  (roomWidth  - shBaseWidth) * 0.5, 
+	             - (roomHeight - shGlassHeight) * 0.5, 
+		       - roomLength + shBaseLength    >
+	//texture {pigment {color <0.9, 0.0, 0.1, 0.9> }}
+	texture {pigment {Col_Glass_General}}
+     }
 //==============================
 // Place objects in the bathroom
 //==============================
@@ -78,6 +101,8 @@ object { sphere {<0, 0 ,0>, 30}
 object {window}
 object {vanity}
 object {shBase}
+object {shGlass1}
+object {shGlass2}
 
 // Window wall
 object { UnitBox
@@ -110,13 +135,20 @@ object { UnitBox
 object { UnitBox
            scale <roomWidth*0.5, 1, roomLength*0.5> 
 	   translate <0, -roomHeight*0.5, -roomLength*0.5>
-	   texture {floorMat}
+	   texture {T_Grnt26}
+
 }
 
 light_source {
    < 0, roomHeight*0.5, -roomLength*0.5 > 
-   color Grey
-   shadowless }
+   color White
+   shadowless
+   }
+light_source {
+   < 0, roomHeight*0.5, -roomLength*0.75 > 
+   color White
+   shadowless
+   }
 
 camera {
    //perspective
@@ -125,7 +157,7 @@ camera {
    //location  <+roomWidth*2, 0.0,  -roomLength*4.6>
    angle     45
    up        <0, 1, 0>
-   look_at   <roomWidth*0.5, -roomHeight*0.0, -roomLength*0.5>
+   look_at   <roomWidth*0.5, -roomHeight, -roomLength*0.5>
 
 //   right     x*image_width/image_height
 // direction <0.0, 0.0, 2.0>
