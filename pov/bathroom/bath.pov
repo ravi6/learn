@@ -83,12 +83,13 @@ global_settings { assumed_gamma 1.8 }
 
 #declare shGlass2 = 
      object {UnitBox
+		       texture{splash}
         scale <shBaseWidth*0.5, shGlassHeight*0.5, 1>
 	translate <  (roomWidth  - shBaseWidth) * 0.5, 
 	             - (roomHeight - shGlassHeight) * 0.5, 
 		       - roomLength + shBaseLength    >
 	//texture {pigment {color <0.9, 0.94, 1, 0.8> }}
-	texture {pigment {Col_Glass_Bluish}}
+	//texture {pigment {Col_Glass_Bluish}}
      }
 //==============================
 // Place objects in the bathroom

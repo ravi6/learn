@@ -28,8 +28,6 @@
              finish {reflection 0.2
                     specular 0.4
                     roughness 1
-                    refraction 0.4
-                    ior 1.2
                     crand 0.02}
             scale 0.01
     }
@@ -46,11 +44,21 @@
              pigment {LightBlue
              turbulence 0.5 omega 0.7 rotate -40*y scale 6
 	   }
-           finish {reflection 0.2 specular 0.4 roughness 1}
+           finish {reflection 0.0 specular 0.4 roughness 1}
 }
 
 #declare ceilMat  =  texture { 
            pigment { White }  
-           finish {reflection 0.2 specular 0.4 roughness 1}
+           finish {reflection 0.1 specular 0.4 roughness 1}
+}
+
+#declare splash = texture {
+  pigment
+  { image_map
+    { png "tiles/tile8.png"
+      map_type 1
+    }
+  }
+  scale 5
 }
 
