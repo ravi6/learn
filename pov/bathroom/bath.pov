@@ -29,6 +29,9 @@ global_settings { assumed_gamma 1.8 }
 #declare shBaseLength = 1200 ;
 #declare shGlassHeight = 2000 ;
 
+// Investigating doorless options
+// 700mm standard walking gap
+#declare shGlass1Length = shBaseLength - 700 * 0 ;
 
 //==============================
 // Make  window frame with glass center
@@ -68,8 +71,8 @@ global_settings { assumed_gamma 1.8 }
     rotate y*90
     translate <-(roomWidth - vanityDepth)*0.5,
                -(roomHeight - vanityHeight)*0.5,
-	       -(roomLength - vanityWidth)*0.5>
-	texture {DMFWood6}
+	       -vanityWidth*0.5>
+	       texture{T_Grnt29}
 }
 //=============================
 // Make ShowerBase
@@ -87,10 +90,10 @@ global_settings { assumed_gamma 1.8 }
 
 #declare shGlass1 = 
      object {UnitBox
-        scale <1, shGlassHeight*0.5, shBaseLength*0.5>
+        scale <1, shGlassHeight*0.5, shGlass1Length*0.5>
 	translate < roomWidth * 0.5   - shBaseWidth, 
 	             - (roomHeight - shGlassHeight) * 0.5, 
-		       - roomLength +  shBaseLength * 0.5   >
+		       - roomLength +  shGlass1Length * 0.5   >
 	texture {pigment {Col_Glass_Bluish}}
      }
 
@@ -114,7 +117,7 @@ object {Window}
 object {Vanity}
 object {shBase}
 object {shGlass1}
-//object {shGlass2}
+object {shGlass2}
 
 // Window wall
 object { UnitBox
@@ -131,9 +134,9 @@ object { UnitBox
 
 //right Wall
 object { UnitBox
+	   texture {BrickWall}
            scale <1, roomHeight*0.5, roomLength*0.5> 
 	   translate <roomWidth*0.5, 0, -roomLength*0.5>
-	   texture {wallMat}
 }
 
 //Ceiling
@@ -156,15 +159,17 @@ light_source {
    color White
    shadowless
    }
+   /*
 light_source {
    < 0, roomHeight*0.5, -roomLength*0.75 > 
    color White
    shadowless
    }
+   */
 
 camera {
    //perspective
-   location  <-roomWidth*0.25, 300.0,  -roomLength*4.6>
+   location  <-roomWidth*0.25 - 900, 2000.0,  -roomLength*4.6>
    angle     45
    up        <0, 9, 0>
    right     <16, 0, 0>
