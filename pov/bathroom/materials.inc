@@ -41,10 +41,11 @@
 }
 
 #declare wallMat  =  texture { 
-             pigment {LightBlue
-             turbulence 0.5 omega 0.7 rotate -40*y scale 6
-	   }
-           finish {reflection 0.0 specular 0.4 roughness 1}
+             pigment {
+	       LightBlue
+               turbulence 0.5 omega 0.7 rotate -40*y scale 6
+	     }
+             finish {reflection 0.0 specular 0.4 roughness 1}
 }
 
 #declare ceilMat  =  texture { 
@@ -53,12 +54,14 @@
 }
 
 #declare splash = texture {
-  pigment
-  { image_map
-    { png "tiles/tile8.png"
-      map_type 1
-    }
+  pigment { 
+    image_map { png "tiles/tile8.png" map_type 1 }
   }
-  scale 5
+}
+
+#declare shbase = texture {
+  pigment { 
+    image_map { png "tiles/shbase.png" map_type 1 }
+  }
 }
 

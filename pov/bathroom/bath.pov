@@ -5,6 +5,7 @@ global_settings { assumed_gamma 1.8 }
 #include "materials.inc"
 #include "glass.inc"
 #include "stones.inc"
+#include "woods.inc"
 
 
 // Room and content dimensions
@@ -36,7 +37,7 @@ global_settings { assumed_gamma 1.8 }
      object {UnitBox
 	scale <(windowWidth + 2 *skirtWidth)*0.5, 
 	       (windowHeight + 2 * skirtWidth)*0.5, skirtDepth*0.5>
-	texture {sandalwood}
+	texture {T_Wood17}
        }
      object {UnitBox
 	scale <windowWidth*0.5, windowHeight*0.5, skirtDepth*0.5>
@@ -56,7 +57,7 @@ global_settings { assumed_gamma 1.8 }
 	translate <(-roomWidth + vanityDepth)*0.5
 	           (-roomHeight + vanityHeight)*0.5, 
 		   0>
-	texture {sandalwood}
+	texture {T_Wood17}
       }
 
 //=============================
@@ -67,15 +68,16 @@ global_settings { assumed_gamma 1.8 }
         scale <shBaseWidth*0.5, shBaseHeight*0.5, shBaseLength*0.5>
 	translate <  (roomWidth  - shBaseWidth) * 0.5, 
 	             - (roomHeight - shBaseHeight) * 0.5, 
-		       - roomLength +  shBaseLength * 0.5   >
-	texture {sandalwood}
+		       - roomLength +  shBaseLength * 0.5    >
+       texture { shbase }
+       finish {phong 0.4}
      }
 
 
 #declare shGlass1 = 
      object {UnitBox
         scale <1, shGlassHeight*0.5, shBaseLength*0.5>
-	translate <  roomWidth * 0.5   - shBaseWidth, 
+	translate < roomWidth * 0.5   - shBaseWidth, 
 	             - (roomHeight - shGlassHeight) * 0.5, 
 		       - roomLength +  shBaseLength * 0.5   >
 	texture {pigment {Col_Glass_Bluish}}
@@ -83,13 +85,12 @@ global_settings { assumed_gamma 1.8 }
 
 #declare shGlass2 = 
      object {UnitBox
-		       texture{splash}
         scale <shBaseWidth*0.5, shGlassHeight*0.5, 1>
-	translate <  (roomWidth  - shBaseWidth) * 0.5, 
-	             - (roomHeight - shGlassHeight) * 0.5, 
-		       - roomLength + shBaseLength    >
+	translate < (roomWidth  - shBaseWidth) * 0.5, 
+	            - (roomHeight - shGlassHeight) * 0.5, 
+		     - roomLength + shBaseLength    >
 	//texture {pigment {color <0.9, 0.94, 1, 0.8> }}
-	//texture {pigment {Col_Glass_Bluish}}
+	texture {pigment {Col_Glass_Bluish}}
      }
 //==============================
 // Place objects in the bathroom
@@ -152,12 +153,14 @@ light_source {
 
 camera {
    //perspective
-   location  <-roomWidth*0.25, 0.0,  -roomLength*4.6>
+   location  <-roomWidth*0.25, 300.0,  -roomLength*4.6>
    //location  <-roomWidth*0.25, 0.0,  -roomLength*4.6>
    //location  <+roomWidth*2, 0.0,  -roomLength*4.6>
    angle     45
-   up        <0, 1, 0>
-   look_at   <roomWidth*0.5, -roomHeight, -roomLength*0.5>
+   up        <0, 9, 0>
+   right     <16, 0, 0>
+   look_at <0,0,0>
+//   look_at   <roomWidth*0.5, -roomHeight, -roomLength*0.5>
 
 //   right     x*image_width/image_height
 // direction <0.0, 0.0, 2.0>
