@@ -2,10 +2,11 @@ global_settings { assumed_gamma 1.8 }
 
 #include "colors.inc"
 #include "shapes.inc"
-#include "materials.inc"
 #include "glass.inc"
 #include "stones.inc"
 #include "woods.inc"
+#include "textures.inc"
+#include "mytex.inc"
 
 
 // Room and content dimensions
@@ -18,21 +19,22 @@ global_settings { assumed_gamma 1.8 }
 #declare roomLength = 2350 ;
 #declare roomHeight = 2330 ;
 
-#declare vanityWidth = 1200 ;
-#declare vanityHeight = 900 ;
-#declare vanityDepth = 450 ;
+#declare vanityWidth = 910 ;
+#declare vanityHeight = 895 ;
+#declare vanityDepth = 460 ;
+#declare sinkDepth = 150 ;
 
 #declare shBaseWidth = 900 ;
 #declare shBaseHeight = 30 ;
 #declare shBaseLength = 1200 ;
-#declare shGlassHeight = 1500 ;
+#declare shGlassHeight = 2000 ;
 
 
 //==============================
 // Make  window frame with glass center
 //  and wooden skirting
 //==============================
-#declare window = 
+#declare Window = 
   difference {
      object {UnitBox
 	scale <(windowWidth + 2 *skirtWidth)*0.5, 
@@ -50,16 +52,25 @@ global_settings { assumed_gamma 1.8 }
 //=============================
 // Make Vanity
 //=============================
-#declare vanity = 
-     object {UnitBox
-        scale <vanityWidth*0.5, vanityHeight*0.5, vanityDepth*0.5>
-	rotate y*90
-	translate <(-roomWidth + vanityDepth)*0.5
-	           (-roomHeight + vanityHeight)*0.5, 
-		   0>
-	texture {T_Wood17}
-      }
-
+#declare  Vanity = object {
+  difference {
+    object {
+      UnitBox scale <vanityWidth, vanityHeight, vanityDepth>
+      scale 0.5
+    }
+    object {
+      sphere {<0,0,0>, 1}
+      scale <1.5, 1, 1>
+      scale 200 
+      translate 350*y
+    }
+  }
+    rotate y*90
+    translate <-(roomWidth - vanityDepth)*0.5,
+               -(roomHeight - vanityHeight)*0.5,
+	       -(roomLength - vanityWidth)*0.5>
+	texture {DMFWood6}
+}
 //=============================
 // Make ShowerBase
 //=============================
@@ -99,11 +110,11 @@ global_settings { assumed_gamma 1.8 }
 // Reference Marker
 object { sphere {<0, 0 ,0>, 30} 
           texture {pigment{ color Red }} }
-object {window}
-object {vanity}
+object {Window}
+object {Vanity}
 object {shBase}
 object {shGlass1}
-object {shGlass2}
+//object {shGlass2}
 
 // Window wall
 object { UnitBox
@@ -154,21 +165,12 @@ light_source {
 camera {
    //perspective
    location  <-roomWidth*0.25, 300.0,  -roomLength*4.6>
-   //location  <-roomWidth*0.25, 0.0,  -roomLength*4.6>
-   //location  <+roomWidth*2, 0.0,  -roomLength*4.6>
    angle     45
    up        <0, 9, 0>
    right     <16, 0, 0>
    look_at <0,0,0>
-//   look_at   <roomWidth*0.5, -roomHeight, -roomLength*0.5>
 
 //   right     x*image_width/image_height
 // direction <0.0, 0.0, 2.0>
 }
 
-/*
-   rotate 30*y
-   translate <0.72, -0.24, 0>
-   rotate 96.2052*z
-   translate <1, 0, -5>
-*/
