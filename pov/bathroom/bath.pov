@@ -6,7 +6,7 @@ global_settings { assumed_gamma 1.8 }
 #include "stones.inc"
 #include "woods.inc"
 #include "textures.inc"
-#include "mytex.inc"
+#include "ravi.inc"
 
 
 // Room and content dimensions

@@ -1,5 +1,3 @@
-#Create some textures for my BathRoom
-
 #declare frostyGlass = texture {
       pigment {Col_Glass_General}
       finish {F_Glass6}
@@ -64,4 +62,5 @@
 	//local Size = whatever_scale_suits_the_size_of_your_cube
 	scale 1  // Size = 30 
 }
+
 
