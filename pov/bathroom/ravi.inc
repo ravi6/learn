@@ -23,7 +23,7 @@
 
 #declare wallMat  =  texture { 
              pigment {
-	       Yellow
+	       LightBlue
                turbulence 0.5 omega 0.7 rotate -40*y scale 6
 	     }
              finish {reflection 0.0 specular 0.4 roughness 1}
@@ -54,13 +54,13 @@
 	finish { ambient 0 diffuse 1 phong .35 phong_size 120 }
 }
 #declare BrickWall = texture {
-	radial
+        radial
 	texture_map {
 		[0.25 Bricks ] } // might need to scale x slightly
 	frequency 4  //  gives you four sides
 	rotate y*45  //  moves edge of image to corners of cube
 	//local Size = whatever_scale_suits_the_size_of_your_cube
-	scale 1  // Size = 30 
+	scale 0.1  // Size = 30 
 }
 
 

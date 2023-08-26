@@ -48,7 +48,7 @@ global_settings { assumed_gamma 1.8 }
 
    translate <0, 0.5 * (-roomHeight + windowHeight)
                          + skirtWidth + 1135  , 0>
-    texture {frostyGlass}
+    texture {milkyglass}
  } // end Window
 
 //=============================
@@ -93,25 +93,25 @@ global_settings { assumed_gamma 1.8 }
 #declare shSplash = 
      object { UnitBox scale <1, roomHeight*0.5, roomLength*0.5> }
 
-#declare Walls  = 
-  union {
-    // Window wall
+#declare rearWall  = 
       difference {
 	object {UnitBox scale <roomWidth*0.5, roomHeight*0.5, 1> }
-        object { Window }
+        object {UnitBox scale <(windowWidth + 2 *skirtWidth)*0.5, 
+	                    (windowHeight + 2 * skirtWidth)*0.5, 
+			    skirtDepth*0.5> 
+         	translate <0, 0.5 * (-roomHeight + windowHeight)
+                         + skirtWidth + 1135  , 0> }
       }
-/*
-    //left Wall
-    object { UnitBox scale <1, roomHeight*0.5, roomLength*0.5> 
+
+#declare leftWall = 
+     object { UnitBox scale <1, roomHeight*0.5, roomLength*0.5> 
 	       translate <-roomWidth*0.5, 0, -roomLength*0.5> }
-    //right Wall
-    object { UnitBox scale <1, roomHeight*0.5, roomLength*0.5> 
+
+#declare rightWall = object { UnitBox scale <1, roomHeight*0.5, roomLength*0.5> 
 	       translate <roomWidth*0.5, 0, -roomLength*0.5> }
-    //Ceiling
-    object { UnitBox scale <roomWidth*0.5, 1, roomLength*0.5> 
+
+#declare Ceiling = object { UnitBox scale <roomWidth*0.5, 1, roomLength*0.5> 
 	       translate <0, roomHeight*0.5, -roomLength*0.5> }
-      */
-}
 
 #declare Floor = 
      object { UnitBox
@@ -126,7 +126,10 @@ global_settings { assumed_gamma 1.8 }
 // Reference Marker
 object { sphere {<0, 0 ,0>, 30} 
           texture {pigment{ color Red }} }
-object {Walls texture {wallMat}}
+object {rearWall texture {BrickWall}}
+object {rightWall texture {BrickWall}}
+object {leftWall texture {BrickWall}}
+object {Ceiling texture {ceilMat}}
 object {Floor texture {floorMat}}
 object {Window}
 object {Vanity texture{T_Grnt29}}
