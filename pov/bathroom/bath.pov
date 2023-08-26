@@ -8,7 +8,6 @@ global_settings { assumed_gamma 1.8 }
 #include "textures.inc"
 #include "my.inc"
 
-
 // Room and content dimensions
 #declare skirtWidth = 70 ;
 #declare skirtDepth = 19 ;
@@ -91,7 +90,8 @@ global_settings { assumed_gamma 1.8 }
 
 //Shower splashback
 #declare shSplash = 
-     object { UnitBox scale <1, roomHeight*0.5, roomLength*0.5> }
+     object { UnitBox scale <1, shGlassHeight*0.5,shBaseLength*0.5> 
+	       translate <roomWidth*0.5, 0, -roomLength*0.5> }
 
 #declare rearWall  = 
       difference {
@@ -126,17 +126,19 @@ global_settings { assumed_gamma 1.8 }
 // Reference Marker
 object { sphere {<0, 0 ,0>, 30} 
           texture {pigment{ color Red }} }
-object {rearWall texture {BrickWall}}
-object {rightWall texture {BrickWall}}
-object {leftWall texture {BrickWall}}
+
+object {rearWall texture {wallTiles}}
+object {rightWall texture {wallTiles}}
+object {leftWall texture {wallTiles}}
 object {Ceiling texture {ceilMat}}
-object {Floor texture {floorMat}}
+object {Floor texture {floorTiles}}
+
 object {Window}
 object {Vanity texture{T_Grnt29}}
 object {shBase  texture { shbase } finish {phong 0.4} }
 object {shGlass1 texture {pigment {Col_Glass_Bluish}}}
 object {shGlass2 texture {pigment {Col_Glass_Bluish}}}
-
+object {shSplash texture {splash}}
 
 light_source {
    < 0, roomHeight*0.5, -roomLength*0.5 > 
