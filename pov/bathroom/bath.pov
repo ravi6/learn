@@ -6,7 +6,7 @@ global_settings { assumed_gamma 1.8 }
 #include "stones.inc"
 #include "woods.inc"
 #include "textures.inc"
-#include "my.inc"
+#include "my.tex"
 
 // Room and content dimensions
 #declare skirtWidth = 70 ;
@@ -91,7 +91,9 @@ global_settings { assumed_gamma 1.8 }
 //Shower splashback
 #declare shSplash = 
      object { UnitBox scale <1, shGlassHeight*0.5,shBaseLength*0.5> 
-	       translate <roomWidth*0.5, 0, -roomLength*0.5> }
+	       translate <roomWidth*0.495, 
+	                  -(roomHeight - shGlassHeight)*0.5, 
+			  -(roomLength + shBaseLength)*0.5> }
 
 #declare rearWall  = 
       difference {
@@ -128,17 +130,17 @@ object { sphere {<0, 0 ,0>, 30}
           texture {pigment{ color Red }} }
 
 object {rearWall texture {wallTiles}}
-object {rightWall texture {wallTiles}}
-object {leftWall texture {wallTiles}}
+object {rightWall rotate y*90 texture {wallTiles} rotate y*-90}
+object {leftWall rotate y*90 texture {wallTiles} rotate y*-90}
 object {Ceiling texture {ceilMat}}
-object {Floor texture {floorTiles}}
+object {Floor rotate  y*45 texture {floorTiles} rotate y*-45 }
 
 object {Window}
-object {Vanity texture{T_Grnt29}}
+object {Vanity texture{vanityTiles}}
 object {shBase  texture { shbase } finish {phong 0.4} }
 object {shGlass1 texture {pigment {Col_Glass_Bluish}}}
 object {shGlass2 texture {pigment {Col_Glass_Bluish}}}
-object {shSplash texture {splash}}
+object {shSplash rotate y*90 texture {splashTiles} rotate y*-90}
 
 light_source {
    < 0, roomHeight*0.5, -roomLength*0.5 > 
