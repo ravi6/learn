@@ -49,6 +49,8 @@ global_settings { assumed_gamma 1.8 }
 
    translate <0, 0.5 * (-roomHeight + windowHeight)
                          + skirtWidth + 1135  , 0>
+   rotate y*90 
+   translate <-roomWidth/2, 0, -roomLength/2>
     texture {milkyglass}
  } // end Window
 
@@ -102,15 +104,11 @@ global_settings { assumed_gamma 1.8 }
               
 
 #declare leftWall = 
-      difference {
-	object {UnitBox scale <1, roomHeight/2, roomLength/2> }
-        object {UnitBox scale <1,(windowHeight + 2*skirtWidth)/2, 
-			          (windowWidth + 2*skirtWidth)/2> 
-         	translate <roomWidth/2, 0,  (-roomHeight + windowHeight)
-                                             + skirtWidth + 1135  > }
-      }
+     object { UnitBox scale <1, roomHeight/2, roomLength/2> 
+	       translate <-roomWidth/2, 0, -roomLength/2> }
 
-#declare rightWall = object { UnitBox scale <1, roomHeight/2, roomLength/2> 
+#declare rightWall = 
+object { UnitBox scale <1, roomHeight/2, roomLength/2> 
 	       translate <roomWidth/2, 0, -roomLength/2> }
 
 #declare Ceiling = object { UnitBox scale <roomWidth/2, 1, roomLength/2> 
@@ -155,10 +153,12 @@ object {Floor rotate  y*45 texture {floorTiles} rotate y*-45 }
 
 object {Window}
 object {Vanity texture{vanityTiles}}
+/*
 object {shBase  texture { shbase } finish {phong 0.4} }
 object {shGlass1 texture {pigment {Col_Glass_Bluish}}}
 object {shGlass2 texture {pigment {Col_Glass_Bluish}}}
 //object {shSplash rotate y*90 texture {splashTiles} rotate y*-90}
+*/
 object {Ceiling texture {ceilMat}}
 //object {Plaster  texture {pigment {color <255/255, 203/255, 153/255>}}}
 
@@ -179,11 +179,11 @@ light_source {
    }
 camera {
    //perspective
-   location  <-roomWidth/4 - 900, 1000.0,  -roomLength*2.6>
+   location  <-roomWidth/4 - 900,00.0,  -roomLength*2.6>
    angle     45
    up        <0, 9, 0>
    right     <16, 0, 0>
-   look_at <0,1200,0>
+   look_at <0,300,0>
 //   right     x*image_width/image_height
 // direction <0.0, 0.0, 2.0>
 }
