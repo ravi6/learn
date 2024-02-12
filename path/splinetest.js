@@ -1,3 +1,21 @@
+function fitSpline2D(data, n) {
+//  fits spline to a 2d curve and returns data set
+//  n equidistant points from xmax 
+  const spline = new Spline(data.x, data.y);
+  // interpolate 
+  var x = [] ; var  y=[]  ;
+  // assume x is monotonically increasing
+  var dx = (data.x[dat.x.length-1] - data.x[0])/(n-1) ;
+  for (let i = 0; i < n; i++) {
+   x.push(i*0.1) ; y.push(spline.at(i*0.1)) ;
+  };
+} // end fitSpline2D
+
+
+} // fitSpline3D
+
+
+
 function splineTest() {
   const xd = [1, 2, 3, 4, 5];
   const yd = [9, 3, 6, 2, 4];
@@ -46,3 +64,17 @@ function getData(x,y) {
                y.push(data.y) ; 
               } ) ;
 } // getData
+
+function genHelix() {
+  // Generate helix
+  var t  ; var x=[] ; var y=[] ; var z=[] ;
+
+  var dt = 10 ;
+  for (i=0; i < 10 ; i++) {
+     t = i*dt ;
+     x.push(Math.sin(t));
+     y.push(Math.cos(t));
+     z.push(2*t) ;
+  } 
+   return ({x:x, y:y, z:z}) ; 
+}// return helix curve data

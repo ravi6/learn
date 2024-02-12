@@ -1,4 +1,6 @@
 <html>
+<head> <meta charset="UTF-8">
+</head>
 <script src="d3.min.js"> </script>
 <script src="plotly/plotly.min.js"> </script>
 <script src="spline.js"> </script>
@@ -6,20 +8,33 @@
 <script> 
 
 function curve3() {
-      //HERE IS THE DATA TO PLOT:
-      var x = [-0.8234, 0.0952, 1.9594, -0.2831, -0.4147, 1.5859, 0.5326, 0.0925, 0.3293, 1.3635, 0.3396, 0.0677, -0.6739, 0.4084, -1.4487, -0.1101, -0.7521, -1.2118, 1.7191, 0.2020, -0.1573, -0.2298, -0.8230, 1.7924, 0.4511];
-      var y = [-1.4166, 1.353, -0.6294, 0.0567, 1.4157, 0.32806, 0.2377, -0.2262, -1.0602, -1.8150, 0.1075, -1.3516, 1.0137, 0.0183, -0.5466, 0.6416, -0.6655, 0.6874, -0.4616, -0.2808, 1.3443, -1.0518, -0.1332, -1.0097, 0.3643];
-      var z = [1.4166, -1.353, 0.6294, -0.0567, -1.4157, -0.32806, -0.2377, 0.2262, 1.0602, -1.5089, 0.1543, -0.3516, 0.0137, 1.0183, 1.5466, -1.6416, 1.6655, -1.6874, -0.4616, -1.2808, -1.3443, 1.0518, -0.1332, 1.9700, -0.3643];
- 
+      //3D curve fit test with splihes
+
+      var data = genHelix() ;
+      console.log(data);
       var update = { opacity: 0.4, 'marker.color': 'green' };
       var aplot = document.getElementById("plotter");
-      Plotly.newPlot(aplot, [{
-                                mode:'scatter3d',
-                                x: x, y: y , z: z,
-                                // line: {width: 6, color: "rgb(220,100,0)"},
-                                //text: {'✓'},
-                               //marker: {symbol: 'species' } 
-                               }] ) ;
+      var layout = {
+           scene: {
+                aspectmode: "manual",
+                aspectratio: {x:1, y:0.7, z:1}
+           }
+      }; // end layout
+      var trend1 = { type:'scatter3d',
+                     mode:"markers",
+                     x: data.x, y: data.y , z: data.z,
+                     marker: {symbol: 'circle' } 
+                   };
+
+         
+
+      var trend2 = { type:'scatter3d',
+                     mode:"lines",
+                     x: data.x, y: data.y , z: data.z,
+                     line: {width: 6, color: "rgb(220,100,0)"},
+                   };
+
+      Plotly.newPlot(aplot, [trend1, trend2], layout ) ;
 } // curve3d 
 
 </script>
