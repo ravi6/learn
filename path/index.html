@@ -10,27 +10,32 @@
 function curve3() {
       //3D curve fit test with splihes
 
-      var data = genHelix() ;
-      console.log(data);
-      var update = { opacity: 0.4, 'marker.color': 'green' };
+
       var aplot = document.getElementById("plotter");
-      var layout = {
+      var layout = {  // add all annotations, axes etc
            scene: {
                 aspectmode: "manual",
                 aspectratio: {x:1, y:0.7, z:1}
            }
       }; // end layout
+
+
+      var data = genHelix() ;
+      console.log(data);
       var trend1 = { type:'scatter3d',
                      mode:"markers",
                      x: data.x, y: data.y , z: data.z,
                      marker: {symbol: 'circle' } 
                    };
-
          
+
+  var tx = fitSpline2D ({x: data.t, y: data.x}, 150) ;
+  var ty = fitSpline2D ({x: data.t, y: data.y}, 150) ;
+  var tz = fitSpline2D ({x: data.t, y: data.z}, 150) ;
 
       var trend2 = { type:'scatter3d',
                      mode:"lines",
-                     x: data.x, y: data.y , z: data.z,
+                     x: tx.y, y: ty.y , z: tz.y,
                      line: {width: 6, color: "rgb(220,100,0)"},
                    };
 
@@ -42,7 +47,7 @@ function curve3() {
 <body>
 <h1> Testing Cubic Spline Interpolation </h1>
 <div id="plotter" style="width:1200px; height:800px;">
-<button onClick="curve3(); fplot('mydata');">Plot</button>
+<button onClick="curve3();">Plot</button>
 
 </div>
 
