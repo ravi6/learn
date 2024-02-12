@@ -35,13 +35,14 @@ function splineTest() {
 
 
 function fplot(csvFile) {
-  d3.csv(csvFile, function(data){ 
-                   consol.log(data);
-//                     var x = [] ; var y = [] ;
-//		       let row = data[i] ;
-//		       x.push( row.x ) ;
-//		       y.push( row.y ) ;
- //                      console.log("row", row);
- //                     console.log({x:x,y:y});
-                  } );
-};
+ var x = [] ; var y = [] ;
+ d3.csv(csvFile, getData(x,y))  ;
+ console.log(x,y);
+}
+
+function getData(x,y) {
+    return ( function (data) {
+               x.push(data.x) ;
+               y.push(data.y) ; 
+              } ) ;
+} // getData
