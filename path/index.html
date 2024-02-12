@@ -21,17 +21,29 @@ function curve3() {
 
 
       var data = genHelix() ;
+      var p = arcLen(data) ; // arcLength along helix
+
       console.log(data);
       var trend1 = { type:'scatter3d',
                      mode:"markers",
                      x: data.x, y: data.y , z: data.z,
                      marker: {symbol: 'circle' } 
                    };
+       
          
+  var usearc =  false ;
+  var tx, ty, tz ;
 
-  var tx = fitSpline2D ({x: data.t, y: data.x}, 150) ;
-  var ty = fitSpline2D ({x: data.t, y: data.y}, 150) ;
-  var tz = fitSpline2D ({x: data.t, y: data.z}, 150) ;
+  if (usearc) {
+   tx = fitSpline2D ({x: p, y: data.x}, 150) ;
+   ty = fitSpline2D ({x: p, y: data.y}, 150) ;
+   tz = fitSpline2D ({x: p, y: data.z}, 150) ;
+  }
+  else {
+   tx = fitSpline2D ({x: data.t, y: data.x}, 150) ;
+   ty = fitSpline2D ({x: data.t, y: data.y}, 150) ;
+   tz = fitSpline2D ({x: data.t, y: data.z}, 150) ;
+  };
 
       var trend2 = { type:'scatter3d',
                      mode:"lines",

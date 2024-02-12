@@ -75,3 +75,32 @@ function genHelix () {
   } 
    return ( {t: t, x: x, y: y, z: z} ) ; 
 }// return helix curve data
+
+function arcLen (data) {
+  // returns arclength continuation parameter
+  // helps fit complex 3d curves with splines
+  // data contains points in the sequence along the curve
+
+    var x = data.x ;
+    var y = data.y ;
+    var z = data.z ;
+
+   // Here p is cumulative lenght of the curve 
+   // as one moves along from its origin
+    var p = [] ;
+    p.push (0)  ;
+    for (i = 1 ; i < x.length ; i++) {
+      var d = p[i-1] + Math.sqrt ( Math.pow (x[i] - x[i-1], 2) +
+	                          Math.pow (y[i] - y[i-1], 2) +
+	                          Math.pow (z[i] - z[i-1], 2) ) ;
+      p.push(d) ;
+    }
+    return (p) ;
+} // end arcLen
+
+function dist (p1, p2) {
+  // Linear distance between two points
+  return ( Math.sqrt ( Math.pow ((p1.x - p2.x), 2) +
+                       Math.pow ((p1.y - p2.y), 2) +
+                       Math.pow ((p1.z - p2.z), 2) ) );
+}
