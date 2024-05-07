@@ -1,24 +1,28 @@
-set term qt size 600,600
-set samples 1000
-unset rtics
 set polar
-r(t) = 1 / (beta + alpha * sin(1.5*pi +  t))
+r(t) = 1 / (beta + alpha * sin(pi/2 +  t))
 unset raxis
+unset rtics
 
-array BETA[5] = [10, 5, 1, 0.6]
+array BETA[5] = [100, 2, 1, 0.6]
 alpha = 0.5
 set multiplot layout 2,2
+set size square
 do for [i = 1 : 4] {
   beta = BETA[i]
-  print beta
   rp = 1.0 / (-alpha + beta)
   x = beta * beta - alpha * alpha
   a = beta / x 
+  c = -alpha / x 
   b = 1 / sqrt(x) 
   s = sprintf("alpha: %5.2f   beta = %5.2f ", alpha, beta)
-  set title s 
-  s = sprintf(" = %5.2f   a = %5.2f  b = %5.2f", alpha, beta, rp, a, b)
+  s = s . "\n" . sprintf("a = %5.2f   b = %5.2f  c = %5.2f",  a, b, c)
+  set title s
   unset key
-  plot  r(t) 
+  sc = sprintf("<echo ' %f %f' ",  0, c)
+  sa = sprintf("<echo ' %f %f' ", 0, (a+c))
+  sb = sprintf("<echo ' %f %f' ", atan(b/c),  -sqrt(c*c+b*b))
+  plot  r(t) , sc w p pt 7, sa w p pt 7,  sb w p pt 7, "<echo '0 0'" w p pt 1 lc rgb "red"
 }
+unset multiplot
+
 pause -1
