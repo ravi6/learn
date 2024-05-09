@@ -448,32 +448,30 @@ parabolic path aspect ratio, and the shift from the orgin.
 <script>
 </script>
 
-<script src="https://cdn.plot.ly/plotly-2.32.0.min.js" charset="utf-8" ></script>
-<script src="traj.js"></script>
-<script id="MathJax-script" async
- src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
-</script>
 
-<script>
+
+<script id="MathJax-script" async 
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+<script type="text/x-mathax-config">
   MathJax = {
     tex: {
       tags: 'all',  // should be 'ams', 'none', or 'all'
       inlineMath: [['$', '$'], ['\\(', '\\)']] ,
     }
   };
-   var waitForPlotly = setInterval ( 
-     function () {
-          if (typeof(window.Plotly) !== "undefined") {
 	      MathJax.Hub.Config(
 		{SVG: {font: "STIX-Web"},
 	        displayAlign: "center",
 		TeX: {extensions: ["action.js"]}});
 	      MathJax.Hub.Queue(["setRenderer", MathJax.Hub, "SVG"]);
-	      clearInterval(waitForPlotly);
-	  }}  , 10 );
 	     
-  window.PlotlyConfig = {MathJaxConfig: 'local'}
-
 </script>
+
+
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js" charset="utf-8" ></script>
+<script src="traj.js"></script>
+
+
 </body>
 </html>
