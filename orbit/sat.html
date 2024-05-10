@@ -1,6 +1,6 @@
 
-<html>
 <!doctype html>
+<html>
 <!-- Satellite Orbit Calculations (Ravi Saripalli) 19th Jun 2023  -->
 <html lang="en">
   <head>
@@ -391,8 +391,6 @@ parabolic path aspect ratio, and the shift from the orgin.
 <div class="card align-items-center">
       <figure>a <img src=traj.png></img></figure>
 </div>
-      <div id=plotly >
-      </div>
   </div>
 </div>
 <!-- ******************************************************** -->
@@ -449,29 +447,24 @@ parabolic path aspect ratio, and the shift from the orgin.
 </script>
 
 
-
 <script id="MathJax-script" async 
   src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 
-<script type="text/x-mathax-config">
+<script> // type="text/x-mathax-config">
   MathJax = {
     tex: {
       tags: 'all',  // should be 'ams', 'none', or 'all'
-      inlineMath: [['$', '$'], ['\\(', '\\)']] ,
-    }
+      inlineMath: [['$', '$'], ['\\(', '\\)']] , } 
   };
-	      MathJax.Hub.Config(
-		{SVG: {font: "STIX-Web"},
-	        displayAlign: "center",
-		TeX: {extensions: ["action.js"]}});
-	      MathJax.Hub.Queue(["setRenderer", MathJax.Hub, "SVG"]);
-	     
+  MathJax.Hub.Config({
+      TeX: {extensions: ["action.js"]}});
 </script>
 
 
-<script src="https://cdn.plot.ly/plotly-2.32.0.min.js" charset="utf-8" ></script>
+      <div id=plotly style="width:60%">
+      </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.min.js"> </script>
 <script src="traj.js"></script>
-
 
 </body>
 </html>
