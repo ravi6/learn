@@ -456,14 +456,14 @@ parabolic path aspect ratio, and the shift from the orgin.
       tags: 'all',  // should be 'ams', 'none', or 'all'
       inlineMath: [['$', '$'], ['\\(', '\\)']] , } 
   };
-  MathJax.Hub.Config({
-      TeX: {extensions: ["action.js"]}});
+//  MathJax.Hub.Config({
+ //     TeX: {extensions: ["action.js"]}});
 </script>
 
 
-      <div id=plotly style="width:60%">
-      </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.min.js"> </script>
+      <canvas id=chart1 style="height: 300px, width: 300px">
+      </canvas>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>  
 <script src="traj.js"></script>
 
 </body>
