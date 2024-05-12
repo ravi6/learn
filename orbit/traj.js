@@ -6,9 +6,10 @@ function plotit() {
   }
 
   const chart  = new Chart (ch1.getContext('2d'), config) ;
-  chart.data.datasets[0].data = orbit (0.5, 10) ;
+  chart.data.datasets.push (
+        { data: orbit (0.5, 10) }
+  );
 }
-
 
 function orbit(alpha, beta) {
   // return descritized orbit data points
@@ -21,3 +22,5 @@ function orbit(alpha, beta) {
    }
   return (data) ;
 }
+
+plotit() ;
