@@ -7,7 +7,7 @@ function plotit() {
 
   const chart  = new Chart (ch1.getContext('2d'), config) ;
   chart.data.datasets.push (
-        { data: orbit (0.5, 10) }
+        { data: orbit (0.5, 0.6) }
   );
 }
 
@@ -16,10 +16,11 @@ function orbit(alpha, beta) {
   // for specified parameters
    var data = [] ;
    for (var i=0 ; i < 100 ; i++) {
-     let phi = (i*2*Math.PI/100) ;
+     let phi = (i * 2 * Math.PI / 100) ;
      let r = 1.0 / (beta + alpha * Math.cos(phi)) ;
-     data.push ({x: phi, y: r}) ; 
+     data.push ({x: r * Math.cos(phi), y: r * Math.sin(phi)}) ; 
    }
+  console.log(data);
   return (data) ;
 }
 
