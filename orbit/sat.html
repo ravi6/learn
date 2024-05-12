@@ -448,23 +448,32 @@ parabolic path aspect ratio, and the shift from the orgin.
 <script id="MathJax-script" async 
   src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 
-<script> // type="text/x-mathax-config">
+<script >
   MathJax = {
+    loader: {load: ['[tex]/newcommand']},
     tex: {
       tags: 'all',  // should be 'ams', 'none', or 'all'
-      inlineMath: [['$', '$'], ['\\(', '\\)']] , } 
+      inlineMath: [['$', '$'], ['\\(', '\\)']] , 
+      packages: {'[+]': ['newcommand']}
+      }
   };
-  /*
-  MathJax.Hub.Config({
-      config: ["MML_HTMLorMML-full.js"],
-      jax: ["input/MathML"],
-      TeX: {extensions: ["action.js"]}});
-*/
 </script>
 
 
-      <canvas id=chart1 style="height: 300px, width: 300px">
+<script type="text/x-mathjax-config">
+</script>
+
+<table>
+  <tr>
+    <td>
+      <canvas id=chart2 >
       </canvas>
+    </td>
+    <td>
+      <canvas id=chart1>
+      </canvas>
+    </td>
+  </tr>
 <script src="traj.js"></script>
 
 </body>

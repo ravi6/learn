@@ -1,15 +1,22 @@
-function plotit() {
-  var ch1  = document.getElementById('chart1');
+function plotit(cv, alpha, beta) {
+  var ch  = document.getElementById(cv);
   const config = { 
     type : 'line'  ,
-    options : { scales: { x: { type: 'linear', position: 'bottom' } } } // end options
+    options : { 
+      scales: { x: { type: 'linear', position: 'bottom' } },
+      title: { display: true,  text: "Orbit"}         
+    } // end options
   }
 
-  const chart  = new Chart (ch1.getContext('2d'), config) ;
+  const chart  = new Chart (ch.getContext('2d'), config) ;
+  let lbl = "alpha  = " +  alpha + " beta = " + beta ;
   chart.data.datasets.push (
-        { data: orbit (0.5, 0.6) }
+        { data: orbit (alpha, beta), 
+	  label: lbl,
+	  pointRadius: 0
+	}
   );
-}
+} // end plotit
 
 function orbit(alpha, beta) {
   // return descritized orbit data points
@@ -24,4 +31,5 @@ function orbit(alpha, beta) {
   return (data) ;
 }
 
-plotit() ;
+plotit("chart1", 0.5, 0.6) ;
+plotit("chart2", 0.5, 1.6) ;
