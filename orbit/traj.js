@@ -1,21 +1,26 @@
-function plotit(cv, alpha, beta) {
-  var ch  = document.getElementById(cv);
+function plotit() {
+  var ch  = document.getElementById('chart1');
   const config = { 
     type : 'line'  ,
     options : { 
       scales: { x: { type: 'linear', position: 'bottom' } },
-      title: { display: true,  text: "Orbit"}         
+      title: { display: true,  text: "Orbit"},         
+      responsive: true,
+      maintainAspectRatio: false
     } // end options
   }
 
   const chart  = new Chart (ch.getContext('2d'), config) ;
-  let lbl = "alpha  = " +  alpha + " beta = " + beta ;
-  chart.data.datasets.push (
+  let alpha = 0.5 ;
+  for (beta of [0.6, 1, 2, 5]) {
+    let lbl = "alpha  = " +  alpha + " beta = " + beta ;
+     chart.data.datasets.push (
         { data: orbit (alpha, beta), 
 	  label: lbl,
 	  pointRadius: 0
-	}
-  );
+	}) ;
+  } // end loop over beta
+  chart.update() ;
 } // end plotit
 
 function orbit(alpha, beta) {
@@ -27,9 +32,7 @@ function orbit(alpha, beta) {
      let r = 1.0 / (beta + alpha * Math.cos(phi)) ;
      data.push ({x: r * Math.cos(phi), y: r * Math.sin(phi)}) ; 
    }
-  console.log(data);
   return (data) ;
 }
 
-plotit("chart1", 0.5, 0.6) ;
-plotit("chart2", 0.5, 1.6) ;
+plotit() ;
