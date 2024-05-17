@@ -180,10 +180,10 @@
       akin to potential energy due to gravitaional force. But it appears that 
       effective potential energy was defined to include the second term while kinetic
       energy is solely attributed to radial velocity component. 
-      (<em> This appears counter intutive to me ...
-         need a good explanation for this.</em>). Apparently such a treatment lends itself
+      <em> (This is counter intutive to me ...
+         need a good explanation for this. Apparently such a treatment lends itself
          to understanding of the object motion based on its gradient w.r.t radial distance
-         $r$. I will explore this feature later.
+	 $r$. Have to explore this feature later.) </em>
       
       \[
       \begin{align}
@@ -206,10 +206,11 @@
   <div class="card-body">
     <p>Given total energy and angular momentum of the orbiting object are the two 
       conserved qunantities, these should be sufficeint to descrbe the trajectory of
-    the orbit. Let us explore how we can go about it.  </p>
-    <p>My natural inclination is to work with non-dimensional quantities. So let me explore
-      scaling strategy. Assuming that the large object radius is $R$, the escape velocity
-      $\ve$ can be used to non-dimensionalise velocity components, and radial distance $r$ is
+    the orbit.   </p>
+    <p>
+       Assuming that the large object radius is $R$, the escape velocity
+      $\ve$ of the large body is used to 
+      non-dimensionalise velocity components, and radial distance $r$ is
       scaled with $R$. The escape velocity
       of the large object is given as follows.
     </p>
@@ -227,7 +228,7 @@
                     \frac{{\vts}^2}{\rs} -
                   \frac{1}{2\rss}  \\
                 \color{black}
-                \text{with}\ \ \  r^* &= \frac{r}{R} \ \ ; \ \ t^* = t R / \ve  \ \  ; \      \vts = H^* \rs  \nonumber \\   
+                \text{with}\ \ \  r^* &= \frac{r}{R} \ \ ; \ \ t^* = t R / \ve  \ \  ; \       H^* = \rs \vts  \nonumber \\   
                  {\vr}^* &= \frac{\vr}{\ve} \ \ ;\ \  
                  {\vt}^* = \frac{\vt}{\ve} \ \  \nonumber \\
                  \color{blue}
@@ -240,7 +241,7 @@
         \[
         \begin{align}
             H^* = \frac{h}{mR\ve}   \nonumber \\
-            E^* = \frac{2E}{m\ve}   \nonumber 
+	    E^* = \frac{2E}{m{\ve}^2}   \nonumber 
         \end{align}
         \] 
     </div>
@@ -284,12 +285,12 @@
 	\begin{align}
 	\B{\dert{u}}^2  & =
 	\frac{\Es}{\Hss} - u^2 + \frac{u}{\Hss} \nonumber \\
-	&= \frac{4\Es\Hss-1}{4\Hsf} - \B{u-\frac{1}{2\Hss}}^2 
+	&= \frac{4\Es\Hss+1}{4\Hsf} - \B{u-\frac{1}{2\Hss}}^2 
 	\end{align}
       \]
      Defining   
-     $\alpha = \frac{\sqrt{4\Es\Hss-1}}{2\Hss}$ and
-     $\beta = \frac{1}{\sqrt{2}\Hs}$
+     $\alpha = \frac{\sqrt{4\Es\Hss+1}}{2\Hss}$ and
+     $\beta = \frac{1}{2{\Hs}^2}$
       \[
 	\begin{align}
 	d\theta  & = \frac{du}{\sqrt{\alpha^2-(u-\beta)^2}}
@@ -383,17 +384,71 @@ $\beta$ values that correspond to realisable orbits should be greater than 1 in 
 need for $\beta \gt \alpha$
 
 The following figure illustrates the effect of parameters $\alpha, \beta$ on the 
-parabolic path aspect ratio, and the shift from the orgin.
- <div class="row">
-            <div class="col-12">
-               <canvas id="chart1" ></canvas>
-            </div>
-         </div>
-  </div>
+elliptical path. For large values of $\beta$ or for very small  values of $\alpha$ the orbit
+tends to be more circular and the eccentricity tends to zero. This can also be deduced from the
+expression for $a, b, c$ in terms of $\alpha$ and $\beta$.
+
+        
+
+ <div class="row mt-5">
+     <div class="col-sm-6"> <canvas id="chart1" ></canvas> </div>
+     <div class="col-sm-6"> <canvas id="chart2" ></canvas> </div>
+ </div>
+
+</div>
 </div>
 <!-- ******************************************************** -->
 
 
+<!-- ******************************************************** -->
+<div class="card" id=item4>
+  <div class=card-header ><h5>
+      Earth's Orbit Verification </h5>
+  </div>
+  <div class="card-body">
+    <p class="card-text">
+     Using the published data of earths distance from sun,
+     its angular momentum in the orbit, sun's escape velocity,
+     the earth's orbit parameters were
+     calculated and compared against published data. 
+
+     In this calculation the $\Es$ is calculated from equation 6,
+     with $\vrs$ set to zero, with $\vts$ is derived from orbital angular
+     momentum of earth (2.7e40 kg.m2/s) at a distance of 1.51e6 km.
+     Sun's escape velocity is 617.5 km/s. Using this data the orbit parameters
+     $\Hs, \Es$ can be calculated as follws.
+
+    </p>
+    <div class="border border-info rounded bg-light bg-gradient">
+         \[
+            \begin{align*}
+          \rs = 217.3   \ \ \ \vts = 0.0484   \ \ \ \vrs = 0 \\
+	  \Hs = 10.5   \ \ \ \Es = -2.26e-3 \\
+	  \text{Using above data we get}  \\
+	  \alpha = 7.66\times10^{-5} \ \ \   \beta = 4.52\times^{-3}
+            \end{align*}
+         \]
+	 Using  $\alpha$ and $\beta$ , values of $\rps$ and $\res$  along with
+	 eccentricity can be calculated from equations 13 and 14. These values
+	 agreed well with the published data. (see following 
+	 table)
+	 $$
+	 \begin{array}{|c|c|c|}
+	 \hline
+	 \text{} & \text{calculated} & \text{published} \\
+	  \hline
+	  \res & 224.8  &  218.4 \\
+	  \hline
+	  \rps & 217.3  &  211.2 \\
+	  \hline
+	  \text{ecc} & 0.0169 &  0.0167 \\
+	  \hline
+	  \end{array}
+	  $$
+    </div>
+  </div>
+</div>
+<!-- ******************************************************** -->
 
 
 <!-- ******************************************************** -->
@@ -458,6 +513,8 @@ parabolic path aspect ratio, and the shift from the orgin.
 </script>
 
 <script src="traj.js"></script>
-
+<script src="sat.js"></script>
+<script>
+</script>
 </body>
 </html>
