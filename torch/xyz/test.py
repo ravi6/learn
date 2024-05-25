@@ -1,4 +1,4 @@
-def test (data, model, lossFn):
+def test (self, data, model, lossFn):
     #Test the model with given data and lossFunction
 
     size = len (data.dataset) 
