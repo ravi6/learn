@@ -1,4 +1,4 @@
-def getData (self, bSize):
+def getData (bSize):
 
 #  Gets bSize chunks of data for
 #   for training and testing

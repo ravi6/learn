@@ -1,4 +1,4 @@
-def visTest (self, data):
+def visTest (data):
     # Visually test the nn
 
     n = len(data)

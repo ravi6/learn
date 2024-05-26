@@ -1,6 +1,9 @@
-def test (self, data, model, lossFn):
+import torch
+
+def test (data, model, lossFn):
     #Test the model with given data and lossFunction
 
+    device = "mps"
     size = len (data.dataset) 
     nb = len (data) 
     model.eval ()

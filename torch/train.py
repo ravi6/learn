@@ -1,12 +1,15 @@
-# Training method
-def train (self, model, lossFn, optimiser) :
+def train (model, data, lossFn, optimiser) :
+# Training the model with given data
+# returns prediction samples (every 100th test data point)
 
-    model.train()
+    device = "mps"
+    model.train()   ## puts model in train state (does not train)
+                    # what a confusing naming convention
 
     #Loop through all batches of data
     xp = [] ; yp = []
-    for batch, (X, y) in enumerate (self.trainData):
-        X, y = X.to (self.device), y.to (self.device)  # transfer data to device
+    for batch, (X, y) in enumerate (data):
+        X, y = X.to (device), y.to (device)  # transfer data to device
 
         # predict (calculate y from network)
         pred = model (X)
