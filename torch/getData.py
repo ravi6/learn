@@ -1,7 +1,8 @@
-def getData (bSize):
+def getData (bSize, trnFlag, sflFlag):
 
 #  Gets bSize chunks of data for
-#   for training and testing
+#  if trnFlag is true we get training data
+#  else test data is returned
 
     from torch.utils.data import DataLoader
     from torchvision import datasets
@@ -10,22 +11,15 @@ def getData (bSize):
     # Data will be downloaded form NIST if it wasn't already downloaded
     # Using FashionMNIST
 
-    trainData = datasets.FashionMNIST (
+    Loader = datasets.FashionMNIST (
                 root = "data",   # saves in ./data directory
-                train = True,
-                download = True,
-                transform = ToTensor ()  
-                )
-
-    testData = datasets.FashionMNIST (
-                root = "data",   # saves in ./data directory
-                train = False,
+                train = trnFlag,
                 download = True,
                 transform = ToTensor ()  
                 )
 
     #  Divvy up data into bSize chunks and return as iterable set
-    tstData = DataLoader (trainData, batch_size = bSize)
-    trnData = DataLoader (testData, batch_size = bSize)
-    return (trnData, tstData)
+    data = DataLoader (Loader, batch_size = bSize, shuffle = sflFlag)
+    print (f"Batch: {bSize}, DataSet: {len(data.dataset)} , Data: {len(data)}")
+    return (data)
 

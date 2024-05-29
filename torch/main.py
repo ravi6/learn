@@ -1,40 +1,28 @@
 import os
 import numpy as np 
-import torch
-import torch.nn as nn
 import matplotlib.pyplot as plt
 import pprint as pp
 
-from net import Net
-from getData import getData 
-from train import train
+import torch
+from start import start
+from getData import getData
 from test import test
+from visTest import visTest
 
-device = "mps"
 
-# Instantiate model (neural network)
-# and pass the object to device ???
 
-model = Net().to(device)
+fname = "mymodel.pt"
+if (not os.path.exists (fname)):
+    print ("Running initial Training\n")
+    start (fname)  # Create model, train and test
+                   # and save it in file
 
-# read in training and test data 
-trnData, tstData = getData (64)
+# Load the model from file
+model = torch.load (fname)
+model.eval()  # put it in evaluation mode
+lossFn = torch.nn.CrossEntropyLoss()
+for i in range(1):
+    tstData = getData (64, trnFlag = False,  sflFlag = True)
+    test(model, tstData, lossFn)
 
-# Configure Loss Function
-lossFn = nn.CrossEntropyLoss()   
-
-#Configure optimiser (using Steepest gradient) 
-optimiser = torch.optim.SGD (model.parameters(), lr=1e-3)
-
-x = Net()
-plt.ion() 
-plt.xlabel("data count") ; plt.ylabel("loss")
-plt.grid() 
-fig = plt.figure() ;
-
-for t in range(5):
-    predData = train(model, trnData, lossFn, optimiser)
-    test(tstData, model, lossFn)
-    plt.plot (predData["xp"], predData["yp"], '-o')  ; plt.grid()
-    plt.draw ()
-    plt.pause(3)
+visTest (model, tstData)

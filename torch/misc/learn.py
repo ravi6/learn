@@ -152,6 +152,7 @@ def test3():
     # Training method
     def train (dataLoader, model, lossFn, optimiser):
 
+        print("trnSet From test3: ", len (dataLoader.dataset))
         model.train()
 
         #Loop through all batches of data
@@ -202,6 +203,7 @@ def test3():
     plt.grid() 
     fig = plt.figure() ;
     for t in range(5):
+        print ("trnDataSize", len(trainLoader.dataset))
         data = train(trainLoader, model, lossFn, optimiser)
         test(testLoader, model, lossFn)
         plt.plot (data["xp"], data["yp"], '-o')  ; plt.grid()

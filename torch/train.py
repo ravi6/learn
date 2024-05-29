@@ -20,13 +20,13 @@ def train (model, data, lossFn, optimiser) :
         optimiser.step ()
         optimiser.zero_grad ()  # what does this do
 
-        # Print every 100 points ?
-        size = len (data.dataset)
+        Tsize = len (data.dataset)  # Weirdly this is all of the data
+        nb   = len (data)   #  this is =  Tsize / bSize (rounded to nint)
 
         if batch % 100 == 0:
             loss, current = loss.item(), (batch + 1) * len (X)
-            print (f"loss: {loss:>7f} [{current:>5d} / {size:>5d}]")
+            print (f"loss: {loss:>7f} [{current:>5d} / {Tsize:>5d}]")
             xp.append (current)
             yp.append (loss)
-
+        
     return ({"xp": xp, "yp": yp})
