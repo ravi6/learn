@@ -17,7 +17,24 @@ async function getData(fname) {
   return ( data ) ;
 } // end of getData
 
+
 async function ex3() {
+ const csvDataset = 
+    tf.data.csv ( "data/test.csv", 
+       {hasHeader: true,
+	columnConfigs: { label : { isLabel: true } },
+	delimWhitespace: false
+	} );
+  console.log (csvDataset) ;
+  dataSet = csvDataset.map ( ({xs, ys}) => {
+               return ( { xs:Object.values(xs),
+	                  ys:Object.values(ys) } ) ; 
+                } ).batch (20) ;
+  console.log(await dataSet.toArray()) ;
+
+}
+
+async function ex33() {
   /* Train fashion images and test */
 
   imgSize = 28 * 28 ;
