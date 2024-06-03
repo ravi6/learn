@@ -74,15 +74,22 @@ class fashion {
   epochLog (start) { 
     // returns callback fn to execute at end of epoch
       return ( async function (epoch, logs) {
-	              dt = performance.now() - start ;
+	              let dt = performance.now() - start ;
 	              console.log ("Epoch: " + epoch +
 		           " Loss: " + logs.loss + "  delT: ", Math.round(dt) ); 
-                      start = performance.now() ; } );  //  retart cpu timer
+                      start = performance.now() ; //  retart cpu timer
+              }); 
   } // end of epochLog
 
+  batchLog (obj) { 
+    // returns callback fn to execute at end of batch
+      return ( async function (batch, logs) {
+	              console.log ("Batch: " + batch +
+		           " Loss: " + logs.loss ) ;
+                     }); 
+  } // end of batchLog
 
   async train () {
-
     // Let us train the model with data
     const opt = tf.train.sgd (.01) ;
     this.model.compile ({optimizer: opt,  loss: "categoricalCrossentropy"}) ;
@@ -94,9 +101,7 @@ class fashion {
 	epochs:    this.epochs,
 	callbacks: { 
 	  onEpochEnd: this.epochLog (start) ,
-	  onBatchEnd: function (batch, logs) {
-	       console.log (batch) ; 
-	       }
+	  onBatchEnd: this.batchLog (this)
         }}) ; 
     console.log ("Training Ended \n") ;
     this.trained = true ;
@@ -109,10 +114,13 @@ class fashion {
 
   async Eval () {
     console.log ("Starting Evaluation \n") ;
-    result = await this.model.evaluateDataset (tstData) ;
-
-    console.log ("Evaluation Done \n") ;
-    result.print (true) ;
+    let result = await this.model.evaluateDataset (this.tstData) ;
+    console.log ("Evaluation Done \n");
+    result.data()
+    result.data()
+   
+ 
+    
   } // end of reEval 
 
 } // end of fashion class

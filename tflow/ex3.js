@@ -19,10 +19,10 @@ async function getData(fname) {
 
 
 async function ex3() {
- const csvDataset = 
-    tf.data.csv ( "data/test.csv", 
+const   csvDataset = 
+    await tf.data.csv ( "data/train.csv", 
        {hasHeader: true,
-	columnConfigs: { label : { isLabel: true } },
+	columnConfigs: { "label" : { isLabel: true } },
 	delimWhitespace: false
 	} );
   console.log (csvDataset) ;
