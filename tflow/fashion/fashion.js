@@ -1,15 +1,16 @@
 //Author: Ravi Saripalli
 //1st Jun 2024
 /* Explore classifier nn with
- * Train fashion images and test */
+ * Train fashion images and test  
+ **/
 
 class fashion {
 
    constructor () {
      this.imgSize = 28 * 28 ;
      this.nL = 10 ; // number of labels
-     this.nB = 3 ;
-     this.epochs = 3 ;
+     this.nB = 9 ;
+     this.epochs = 6 ;
      this.mdlFile = "localstorage://myModel" ;
      this.trnFile = "data/train.csv" ;
      this.tstFile = "data/test.csv" ;
@@ -30,9 +31,15 @@ class fashion {
    } // end constructor
 
   async run () {
+      let tvis = tfvis.visor() ;
+      tvis.open() ;
       await this.loadData () ;
-      await this.train () ;
-      this.Eval () ;
+      
+      this.trained = false ;
+      for (let i = 0 ; i <5 ; i++) {
+	await this.train () ;
+	this.Eval () ;
+      }
       
   }
 
@@ -60,7 +67,7 @@ class fashion {
 	hasHeader: true,
 	columnConfigs:  {label: {isLabel: true} },
 	delimWhitspace: true });
-    console.log(fname) ;
+
     var dataSet = await csvDataset.map (({xs, ys}) => {
        var v = new Array (nL).fill(0) ;
        v [Object.values (ys)] = 1 ;   // one shot labelling
@@ -90,19 +97,34 @@ class fashion {
   } // end of batchLog
 
   async train () {
+    /** Compile the model
+     *  fit Model to training data set
+     *  show progress of fit graphically
+     *  save the fitted model
+     */ 
+     
+    if (this.trained) { // pickup from where we left off
+      console.log ("Picking model from saved state \n") ;
+      this.model = await tf.loadLayersModel (this.mdlFile) ;
+    }
+   
     // Let us train the model with data
     const opt = tf.train.sgd (.01) ;
     this.model.compile ({optimizer: opt,  loss: "categoricalCrossentropy"}) ;
     var start = performance.now() ;
 
     console.log ("Training Started \n") ;
+    const surface = { name: 'trends', tab: 'Training' } ;
+
+	  console.log( tfvis.show.fitCallbacks (surface, ['loss']) );    
     await this.model.fitDataset (this.trnData, 
       { batchSize: this.nB, 
 	epochs:    this.epochs,
-	callbacks: { 
-	  onEpochEnd: this.epochLog (start) ,
-	  onBatchEnd: this.batchLog (this)
-        }}) ; 
+	callbacks: 
+//	  { onEpochEnd: this.epochLog (start),
+//	    onBatchEnd: this.batchLog (this) }
+	    tfvis.show.fitCallbacks (surface, ['loss'])    
+        }) ; 
     console.log ("Training Ended \n") ;
     this.trained = true ;
 
