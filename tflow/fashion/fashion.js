@@ -9,18 +9,19 @@ class fashion {
    constructor () {
      this.imgSize = 28 * 28 ;
      this.nL = 10 ; // number of labels
-     this.bS = 64 ; // No. of samples in a batch
+     this.bS = 50 ; // No. of samples in a batch
      this.epochs = 5 ;
      this.mdlFile = "indexeddb://localhost:8000/myModel" ;
      this.trnFile = "data/big/train.csv" ;
      this.tstFile = "data/big/test.csv" ;
      this.trained = false ;   
      this.learnRate = 0.01 ;
-     this.opt = tf.train.sgd (.01) ;
+     this.opt = tf.train.sgd (this.learnRate) ;
      this.loss =  "categoricalCrossentropy" ;
 
      this.model = tf.sequential ({
-     layers: [ tf.layers.dense ({units: this.imgSize, inputShape: [this.imgSize]}), // input
+       layers: [ tf.layers.dense ({units: this.imgSize, inputShape: [this.imgSize], 
+	                           activation: "relu"}), // input
 		tf.layers.dense ({units: 520, activation: "relu"}),   // middle
 		tf.layers.dense ({units: this.nL, activation: "softmax"})  // output
 	      ]
@@ -39,17 +40,16 @@ class fashion {
 
   async run () {
       
-      await this.Eval() ;
-      return ;
       let tvis = tfvis.visor() ;
       tvis.open() ;
       await this.loadData () ;
       
-      this.trained = true ;
-      for (let i = 0 ; i <5 ; i++) {
+      this.trained = false ;
+      for (let i = 0 ; i <1 ; i++) {
 	await this.train () ;
 	this.Eval () ;
       }
+      await this.visTest() ;
       
   }
 
@@ -98,7 +98,7 @@ class fashion {
               }); 
   } // end of epochLog
 
-  batchLog (obj) { 
+  batchLog () { 
     // returns callback fn to execute at end of batch
       return ( async function (batch, logs) {
 	              console.log ("Batch: " + batch +
@@ -126,13 +126,12 @@ class fashion {
     console.log ("Training Started \n") ;
     const surface = { name: 'trends', tab: 'Training' } ;
 
-	  console.log( tfvis.show.fitCallbacks (surface, ['loss']) );    
     await this.model.fitDataset (this.trnData, 
       { batchSize: this.bS, 
 	epochs:    this.epochs,
 	callbacks: 
 	//  { onEpochEnd: this.epochLog (start),
-        //    obSatchEnd: this.batchLog (this) }
+         //   onBatchEnd: this.batchLog () }
   	    tfvis.show.fitCallbacks (surface, ['loss'])    
         }) ; 
     console.log ("Training Ended \n") ;
@@ -144,29 +143,39 @@ class fashion {
 
   } // end train
 
-  async Eval (canvas) {
-
+  async Eval (canvas) { // Prints average loss on test data set
+    // Dont know how this differes from Predict ?
     console.log ("Starting Evaluation \n") ;
-    let result = await this.model.evaluateDataset (tstData) ;
+
+    /*
+    this.model = await tf.loadLayersModel (this.mdlFile) ;
+    this.model.compile ({optimizer: this.opt,  loss: this.loss}) ;
+    await this.loadData () ; // Reload data with batch size of 1
+    */
+
+    let result = await this.model.evaluateDataset (this.tstData) ;
     result = (await result.data())[0] ; 
     console.log("Evaluation Loss:  ", result);
     console.log ("Evaluation Done \n");
-
   } // end of reEval 
 
-  visTest () {  // Random visual test on 9 samples
-    this.bS = 1 ;
+  async visTest () {  // Random visual test on 9 samples
     this.model = await tf.loadLayersModel (this.mdlFile) ;
     this.model.compile ({optimizer: this.opt,  loss: this.loss}) ;
 
+    this.bS = 1 ;
     await this.loadData () ; // Reload data with batch size of 1
-    var tstData = await (this.tstData.shuffle(100).take(9));
-    var xs = await (await tstData.toArray())[3].xs.data() ;
-    var ys = await (await tstData.toArray())[3].ys.data() ;
+    var tstData = await (this.tstData.take(9));
 
-    array.indexOf(Math.max.apply(null, array)
+    for (let i = 0 ; i < 9 ; i++) {
+      let xs = await (await tstData.toArray())[i].xs.data() ;
+      let ys = await (await tstData.toArray())[i].ys.data() ;
+      let  lbl = this.tags [ys.indexOf (Math.max.apply (null, ys))];
+      let yp = await  this.model.predict (tf.tensor2d (xs, [1, 28*28])).data() ;
+      let  lblp = this.tags [yp.indexOf (Math.max.apply (null, yp))];
+      console.log (lbl, "  ==predicted >> ",   lblp) ; 
+    }
+  } // end visTest
 
-
-
-  }
+  async
 } // end of fashion class
