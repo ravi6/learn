@@ -10,19 +10,18 @@ class fashion {
      this.imgSize = 28 * 28 ;
      this.nL = 10 ; // number of labels
      this.bS = 64 ; // No. of samples in a batch
-     this.dataSize = 10000 ;
-     this.epochs = 5 ;
+     this.dataSize = 600 ;
+     this.epochs = 2 ;
      this.mdlFile = "indexeddb://localhost:8000/myModel" ;
      this.trnFile = "data/big/train.csv" ;
      this.tstFile = "data/big/test.csv" ;
      this.trained = false ;   
-     this.learnRate = 2.5 ;
+     this.learnRate = .01 ;
      this.opt = tf.train.sgd (this.learnRate) ;
      this.loss =  "categoricalCrossentropy" ;
 
      this.model = tf.sequential ({
-       layers: [ tf.layers.dense ({units: this.imgSize, inputShape: [this.imgSize], 
-	                           activation: "relu"}), // input
+       layers: [ tf.layers.dense ({units: this.imgSize, inputShape: [this.imgSize] }), // input
 		tf.layers.dense ({units: 520, activation: "relu"}),   // middle
 		tf.layers.dense ({units: this.nL, activation: "softmax"})  // output
 	      ]
@@ -45,7 +44,7 @@ class fashion {
       tvis.open() ;
       await this.loadData () ;
       
-      this.trained = false ;
+      this.trained = true ;
       for (let i = 0 ; i <1 ; i++) {
 	await this.train () ;
 	// this.Eval () ;
@@ -80,13 +79,14 @@ class fashion {
 	delimWhitspace: true });
 
     var dataSet = await csvDataset.map (({xs, ys}) => {
-       var v = new Array (nL).fill(0) ;
-       v [Object.values (ys)] = 1 ;   // one shot labelling
-	     return ( {xs: Object.values (xs), ys: v} ) ; 
+       let v = new Array (nL).fill(0) ;
+       v [Object.values (ys)] = 1 ;   // ones hot labelling
+       // Scaling is a must to get convergence (tf.js won't do it for you)
+       let xscaled = Object.values (xs).map ( (x) => {return x * (1.0/255)} ) ;
+	     return ( {xs: xscaled, ys: v} ) ;// scaling image
     }).take(this.dataSize) ;
  
-
-    return (  dataSet.batch (this.bS) ) ; 
+    return ( dataSet.batch (this.bS) ) ; 
   } // end getCSV
 
 
@@ -144,25 +144,16 @@ class fashion {
 
   } // end train
 
-  async Eval (canvas) { // Prints average loss on test data set
-    // Dont know how this differes from Predict ?
-    console.log ("Starting Evaluation \n") ;
+  async Eval () { // Prints average loss on test data set
 
-    /*
     this.model = await tf.loadLayersModel (this.mdlFile) ;
     this.model.compile ({optimizer: this.opt,  loss: this.loss}) ;
     await this.loadData () ; // Reload data with batch size of 1
-    */
 
     let result = await this.model.evaluateDataset (this.tstData) ;
     result = (await result.data())[0] ; 
     console.log("Evaluation Loss:  ", result);
-    console.log ("Evaluation Done \n");
   } // end of reEval 
-
-  picItem () {
-             
-  } // end picItem
 
   async visTest () {  
     // Grab one batch of data (unfortunately
@@ -180,17 +171,17 @@ class fashion {
       xs = xs.arraySync() ;
       ys = ys.arraySync() ;
 
-
       // pick few random samples from the above batch 
       for (let i = 0 ; i < 10 ; i ++) {
-	let idx = Math.floor (Math.random () * this.bS);
+	  let idx = Math.floor (Math.random () * this.bS);
 
-	// Make prediction with xs as input
-	let xp = await tf.tensor2d (xs[idx], [1, this.imgSize]) ;
-	let yp = await (await this.model.predict (xp)).data() ;
-	console.log ("idx", idx, "   ", this.getTag(ys[idx]), 
-	    "  ==predicted >> ",   this.getTag(yp)) ; 
-      }
+	  // Make prediction with xs as input
+	  let xp = await tf.tensor2d (xs[idx], [1, this.imgSize]) ;
+	  let result = await this.model.predict (xp);
+	  let yp = await result.data() ;
+	  console.log ("Actual: ", this.getTag(ys[idx]), 
+	      "\t\tpredicted: ",   this.getTag(yp)) ; 
+	}
   } // end visTest
 
   getTag (y) { // returns category tag give output
@@ -198,14 +189,4 @@ class fashion {
 	   (Math.max.apply (null, y))] );
   }
 
-  entropy () { // a test method ... not used
-    const d = 1e-20 ;
-    const target = tf.tensor1d([1+d, 0+d, 0+d]);
-    const output = tf.tensor1d([0.5+d,0.5+d, 0+d]);
-    const result = tf.neg(tf.sum(
-        tf.mul(tf.cast(target, 'float32'), tf.log(output)),
-        output.shape.length - 1));
-    result.print() ;
-    return ;
-  }
 } // end of fashion class

@@ -4,16 +4,25 @@
     <meta charset="utf-8" />
     <title>Learns tf.js </title>
     <link rel="icon" type="image/png" href="/images/favicon.png">
+    <link rel="stylesheet" href="style.css">
   </head>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis@latest"></script>
   <body>
-    <h1>Learnings TensorFLow.js</h1>
-    <h2>Open the console to see the results.</h2>
-    <script src = "fashion.js"> </script>
     <script>
-       f = new fashion() ;
-       f.run() ;
+      function doit(){
+      location.reload(true); 
+    }
+    </script>
+
+    <h2 >Open the console to see the results.</h2>
+    <form>
+    <script src = "fashion.js"> </script>
+    <p><button  class=button  onClick="doit()"> train </button>
+    <p><button class=mybutton onClick="doit()"> eval </button>
+    <p><button class=mybutton onClick="doit()"> test </button>
+    <script>
+       //f = new fashion() ;
+       //f.run() ;
      //  plot() ;
     </script>
   </body>
