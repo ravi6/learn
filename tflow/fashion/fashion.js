@@ -44,11 +44,9 @@ class fashion {
       tvis.open() ;
       await this.loadData () ;
       
-      this.trained = true ;
-      for (let i = 0 ; i <1 ; i++) {
-	await this.train () ;
-	// this.Eval () ;
-      }
+      this.trained = false ;
+      await this.train () ;
+      await this.Eval() ;
       await this.visTest() ;
       
   }
@@ -170,8 +168,8 @@ class fashion {
       let ys = await (await ds[0]).ys ;
       xs = xs.arraySync() ;
       ys = ys.arraySync() ;
-
       // pick few random samples from the above batch 
+      var tblData =  [] ;
       for (let i = 0 ; i < 10 ; i ++) {
 	  let idx = Math.floor (Math.random () * this.bS);
 
@@ -179,9 +177,18 @@ class fashion {
 	  let xp = await tf.tensor2d (xs[idx], [1, this.imgSize]) ;
 	  let result = await this.model.predict (xp);
 	  let yp = await result.data() ;
-	  console.log ("Actual: ", this.getTag(ys[idx]), 
-	      "\t\tpredicted: ",   this.getTag(yp)) ; 
+	  let tp = this.getTag(yp) ;
+	  let tt = this.getTag(ys[idx]) ;
+	  console.log ("Actual: ", tt, 
+	      "\t\tpredicted: ",  tp) ; 
+          tblData.push ([i, tt, tp]) ;
 	}
+       console.log(tblData) ;
+
+      const headers = ['sample', 'predicted', 'actual'  ];
+      const surface = { name: 'Predictions', tab: 'Charts' };
+      tfvis.render.table(surface, { headers, values:tblData });
+
   } // end visTest
 
   getTag (y) { // returns category tag give output
