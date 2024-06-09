@@ -28,9 +28,9 @@ class fashion {
      }); // end model
 
     this.tags = [ "T-Shirt",  "Trouser",  "Pullover",
-             "Dress",  "Coat",  "Sandal",
-             "Shirt",  "Sneaker",  "Bag",
-             "Ankle Boot" ] ;
+                  "Dress",    "Coat", 	  "Sandal",
+                  "Shirt",    "Sneaker",  "Bag",
+                  "Ankle Boot" ] ;
 
     console.log ("Model Layers: \n", this.model.layers);
     console.log ("Model Inputs  \n", this.model.inputs[0].shape);
