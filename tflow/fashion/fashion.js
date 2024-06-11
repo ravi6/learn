@@ -7,9 +7,12 @@
 class fashion {
 
    constructor () {
+     this.imgW = 28 ;
+     this.imgH = 28 ;
+     this.nCh = 1 ; // grey scale
      this.imgSize = 28 * 28 ;
      this.nL = 10 ; // number of labels
-     this.bS = 64 ; // No. of samples in a batch
+     this.bS = 60 ; // No. of samples in a batch
      this.dataSize = 600 ;
      this.epochs = 2 ;
      this.mdlFile = "indexeddb://localhost:8000/myModel" ;
@@ -20,31 +23,63 @@ class fashion {
      this.opt = tf.train.sgd (this.learnRate) ;
      this.loss =  "categoricalCrossentropy" ;
 
+    this.tags = [ "T-Shirt",  "Trouser",  "Pullover",
+                  "Dress",    "Coat", 	  "Sandal",
+                  "Shirt",    "Sneaker",  "Bag",
+                  "Ankle Boo/1t" ] ;
+
+
+   } // end constructor
+
+
+  simpleModel () {
      this.model = tf.sequential ({
        layers: [ tf.layers.dense ({units: this.imgSize, inputShape: [this.imgSize] }), // input
 		tf.layers.dense ({units: 520, activation: "relu"}),   // middle
 		tf.layers.dense ({units: this.nL, activation: "softmax"})  // output
 	      ]
      }); // end model
+  }
 
-    this.tags = [ "T-Shirt",  "Trouser",  "Pullover",
-                  "Dress",    "Coat", 	  "Sandal",
-                  "Shirt",    "Sneaker",  "Bag",
-                  "Ankle Boot" ] ;
-
-    console.log ("Model Layers: \n", this.model.layers);
-    console.log ("Model Inputs  \n", this.model.inputs[0].shape);
-    console.log ("Model Outputs  \n", this.model.outputs[0].shape);
-
-   } // end constructor
+  cnnModel () {  // try convolutional model
+    this.model = tf.sequential ({ 
+       layers: [ 
+	         tf.layers.dense ({units: this.imgSize, inputShape: [this.bS, this.imgSize, this.nCh] }),
+//	         tf.layers.resizing ({height: this.imgH, width: this.imgW,
+//		                      inputShape: [this.imgSize], batchSize: this.bS}),
+	         tf.layers.conv2d ({filters: 1, kernelSize: (3,3), stride: (1, 1),
+		                     padding: 'valid', dataFormat: 'channelsLast',
+		                     activation: "relu"}),
+	         tf.layers.maxPooling2d ({poolSize: (2, 2), strides: (1, 1),
+		                          padding: 'valid', dataFormat: 'channelsLast' }),
+	         tf.layers.flatten(),
+		 tf.layers.dense ({units: 50, activation: "relu"}),   // middle
+		 tf.layers.dense ({units: this.nL, activation: "softmax"})  // output
+	       ] });
+   } // end cnnModel
 
   async run () {
       
+    this.cnnModel () ;
+    this.model.summary() ; 
+    await this.loadData () ;
+    this.tstData = await this.reShape( this.tstData ) ;
+    console.log (await this.tstData.toArray()) ;
+    
+    this.model.compile ({optimizer: this.opt,  loss: this.loss}) ;
+    await this.model.fitDataset (this.trnData, 
+      			{ batchSize: this.bS, 
+			  epochs:    this.epochs}) ;
+   
+       return  ;
+
+      this.simpleModel () ;
       let tvis = tfvis.visor() ;
       tvis.open() ;
-      await this.loadData () ;
       
+      await this.loadData () ;
       this.trained = false ;
+
       await this.train () ;
       await this.Eval() ;
       await this.visTest() ;
@@ -112,7 +147,6 @@ class fashion {
      *  show progress of fit graphically
      *  save the fitted model
      */ 
-    this.model.summary() ; 
     if (this.trained) { // pickup from where we left off
       console.log ("Picking model from saved state \n") ;
       this.model = await tf.loadLayersModel (this.mdlFile) ;
@@ -196,4 +230,12 @@ class fashion {
 	   (Math.max.apply (null, y))] );
   }
 
+  async reShape (ds) { // reshaping existing data for cnn
+     let z = await ds.toArray() ;
+     z.forEach ( (obj) => {
+           obj.xs = tf.reshape (obj.xs, [this.bS, this.imgW, this.imgH, this.nCh]) ;
+           return(obj) ;
+     } ) ;
+    return (tf.data.array (z)) ;
+  }
 } // end of fashion class
