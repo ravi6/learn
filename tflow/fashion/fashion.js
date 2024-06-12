@@ -2,20 +2,28 @@
 //1st Jun 2024
 /* Explore classifier nn with
  * Train fashion images and test  
+ * Explore simple dense layer model 
+ * and CNN model concepts
  **/
 
 class fashion {
 
    constructor () {
+     this.cnn = false ;  // switch to use cnn model
      this.imgW = 28 ;
      this.imgH = 28 ;
-     this.nCh = 1 ; // grey scale
+     this.nCh = 1 ; // grey scale (channel)
      this.imgSize = 28 * 28 ;
      this.nL = 10 ; // number of labels
      this.bS = 60 ; // No. of samples in a batch
-     this.dataSize = 600 ;
-     this.epochs = 2 ;
-     this.mdlFile = "indexeddb://localhost:8000/myModel" ;
+     this.dataSize = 60000 ;
+     this.epochs = 5 ;
+
+     if (this.cnn)
+     	this.mdlFile = "indexeddb://localhost:8000/cnnModel" ;
+     else
+     	this.mdlFile = "indexeddb://localhost:8000/myModel" ;
+
      this.trnFile = "data/big/train.csv" ;
      this.tstFile = "data/big/test.csv" ;
      this.trained = false ;   
@@ -44,53 +52,50 @@ class fashion {
   cnnModel () {  // try convolutional model
     this.model = tf.sequential ({ 
        layers: [ 
-	         tf.layers.dense ({units: this.imgSize, inputShape: [this.bS, this.imgSize, this.nCh] }),
-//	         tf.layers.resizing ({height: this.imgH, width: this.imgW,
-//		                      inputShape: [this.imgSize], batchSize: this.bS}),
+	         tf.layers.inputLayer ({
+		      inputShape: [this.imgW, this.imgH, this.nCh] }),
 	         tf.layers.conv2d ({filters: 1, kernelSize: (3,3), stride: (1, 1),
 		                     padding: 'valid', dataFormat: 'channelsLast',
 		                     activation: "relu"}),
 	         tf.layers.maxPooling2d ({poolSize: (2, 2), strides: (1, 1),
 		                          padding: 'valid', dataFormat: 'channelsLast' }),
-	         tf.layers.flatten(),
+	         tf.layers.flatten(),  // need it before we go dense :)
 		 tf.layers.dense ({units: 50, activation: "relu"}),   // middle
 		 tf.layers.dense ({units: this.nL, activation: "softmax"})  // output
 	       ] });
    } // end cnnModel
 
   async run () {
-      
-    this.cnnModel () ;
+
+    let tvis = tfvis.visor() ;
+    tvis.open() ;
+     
+    if (this.cnn)
+       this.cnnModel () ;
+    else
+       this.simpleModel () ;
+
     this.model.summary() ; 
-    await this.loadData () ;
-    this.tstData = await this.reShape( this.tstData ) ;
-    console.log (await this.tstData.toArray()) ;
-    
-    this.model.compile ({optimizer: this.opt,  loss: this.loss}) ;
-    await this.model.fitDataset (this.trnData, 
-      			{ batchSize: this.bS, 
-			  epochs:    this.epochs}) ;
-   
-       return  ;
+    this.trained = false ;
 
-      this.simpleModel () ;
-      let tvis = tfvis.visor() ;
-      tvis.open() ;
+    await this.loadData () ; 
+    await this.train () ;
+    await this.Eval() ;
+    await this.visTest() ;
       
-      await this.loadData () ;
-      this.trained = false ;
-
-      await this.train () ;
-      await this.Eval() ;
-      await this.visTest() ;
-      
-  }
+  } // end run
 
   async loadData () {
     // load training and test data
     console.log ("Loading fashion data \n") ;
     this.trnData =  await this.getCSV (this.trnFile, this.nL, this.bS) ; 
     this.tstData =  await this.getCSV (this.tstFile, this.nL, this.bS) ; 
+    
+    // Just for cnn model
+    if (this.cnn) {  // using cnn model
+      this.trnData = await this.reShape( this.trnData ) ; // xs = [bs, w, h, ch]
+      this.tstData = await this.reShape( this.tstData ) ; // xs = [bs, w, h, ch]
+    }
     console.log ("Loaded fashion data \n") ;
   } // end loadData
 
@@ -180,7 +185,6 @@ class fashion {
 
     this.model = await tf.loadLayersModel (this.mdlFile) ;
     this.model.compile ({optimizer: this.opt,  loss: this.loss}) ;
-    await this.loadData () ; // Reload data with batch size of 1
 
     let result = await this.model.evaluateDataset (this.tstData) ;
     result = (await result.data())[0] ; 
@@ -202,14 +206,22 @@ class fashion {
       let ys = await (await ds[0]).ys ;
       xs = xs.arraySync() ;
       ys = ys.arraySync() ;
+
       // pick few random samples from the above batch 
       var tblData =  [] ;
       for (let i = 0 ; i < 10 ; i ++) {
 	  let idx = Math.floor (Math.random () * this.bS);
 
 	  // Make prediction with xs as input
-	  let xp = await tf.tensor2d (xs[idx], [1, this.imgSize]) ;
-	  let result = await this.model.predict (xp);
+	  let shape ;
+	  if (this.cnn){  // single sample bS=1
+	      shape = [1, this.imgW, this.imgH, this.nCh] ;
+	  }
+	  else { 
+	      shape = [1, this.imgSize] ;
+	  };
+
+	  let result = await this.model.predict (tf.reshape (xs[idx], shape));
 	  let yp = await result.data() ;
 	  let tp = this.getTag(yp) ;
 	  let tt = this.getTag(ys[idx]) ;
@@ -217,7 +229,6 @@ class fashion {
 	      "\t\tpredicted: ",  tp) ; 
           tblData.push ([i, tt, tp]) ;
 	}
-       console.log(tblData) ;
 
       const headers = ['sample', 'predicted', 'actual'  ];
       const surface = { name: 'Predictions', tab: 'Charts' };
@@ -236,6 +247,6 @@ class fashion {
            obj.xs = tf.reshape (obj.xs, [this.bS, this.imgW, this.imgH, this.nCh]) ;
            return(obj) ;
      } ) ;
-    return (tf.data.array (z)) ;
+    return (tf.data.array(z)) ;
   }
 } // end of fashion class
