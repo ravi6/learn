@@ -28,3 +28,13 @@ button {
     height:230px;
 }
 
+#logger {
+    border-style:groove;
+    margin: 10px;
+    overflow: scroll ;
+    height: 60px;
+    font-size: small;
+    box-shadow: inset 0 0 10px #795548;
+}
+}
+

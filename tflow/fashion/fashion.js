@@ -170,6 +170,7 @@ class fashion {
     let result = await this.model.evaluateDataset (this.tstData) ;
     result = (await result.data())[0] ; 
     console.log("Evaluation Loss:  ", result);
+	return (result) ;
   } // end of reEval 
 
   async visTest () {  
