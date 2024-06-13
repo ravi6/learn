@@ -16,13 +16,13 @@ class fashion {
      this.imgSize = 28 * 28 ;
      this.nL = 10 ; // number of labels
      this.bS = 60 ; // No. of samples in a batch
-     this.dataSize = 60000 ;
+     this.dataSize = 600 ;
      this.epochs = 5 ;
 
      if (this.cnn)
-     	this.mdlFile = "indexeddb://localhost:8000/cnnModel" ;
+     	this.mdlFile = "indexeddb://localhost:8000/xxx" ;
      else
-     	this.mdlFile = "indexeddb://localhost:8000/myModel" ;
+     	this.mdlFile = "indexeddb://localhost:8000/xxx" ;
 
      this.trnFile = "data/big/train.csv" ;
      this.tstFile = "data/big/test.csv" ;
@@ -65,25 +65,6 @@ class fashion {
 	       ] });
    } // end cnnModel
 
-  async run () {
-
-    let tvis = tfvis.visor() ;
-    tvis.open() ;
-     
-    if (this.cnn)
-       this.cnnModel () ;
-    else
-       this.simpleModel () ;
-
-    this.model.summary() ; 
-    this.trained = false ;
-
-    await this.loadData () ; 
-    await this.train () ;
-    await this.Eval() ;
-    await this.visTest() ;
-      
-  } // end run
 
   async loadData () {
     // load training and test data
@@ -244,7 +225,8 @@ class fashion {
   async reShape (ds) { // reshaping existing data for cnn
      let z = await ds.toArray() ;
      z.forEach ( (obj) => {
-           obj.xs = tf.reshape (obj.xs, [this.bS, this.imgW, this.imgH, this.nCh]) ;
+           obj.xs = tf.reshape (obj.xs, 
+				[this.bS, this.imgW, this.imgH, this.nCh]) ;
            return(obj) ;
      } ) ;
     return (tf.data.array(z)) ;
