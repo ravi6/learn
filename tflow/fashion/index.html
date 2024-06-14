@@ -20,23 +20,27 @@
     Intermediate model states were stored within the browser
     indexeddb storage space. (survives between browser sessions)
     </p>
-    <div id=controls>
-    <form>
-      <h4 style="margin:0"> Choose Model: </h4>
-      <input type=radio name=model  id=rdAnn checked="checked">ann</radio>
-      <input type=radio name=model  id=rdCnn >cnn</radio>
-      <br><input type=checkbox name=Trained id=cbTrained> 
-          <label for=Trained> Trained </label>
-    </form>
-       <button title="Load Datasets" id=btnData>getData</button>
-       <button title="Train the Model" id=btnTrain>Train</button>
-       <button title="Evaluate with Test Data" id=btnEval>Eval</button>
-       <button title="Spot test predictions" id=btnPred>Pred</button>
+    <div style="display: flex ; ">
+          <div id=controls>
+          <form>
+            <h4 style="margin:0"> Choose Model: </h4>
+            <input type=radio name=model  id=rdAnn checked="checked">ann</radio>
+            <input type=radio name=model  id=rdCnn >cnn</radio>
+            <br><input type=checkbox name=Trained id=cbTrained> 
+                <label for=Trained> Trained </label>
+          </form>
+             <button title="Load Datasets" id=btnData>getData</button>
+             <button title="Train the Model" id=btnTrain>Train</button>
+             <button title="Evaluate with Test Data" id=btnEval>Eval</button>
+             <button title="Spot test predictions" id=btnPred>Pred</button>
+             <button title="Show Model Summary" id=btnSum>Summary</button>
+          </div>
+          <img id=imgNet src=images/ann.png style="width: 300px"></img>
     </div>
 
      <h4 style="margin:5px">Logger</h4>
-    <div id=logger >
-    </div>
+     <div id=logger ></div>
+    
       
        <script src = "fashion.js"> </script>
        <script src = "gui.js"></script>

@@ -18,14 +18,8 @@ class fashion {
      this.bS = 60 ; // No. of samples in a batch
      this.dataSize = 600 ;
      this.epochs = 5 ;
-
-     if (this.cnn)
-     	this.mdlFile = "indexeddb://localhost:8000/xxx" ;
-     else
-     	this.mdlFile = "indexeddb://localhost:8000/xxx" ;
-
-     this.trnFile = "data/big/train.csv" ;
-     this.tstFile = "data/big/test.csv" ;
+     this.trnFile = "data/train.csv" ;
+     this.tstFile = "data/test.csv" ;
      this.trained = false ;   
      this.learnRate = .01 ;
      this.opt = tf.train.sgd (this.learnRate) ;
@@ -36,11 +30,31 @@ class fashion {
                   "Shirt",    "Sneaker",  "Bag",
                   "Ankle Boo/1t" ] ;
 
-
    } // end constructor
 
 
-  simpleModel () {
+  async setupModel (isCnn) {
+        this.cnn =  isCnn ;
+
+	if (isCnn) 
+     	    this.mdlFile = "indexeddb://localhost:8000/cnnX" ;
+        else 
+     	    this.mdlFile = "indexeddb://localhost:8000/annX" ;
+
+      // if already trained use  saved state
+	if (this.trained) 
+	   this.model = await tf.loadLayersModel (this.mdlFile) ;
+        else {
+  	   if (isCnn)  this.cnnModel () ;
+	   else        this.annModel () ;
+        }
+
+    this.model.compile ({optimizer: this.opt,  loss: this.loss}) ;
+
+	  
+  } //setupModel
+	
+  annModel () {
      this.model = tf.sequential ({
        layers: [ tf.layers.dense ({units: this.imgSize, inputShape: [this.imgSize] }), // input
 		tf.layers.dense ({units: 520, activation: "relu"}),   // middle
@@ -109,24 +123,6 @@ class fashion {
   } // end getCSV
 
 
-  epochLog (start) { 
-    // returns callback fn to execute at end of epoch
-      return ( async function (epoch, logs) {
-	              let dt = performance.now() - start ;
-	              console.log ("Epoch: " + epoch +
-		           " Loss: " + logs.loss + "  delT: ", Math.round(dt) ); 
-                      start = performance.now() ; //  retart cpu timer
-              }); 
-  } // end of epochLog
-
-  batchLog () { 
-    // returns callback fn to execute at end of batch
-      return ( async function (batch, logs) {
-	              console.log ("Batch: " + batch +
-		           " Loss: " + logs.loss ) ;
-                     }); 
-  } // end of batchLog
-
   async train () {
     /** Compile the model
      *  fit Model to training data set
@@ -136,10 +132,9 @@ class fashion {
     if (this.trained) { // pickup from where we left off
       console.log ("Picking model from saved state \n") ;
       this.model = await tf.loadLayersModel (this.mdlFile) ;
+      this.model.compile ({optimizer: this.opt,  loss: this.loss}) ;
     }
    
-    // Let us train the model with data
-    this.model.compile ({optimizer: this.opt,  loss: this.loss}) ;
     var start = performance.now() ;
 
     console.log ("Training Started \n") ;
@@ -232,4 +227,23 @@ class fashion {
      } ) ;
     return (tf.data.array(z)) ;
   }
+
+  epochLog (start) { 
+    // returns callback fn to execute at end of epoch
+      return ( async function (epoch, logs) {
+	              let dt = performance.now() - start ;
+	              console.log ("Epoch: " + epoch +
+		           " Loss: " + logs.loss + "  delT: ", Math.round(dt) ); 
+                      start = performance.now() ; //  retart cpu timer
+              }); 
+  } // end of epochLog
+
+  batchLog () { 
+    // returns callback fn to execute at end of batch
+      return ( async function (batch, logs) {
+	              console.log ("Batch: " + batch +
+		           " Loss: " + logs.loss ) ;
+                     }); 
+  } // end of batchLog
+
 } // end of fashion class
