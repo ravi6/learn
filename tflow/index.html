@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <title>imgClassifier </title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Albert+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+        
+    <link rel="icon" type="image/png" href="/images/favicon.png">
+    <link rel="stylesheet" href="fashion.css">
+  </head>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis@latest"></script>
+  <body>
+
+    <h2 >Fashion Images Classifier</h2>
+    <p> Exploring neural networks with tensorflow.js. An artificial
+    neural network and a convolutional neural network models were explred
+    Intermediate model states were stored within the browser
+    indexeddb storage space. (survives between browser sessions)
+    </p>
+    <div style="display: flex ; ">
+          <div id=controls>
+          <form>
+            <h4 style="margin:0"> Choose Model: </h4>
+            <input type=radio name=model  id=rdAnn checked="checked">ANN</radio>
+            <input type=radio name=model  id=rdCnn >CNN</radio>
+            <br><input type=checkbox name=Trained id=cbTrained> 
+                <label for=Trained> Trained </label>
+          </form>
+             <button title="Load Datasets" id=btnData>getData</button>
+             <button title="Train the Model" id=btnTrain>Train</button>
+             <button title="Evaluate with Test Data" id=btnEval>Eval</button>
+             <button title="Spot test predictions" id=btnPred>Pred</button>
+             <button title="Show Model Summary" id=btnSum>Summary</button>
+          </div>
+          <img id=imgNet src=images/ann.png style="width: 300px"></img>
+    </div>
+
+     <h4 style="margin:5px">Logger</h4>
+     <div id=logger ></div>
+    
+      
+       <script src = "fashion.js"> </script>
+       <script src = "gui.js"></script>
+  </body>
+</html>
