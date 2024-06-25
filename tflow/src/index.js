@@ -17,16 +17,23 @@ app.get ('/', (c) => {      // serve startup page
 app.get ('/*', (c) => {      // resources from app source
   let url =  new URL(c.req.url) ; // elaborate json url
   console.log (url) ;
-  fpath = app.basePath + url.pathname ;  // prepend base path
+  let fpath = app.basePath + url.pathname ;  // prepend base path
    return new Response ( Bun.file(fpath) );
 });
 
-app.post('/upload', async (c) => {
+app.post('/*', async (c) => {
+  let url =  new URL(c.req.url) ; // elaborate json url
+  let spath = app.basePath + url.pathname   ;
+  console.log (url, spath) ;
   const frmData = await c.req.formData();
-  console.log(frmData) ;
-  const fname = frmData.get('fname') ;
-//  await Bun.write('my.pdf', fname);
-  return new Response("Success"  + fname);
-}) ;
+
+ // save both model components 
+ // weird that we can't save frmData in one go as is
+ ["model.json", "model.weights.bin"].forEach ( async (f) => {
+          await Bun.write(spath + f, frmData.get(f));
+ } ); 
+
+ return new Response("Success" );
+}) ;  // end post
 
 export default app ;

@@ -37,10 +37,10 @@ class fashion {
         this.cnn =  isCnn ;
 
 	if (isCnn) 
-     	     this.mdlFile = "indexeddb://localhost:8000/cnnX" ;
+     	     this.mdlFile = "indexeddb://localhost:8000/upload/cnnX" ;
         else 
      	    // this.mdlFile = "indexeddb://localhost:8000/annX" ;
-     	     this.mdlFile = "http://localhost:3000/annX" ;
+     	     this.mdlFile = "http://localhost:3000/upload/annX" ;
 
       // if already trained use  saved state
 	if (this.trained) 
