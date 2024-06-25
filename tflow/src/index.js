@@ -15,8 +15,9 @@ app.get ('/', (c) => {      // serve startup page
 });
 
 app.get ('/*', (c) => {      // resources from app source
-  let fpath =  new URL(c.req.url).pathname ; //get pathname (/...)
-  fpath = app.basePath + fpath ;  // prepend base path
+  let url =  new URL(c.req.url) ; // elaborate json url
+  console.log (url) ;
+  fpath = app.basePath + url.pathname ;  // prepend base path
    return new Response ( Bun.file(fpath) );
 });
 
