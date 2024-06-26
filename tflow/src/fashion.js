@@ -162,7 +162,6 @@ class fashion {
 
     this.model = await tf.loadLayersModel (this.mdlFile) ;
     this.model.compile ({optimizer: this.opt,  loss: this.loss}) ;
-
     let result = await this.model.evaluateDataset (this.tstData) ;
     result = (await result.data())[0] ; 
     console.log("Evaluation Loss:  ", result);
