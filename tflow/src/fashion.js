@@ -16,7 +16,7 @@ class fashion {
      this.imgSize = 28 * 28 ;
      this.nL = 10 ; // number of labels
      this.bS = 60 ; // No. of samples in a batch
-     this.dataSize = 600 ;
+     this.dataSize = 60 ;
      this.epochs = 5 ;
      this.trnFile = "data/train.csv" ;
      this.tstFile = "data/test.csv" ;
@@ -37,14 +37,13 @@ class fashion {
         this.cnn =  isCnn ;
 
 	if (isCnn) 
-     	     this.mdlFile = "indexeddb://localhost:8000/upload/cnnX" ;
+     	     this.mdlFile = "htpp://localhost:3000/upload/cnnX" ;
         else 
-     	    // this.mdlFile = "indexeddb://localhost:8000/annX" ;
      	     this.mdlFile = "http://localhost:3000/upload/annX" ;
 
       // if already trained use  saved state
 	if (this.trained) 
-	   this.model = await tf.loadLayersModel (this.mdlFile) ;
+	   this.model = await tf.loadLayersModel (this.mdlFile + "/model.json") ;
         else {
   	   if (isCnn)  this.cnnModel () ;
 	   else        this.annModel () ;
@@ -132,7 +131,7 @@ class fashion {
      */ 
     if (this.trained) { // pickup from where we left off
       console.log ("Picking model from saved state \n") ;
-      this.model = await tf.loadLayersModel (this.mdlFile) ;
+      this.model = await tf.loadLayersModel (this.mdlFile + "/model.json") ;
       this.model.compile ({optimizer: this.opt,  loss: this.loss}) ;
     }
    
@@ -160,7 +159,7 @@ class fashion {
 
   async Eval () { // Prints average loss on test data set
 
-    this.model = await tf.loadLayersModel (this.mdlFile) ;
+    this.model = await tf.loadLayersModel (this.mdlFile + "/model.json") ;
     this.model.compile ({optimizer: this.opt,  loss: this.loss}) ;
     let result = await this.model.evaluateDataset (this.tstData) ;
     result = (await result.data())[0] ; 
