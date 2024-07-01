@@ -150,8 +150,8 @@ class fashion {
         }) ; 
     console.log ("Training Ended \n") ;
     this.trained = true ;
-
-    console.log ("Saving the Model \n") ;
+    console.log(this.model) ;
+    console.log ("Saving the Model \n", this.mdlFile) ;
     await this.model.save (this.mdlFile);
     console.log ("Saved the Model \n") ;
 

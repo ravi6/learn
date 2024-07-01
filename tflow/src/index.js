@@ -24,12 +24,14 @@ app.get ('/', (c) => {      // serve startup page
 app.get ('/upload/*', async (c) => {   // request for saved model 
   let url =  new URL (c.req.url) ; 
   let fpath = app.basePath + url.pathname ;  
+  console.log("Serving: ",  fpath) ;
   return new Response (Bun.file (fpath));
 });  // end upload file getter
 
 app.get ('/*', (c) => {      // resources from app source
   let url =  new URL(c.req.url) ; // elaborate json url
   let fpath = app.basePath + url.pathname ;  // prepend base path
+  console.log("Serving: ",  fpath) ;
   return new Response (Bun.file (fpath)) ;
 });
 
@@ -42,6 +44,7 @@ app.post('/upload/*', async (c) => { // saving model
   //   encased in FormData pack
  ["model.json", "model.weights.bin"].forEach ( async (f) => {
           let p = spath + "/" + f;
+          console.log("Saving: ",  p) ;
           const data = await frmData.get(f) ;
           await Bun.write (p, data);
  } ); 
