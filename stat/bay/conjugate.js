@@ -25,8 +25,8 @@ class conjugate {
      var wprior = {mu: [0, 1, 2, -2],
                   std: [1, 1, 1, 1]} ;
 
-    this.count = 1;  // number of batches of data
-    this.nLoc = 4 ;  // number of x Locations sampled
+    this.count = 5;  // number of batches of data
+    this.nLoc = 2 ;  // number of x Locations sampled
     this.nRep = 3  ; // number of repeat measurements
     this.xrand = true ;
 
@@ -34,49 +34,52 @@ class conjugate {
                     jStat.pow(wprior.std, -2)));
    // this.S0 = jStat().rand(this.N+1).multiply(0) ; //null matrix
                    
-    
     this.Mu0 = jStat(wprior.mu).transpose();
     this.ystd = .1 ; // distribution of errors in y
 
 
   } // end constructor
 
-  tryme(fig) {
-      this.fig = fig ;
-      this.data = {x: [] , y: []} //this data is generated with
+  getPred (xv) { // Get distribution of predicted y at any x
+    let V = [] ;   // psi {functions of x}
+      for(var j = 0 ; j <= this.N ; j++)
+	 V.push(Math.pow(xv, j)) ; 
+    let X = jStat(V).transpose()  ;  // one col     
+    let ym = (this.Mu.transpose()).multiply(X) ;
+    let z = this.ystd * this.ystd +
+           X.transpose().multiply(this.Sinv).multiply(X) ;
+    return {mean: ym , std: Math.pow(z, 0.5)} ;
+  }
 
-      this.series = [] ;
+  plotSetup (fig) {
+      this.fig = fig ;
+      this.series = [];
+      this.data = {x: [] , y: []} //this data is generated with
       this.layout = {title: 'Linear Regression - Bayesian (Conjugate Priors)',               
                	    xaxis: {title: {text: "x"}},
 	            yaxis: {title: {text: "y"}},
 	            annotations: [],
                     };
-   
-      this.annotate(0.1, 0.9, "Data Generated with:");
+      this.annotate(0.1, 0.3, "Data Generated with:");
       var info = JSON.stringify({std: this.ystd, stdw: this.w.std, wm: this.w.mu});
-      this.annotate(0.1, 0.8, info);
-
-      for (var i=0 ; i<this.count ; i++){  // progressive updates with more data
-        this.genData();
-        this.updateW();
-        //console.log("Sdiff", this.S.subtract(this.S0));
-        //console.log("Mudiff", this.Mu.subtract(this.Mu0));
-	this.S0 = this.S ;
-	this.Mu0 = this.Mu ;
-
-        this.plotData("Data") ;
-	var wm =this.Mu.transpose();
-	wm = jStat.rowa(wm,0);
-        this.plotPoly(i, wm);
-
-	this.getW(this.Mu0, this.S0);
-      }
-  } // end tryme
-
-  updateY() { // updates predicted y distribution
-
-
+      this.annotate(0.1, 0.25, info);
   }
+
+  fitMoreData () {
+    this.genData();    // get new data only (not appended)
+    this.updateW();    // get posterior and prediction estimates
+    this.S0 = this.S ; // prepare for next iteration
+    this.Mu0 = this.Mu ;
+    this.plotData("Data") ;  // just keep adding data points to plot
+    this.plotPred() ;  // replace old Prediction with new one
+    /*
+    var wm = this.Mu.transpose() ;
+    wm = jStat.rowa(wm,0);  // row with mean w
+    this.plotPoly(i, wm);
+	      this.plotPred() ;
+    */
+  } // end fitMoreData
+
   updateW() { 
     // Updates prior distribution of <w>
     // given some data ; S, Mu matricies get updated
@@ -96,7 +99,7 @@ class conjugate {
     //Update S
     var sigpm2 = 1 / (this.ystd * this.ystd ) ;
     this.S = this.S0.add(XXt.multiply(sigpm2)) ;
-    console.log("S",this.S);
+    // console.log("S",this.S);
 
     // Update Mu
     this.Mu = Xt.multiply(Y).multiply(sigpm2);
@@ -104,33 +107,9 @@ class conjugate {
     this.Sinv = jStat(jStat.inv(this.S)) ;
     this.Mu = this.Sinv.multiply(this.Mu) ; 
 
-    // Get predicted y distribution
-    this.ysMean = jStat(this.Mu).transpose().multiply(Xt) ;
-    let  z = (jStat(X).multiply(this.Sinv)).multiply(Xt);
-    console.log(jStat.dimensions(X)) ;
-    this.ysStd  =  this.ystd * this.ystd + z[1] ;
-    console.log ("ymean =", this.ysMean, "ysStd =", this.ysStd) ;
   }   // end updateW
 
-  snubOffDiag(A) {
-    var diag = jStat.diag(A);
-    diag = diag.map((c,i)=>c[0]);
-    diag = jStat.diagonal(diag);
-    return(jStat(diag));
-  }
   
-  getW(Mu, S) {
-    var mu = jStat.rowa(Mu.transpose(),0); 
-    var Sinv = jStat.inv(S.multiply(0.5)) ;
-    var std = jStat(jStat.diag(Sinv)).transpose();
-    std = jStat.pow(std,0.5);
-    var v = this.w.std ;
-    var srat1 = std.map((e,i)=>e/std[0]);
-    var srat2 = v.map((e,i)=>e/v[0]);
-    var W = {mu: mu , srat1: srat1, srat2: srat2};
-    return(W) ;
-  }
-
   plotPoly(legend, w) { // Plot a polynomial curve
 
           let yf = [] ; let xf = [] ; 
@@ -142,19 +121,13 @@ class conjugate {
             yf.push(s) ;
 	  }
 
-	 this.series.push({x: xf, y: yf,
-	                type: 'line',
-	                markers: false,
-		      name: legend });
+     this.series.push({x: xf, y: yf, type: 'line',
+	                markers: false, name: legend });
     
      Plotly.newPlot(this.fig, this.series, this.layout, 
                     {scrollZoom: false});     
   } // end plotPoly
 
-  getSize(x)  {
-    // Get size of 2D matrix
-     return {M: x.length , N: x[0].length}; 
-  }
 
   genData() { 
     // Generate data points from Polynomial with 
@@ -164,7 +137,6 @@ class conjugate {
     var scale = 1 ;
     this.data.x = [] ;
     this.data.y = [] ;
-
 
     let x = [];
     for (var i=0 ; i < this.nLoc ; i++) { // chose sampled x vector
@@ -200,6 +172,43 @@ class conjugate {
                     {scrollZoom: false});     
   } // end plotData
 
+  plotPred() {  // Dynamically replaced Prediction plot
+    let x = [] ;
+    let y = [] ; let yL = []  ; let yH = [] ;
+    for (let j=0; j < 20 ; j++) {
+      let ans = this.getPred(j/19.0) ;
+      x.push (j/19.0) ;
+      y.push (ans.mean) ;
+      yL.push (-2*ans.std + ans.mean) ;
+      yH.push (2*ans.std + ans.mean) ;
+    }
+
+    //centered line
+    let predTrace1 = {x: x, y: y,
+          type: 'scatter', name: "Predict",
+	  showlegend: true };
+
+    //shaded spread
+    let xr = [... x] ; // we don't want x to be  clobbered
+    xr.reverse () ;
+    let xx = [... x, ... xr] ; 
+    yL.reverse() ;
+    let yy = [... yH, ... yL] ;
+    let predTrace2 = {x: xx, y: yy, 
+        fill: "tozerox",
+        fillcolor: "rgba(0,176,246,0.2)",
+        line: {color: "transparent"},
+        showlegend: false,
+        type: 'scatter' };
+
+    let data = [] ;
+    this.series.forEach ((itm) => {data.push(itm)}) ;
+    data.push (predTrace1) ; data.push (predTrace2) ;
+     Plotly.newPlot(this.fig, data, this.layout, 
+                    {scrollZoom: false});     
+
+  } // end plotData
+
   poly(c, x) {
     // Evaluate polynomial at x
     var N = c.length  ; // number of Polynomial coeffs
@@ -229,3 +238,7 @@ class conjugate {
     }
   }
 } // end conjugate
+
+
+// jStat(of vector) .... will become a matrix of one row
+// Array diemsions is reported as column vector 

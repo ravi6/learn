@@ -46,8 +46,6 @@ function doall() {
   var reg = new lreg();
   reg.testMLE("fig3");
   reg.testMAP("fig4");
-  var conj = new conjugate() ;
-  conj.tryme("fig5") ;
 }
 
 function eigen(A) {
