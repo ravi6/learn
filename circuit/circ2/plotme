@@ -1,0 +1,34 @@
+#Plot variables with gnuplot
+data="work/circ_res.csv"
+set datafile separator ","
+xlabel = "time (s)"
+
+set grid
+set key textcolor rgb "white"
+set label textcolor rgb "white"
+set ylabel textcolor rgb "white"
+set xlabel textcolor rgb "white"
+set title textcolor rgb "white"
+set tics textcolor rgb "white"
+set key textcolor rgb "white"
+set key off
+set linetype 1 lc rgb "green"  lw 2
+set term qt 1  size 1200,600 font "Arial,12"  
+set multiplot layout 5,1
+
+set xlabel  "time(s)"
+set ylabel  "Resitor T(C)" 
+plot data using (column("time")):(column("R.T")) w l  lw 2  
+
+set ylabel "Qgen(W)"
+plot data using (column("time")):(column("R.Qgen")) w l lw 2 
+
+set ylabel "i"
+plot data using (column("time")):(column("R.i")) w l lw 2  
+
+set ylabel  "R(Ohm)" 
+plot data using (column("time")):(column("R.R")) w l  lw 2  
+
+set ylabel  "V2(v)" 
+plot data using (column("time")):(column("T.v2")) w l  lw 2 
+pause(-1)

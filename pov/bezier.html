@@ -1,0 +1,139 @@
+<!doctype html>
+<html>
+<head>
+<script type="text/javascript" 
+src="http://code.jquery.com/jquery.min.js"></script>
+
+/* Draw Interactive Bezier Curve with Four Points
+   Will be useful for povray modelling
+   Author: Ravi Saripalli    1st Sep. 2023
+*/
+<style>
+    body{ background-color: ivory; }
+    canvas{border:1px solid red;}
+</style>
+
+<script>
+
+
+$(function(){  // localize my game
+
+var dragObj ;
+var mouseIsDown = false ;
+var mouseX, mouseY ;
+var ptSize = 6 ;
+
+    var canvas=document.getElementById("canvas");
+    var ctx=canvas.getContext("2d");
+
+    var canvasOffset=$("#canvas").offset();
+    var offsetX=canvasOffset.left;
+    var offsetY=canvasOffset.top;
+
+    var pts = [] ;
+    pts.push ({x: 50, y: 70}) ;
+    pts.push ({x: 25, y: 25}) ;
+    pts.push ({x: 100, y: 125}) ;
+    pts.push ({x: 150, y: 50}) ;
+
+    function draw(){
+        ctx.clearRect(0,0,canvas.width, canvas.height)
+          ctx.fillStyle="skyblue";
+          ctx.strokeStyle="gray" ;
+        for (let i=0 ; i < pts.length ; i++) {
+	  ctx.beginPath();
+	  ctx.arc(pts[i].x, pts[i].y, ptSize, 0, 2*Math.PI);
+	  ctx.fill(); ctx.stroke();
+        }
+
+      var bezPts = bezier() ;
+      ctx.beginPath();
+      ctx.strokeStyle = "blue" ;
+      ctx.moveTo(bezPts[0].x, bezPts[0].y) ;
+      for (let i=1 ; i < bezPts.length ; i++) {
+         ctx.lineTo(bezPts[i].x, bezPts[i].y) ;
+      }
+      ctx.stroke() ;
+        requestAnimationFrame(draw); // better than setTimeout?? 
+     }
+
+
+   function checkPoint(x,y) {
+        for (i=0 ; i < pts.length ; i++){
+            var d = Math.sqrt(
+                      (pts[i].x - x) * (pts[i].x - x) +
+                      (pts[i].y - y) * (pts[i].y - y) );
+            if (d <2* ptSize) return(i) ;
+        }
+        return (-1) ;  // Clicked outside
+   }
+
+   function mouseUp() {
+      return function(e) {
+	mouseIsDown = false ;
+	dragObj = -1 ; // release the object 
+	let str = "x = [" + pts[0].x + "," + pts[1].x  + "," 
+	              + pts[2].x + "," + pts[3].x + "]" ; 
+	str =  str + "  y = [" + pts[0].y + "," + pts[1].y  + "," 
+	              + pts[2].y + "," + pts[3].y + "]" ; 
+
+	$("#downlog").html(str);  
+    }}
+
+    function mouseDown(){
+       return function(e){
+	  mouseIsDown = true ;
+	  mouseX=parseInt(e.clientX-offsetX);
+	  mouseY=parseInt(e.clientY-offsetY);
+	  dragObj = checkPoint(mouseX, mouseY);
+	  $("#downlog").html("Selectedd Point "+ dragObj  
+	       + " .." + mouseX + " / " + mouseY);
+      }}
+  
+    function mouseMove(){
+	return function(e) {
+	  mouseX=parseInt(e.clientX-offsetX);
+	  mouseY=parseInt(e.clientY-offsetY);
+	  if ((dragObj != -1) && mouseIsDown){
+	    pts[dragObj].x = mouseX ;
+	    pts[dragObj].y = mouseY ;
+	    $("#downlog").html("Move Point "+ dragObj + 
+	  		      " .." + mouseX + " / " + mouseY);
+	  }}
+     } 
+
+  function bezier(){
+     // Three Point Bezier
+     var bzPts=[] ;
+     for (let i=0 ; i < 51 ; i++) {
+	 let t =  i / 50.0 ;
+	 let x = pts[0].x * Math.pow(1 - t, 3)
+	       + pts[1].x * 3 * Math.pow(1 - t, 2) * t
+	       + pts[2].x * 3 * (1 - t) * t * t 
+	       + pts[3].x * t * t * t ;
+	 let y = pts[0].y * Math.pow(1 - t, 3)
+	       + pts[1].y * 3 * Math.pow(1 - t, 2) * t
+	       + pts[2].y * 3 * (1 - t) * t * t 
+	       + pts[3].y * t * t * t ;
+	 bzPts.push({x:x, y:y});
+	}
+     return(bzPts) ;
+  }
+
+    var c = document.getElementById("canvas") ; 
+    c.addEventListener("mousedown", mouseDown());
+    c.addEventListener("mousemove", mouseMove());
+    c.addEventListener("mouseup", mouseUp());
+    draw() ;
+}); // 
+
+</script>
+
+</head>
+
+<body>
+  <p>Make shapes with Bezier Curve just four Points</p>
+    <p id="downlog">Down</p>
+    <canvas id="canvas" width=300 height=300></canvas>
+</body>
+</html>

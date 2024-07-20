@@ -1,0 +1,50 @@
+/* Circuit Simulation with OpenModelica */
+echo(false) ;
+print(getSettings());
+
+if(loadFile("circ.mo")) then
+   print ("circ Loaded\n");
+else
+   print(getErrorString());
+   print("circ Load Failed\n" + getErrorString());
+   exit(1);
+end if;
+
+print("Saving Total Model in total.mo \n") ;
+saveTotalModelDebug("total.mo",circ); // gives stand alone mo file to send out for debug reports.
+print(getErrorString());
+print(checkModel(circ));  // This should pickup flattening errors
+/************ Cleanup Work **********/
+print("Cleaning Up Work Area\n") ;
+system("rm work/*"); cd("./work");   system("pwd");
+
+
+// *****  Simulation / translation ******
+tEnd := 0.15 ; //iniStepSize := 0.001  ;
+//count := integer(floor(tEnd / iniStepSize)) ;
+
+setDebugFlags("infoXmlOperations");
+setDebugFlags("aliasConflicts");
+flags :=  ""; // "-lv=LOG_NLS " ;  
+
+/**    Dot Touch this section  else you lose diagnostics**/
+print("Starting the Circ \n");
+echo(true); // you need both echo and getErrorString() weird ...
+simulate(circ, startTime=0, outputFormat="csv", 
+         stopTime=tEnd,   tolerance=1e-6, 
+         cflags="-ffloat-store", simflags=flags) ;
+getErrorString();
+echo(false);
+/**    Dot Touch this section  **/
+
+// *** Check Simulation run/translation failures  ***
+sVars :=  readSimulationResultVars("circ_res.csv") ; //print(sVars);
+if (size(sVars,1) == 0) then  // no variables then bailout
+  print("simulation failed ... bailing out\n");
+  exit(1);
+else
+   print("simulation done\n");
+   print("No. of Circ Variables = " + String(size(sVars,1)) + "\n");
+end if;
+
+getErrorString();

@@ -1,0 +1,40 @@
+#declare frostyGlass = texture {
+  pigment {Col_Glass_General}
+  finish {F_Glass6}
+}
+
+#declare milkyglass = texture { pigment {White filter 0.95}
+             normal {bumps 0.4}
+             finish {reflection 0.2 specular 0.4
+                    roughness 1 crand 0.02}
+            scale 0.01
+}
+
+#declare floorTiles  =  texture { 
+  pigment { image_map {png "tiles/ivory.png"}  }
+}
+
+#declare splashTiles  =  texture { 
+  pigment { image_map {png "tiles/bora.png"} scale 300 }
+  finish {reflection 0.0 specular 0.4 roughness 1}
+}
+
+#declare ceilMat  =  texture { 
+  pigment { White }  
+  finish {reflection 0.3 specular 0.4 roughness 1}
+}
+
+#declare wallTiles = texture {
+  pigment { image_map {png "tiles/bora.png"} scale 900 }
+}
+
+#declare shbase = texture {
+  pigment { image_map { png "tiles/shbase.png"} scale 100 }
+  finish {ambient 0.2  diffuse 0.6}
+}
+
+#declare vanityTiles  =  texture { 
+  pigment { White }
+  finish {ambient 0.2  diffuse 0.6}
+  //pigment { image_map {png "tiles/tile3.png"} scale 136 }
+}

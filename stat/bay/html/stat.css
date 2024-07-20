@@ -1,0 +1,41 @@
+
+ dialog {
+  position: fixed;
+  border:5px solid orange;
+  border-radius: 30px ;
+  width: 200px ;
+  background-color: white ;
+  opacity: 0.5;
+}
+
+form {
+  display: flex ;
+  flex-direction: column;
+}
+
+button {
+    border-radius: 10px;
+    max-width: 100px ;
+    min-height: 30px ;
+    box-shadow: 0px 3px 3px #795548 ;
+    margin: 5px;
+    webkit-box-shadow:    
+}
+
+.watermark {
+  width: 300px;
+  display: block;
+  position: relative;
+}
+
+.watermark::after {
+  content: "";
+  background:url(https://www.google.co.in/images/srpr/logo11w.png);
+  opacity: 0.2;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  position: absolute;
+  z-index: -1;
+}

@@ -1,0 +1,4 @@
+.DS_Store
+torch/data/*
+node_modules/*
+bun.*

@@ -1,0 +1,159 @@
+<html>
+  <style>
+     table, th, td {
+     border:1px solid black;
+   }
+</style>
+
+  <body>
+    <h3>Tiling Area Measrements </h3>
+    <table width=50%>
+      <tr><td>#</td><td>Walls</td><td>Floor</td></tr>
+      <tr><td>B1</td><td id=B1Wall></td><td id=B1Floor></td></tr>
+      <tr><td>B2</td><td id=B2Wall></td><td id=B2Floor></td></tr>
+      <tr><td>T</td><td id=TWall></td><td id=TFloor></td></tr>
+      <tr><td>Total +5%</td><td id=Wall></td><td id=Floor></td></tr>
+     </table>
+     <div id=summary>
+       <h3> Summary of Costs </h3> 
+     </div> 
+
+  <script>
+function bath1() {
+// Bath Room1
+ skirtWidth = 60 ;
+ skirtDepth = 19 ;
+ windowWidth = 1950 - 2 * skirtWidth  ;
+ windowHeight = 1035 - 2 * skirtWidth;
+
+ roomWidth = 2075 ;
+ roomLength = 2350 ;
+ roomHeight = 2330 + 55 + 25 ; //adding cornice and floor tile dims
+
+ vanityWidth = 910 ;
+ vanityHeight = 895 ;
+ vanityDepth = 460 ;
+
+ sinkDepth = 150 ;
+ shBaseWidth = 900 ;
+ shBaseHeight = 30 ;
+ shBaseLength = 1200 ;
+ shGlassHeight = 2000 ;
+
+ doorHeight = 2030 - 2 * skirtWidth;
+ doorWidth  = 860  - 2 * skirtWidth ;
+
+//Window on backwall
+WallTileArea =  2 * roomWidth * roomHeight  
+               + 2 * roomLength * roomHeight 
+               - (windowWidth + skirtWidth)*(windowHeight + skirtWidth)
+               - (doorWidth + skirtWidth)*(doorHeight + skirtWidth) ;
+
+VanityArea = vanityWidth * vanityHeight  ;
+VanityArea = VanityArea * 1.5 ; //allow for mirror
+FloorTileArea = roomWidth * roomLength ;
+return( {WallArea: WallTileArea*1e-6,
+           FloorArea: FloorTileArea*1e-6,
+           Vnity: VanityArea*1e-6});
+} // end bath1
+
+function bath2() {
+// Bath Room2
+ skirtWidth = 60 ;
+ skirtDepth = 19 ;
+ windowWidth = 1950 - 2 * skirtWidth  ;
+ windowHeight = 1035 - 2 * skirtWidth;
+
+ roomWidth = 1720 ;
+ roomLength = 2050 ;
+ roomHeight = 2330 + 55 + 25 ; //adding cornice and floor tile dims
+
+ vanityWidth = 910 ;
+ vanityHeight = 895 ;
+ vanityDepth = 460 ;
+
+ sinkDepth = 150 ;
+ shBaseWidth = 900 ;
+ shBaseHeight = 30 ;
+ shBaseLength = 1200 ;
+ shGlassHeight = 2000 ;
+
+ doorHeight = 2030 - 2 * skirtWidth;
+ doorWidth  = 860  - 2 * skirtWidth ;
+
+//Window on left wall
+WallTileArea = 2 * roomLength * roomHeight  
+               + 2 * roomWidth * roomHeight  
+               - (windowWidth + skirtWidth)*(windowHeight + skirtWidth)
+               - (doorWidth + skirtWidth)*(doorHeight + skirtWidth)
+
+FloorTileArea = roomWidth * roomLength ;
+VanityArea = vanityWidth * vanityHeight  ;
+VanityArea = VanityArea * 1.5 ; //allow for mirror
+return( {WallArea: WallTileArea*1e-6,
+           FloorArea: FloorTileArea*1e-6,
+           VanityArea: VanityArea*1e-6});
+} // end Bath2
+
+
+function toilet() {
+// Toilet
+ skirtWidth = 60 ;
+ skirtDepth = 19 ;
+ windowWidth = 750 - 2 * skirtWidth  ;
+ windowHeight = 1035 - 2 * skirtWidth;
+
+ roomWidth = 930 ;
+ roomLength = 1780 ;
+ roomHeight = 2330 + 55 + 25 ; //adding cornice and floor tile dims
+
+ doorHeight = 2030 - 2 * skirtWidth;
+ doorWidth  = 860  - 2 * skirtWidth ;
+
+//Window Rear wall
+WallTileArea = 2 * roomLength * roomHeight  
+               + 2 * roomWidth * roomHeight  
+               - (windowWidth + skirtWidth)*(windowHeight + skirtWidth)
+               - (doorWidth + skirtWidth)*(doorHeight + skirtWidth)
+
+FloorTileArea = roomWidth * roomLength ;
+VanityArea = vanityWidth * vanityHeight  ;
+return {WallArea: WallTileArea*1e-6,
+           FloorArea: FloorTileArea*1e-6,
+           };
+
+} // end Toilet
+
+var b1 = bath1() ; var b2 = bath2() ; t = toilet();
+
+document.getElementById("B1Wall").innerHTML= b1.WallArea.toPrecision(4)  ;
+document.getElementById("B2Wall").innerHTML= b2.WallArea.toPrecision(4)  ;
+document.getElementById("TWall").innerHTML= t.WallArea.toPrecision(4)  ;
+
+document.getElementById("B1Floor").innerHTML= b1.FloorArea.toPrecision(4)  ;
+document.getElementById("B2Floor").innerHTML= b2.FloorArea.toPrecision(4)  ;
+document.getElementById("TFloor").innerHTML= t.FloorArea.toPrecision(4)  ;
+
+document.getElementById("Wall").innerHTML= ((b1.WallArea + b2.WallArea + t.WallArea)*1.05).toPrecision(4)  ;
+var TotalTileArea = (b1.FloorArea + b2.FloorArea + t.FloorArea)*1.05   ;
+document.getElementById("Floor").innerHTML= ((b1.FloorArea + b2.FloorArea + t.FloorArea)*1.05).toPrecision(4)  ;
+
+var b1Fittings =  1200   // Vanity
+              +200   // Mirror
+              +300  // Vanity Tapware
+              +300  // Shower Mixer
+              +300  // SHower Head
+              +100  // Shower Rail
+              +150  // Light with Exhaust
+              +100 // Towel Rail ;
+var el = document.getElementById("summary") ;
+el.innerHTML += "<li>Tiles  + Glue Cost @50/m2 + 5$/m2 =   " + Math.round(TotalTileArea*55)+ "</li>" ;
+el.innerHTML += "<li>Bathroom 1 Fittings = " + b1Fittings + "</li>";
+el.innerHTML += "<li>Bathroom 1 Shower Screen = " + 1000 + "</li>";
+el.innerHTML += "<li>Tools + Hire = " + Math.round(150+200) + "</li>";
+el.innerHTML += "<li>Plastering Cost @50$/m2 + Cornice = " +  Math.round(b1.FloorArea * 50 + 100)  + "</li>";
+el.innerHTML += "<li>Single Toilet Cost = " + 750 + "</li>" ; 
+
+</script>
+</body>
+</html>

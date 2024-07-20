@@ -1,0 +1,30 @@
+document.getElementById ("macros").innerHTML =
+String.raw
+`
+  $\newcommand{\half}{\frac{1}{2}}$
+  $\newcommand{\NDist}[3]{\frac{1}{\sqrt{2\pi}#3} 
+   e^{-\half\left({\frac{#1 - #2}{#3}}\right)^2}}$
+  $\newcommand{\xv}{\mathbf{x}}$
+  $\newcommand{\Xv}{\mathbf{X}}$
+  $\newcommand{\Av}{\mathbf{A}}$
+  $\newcommand{\Sv}{\mathbf{S}}$
+  $\newcommand{\Lv}{\mathbf{L}}$
+  $\newcommand{\Mv}{\mathbf{M}}$
+  $\newcommand{\yv}{\mathbf{y}}$
+  $\newcommand{\wv}{\mathbf{w}}$
+  $\newcommand{\wmv}{\mathbf{w_m}}$
+  $\newcommand{\muv}{\boldsymbol{\mu}}$
+  $\newcommand{\muvn}{\boldsymbol{\mu}_{0}}$
+  $\newcommand{\sigmawv}{\boldsymbol{\sigma}_{w}}$
+  $\newcommand{\sigmawvs}{\boldsymbol{\sigma}_w^0}$
+  $\newcommand{\Svn}{{\Sv}_0}$
+  $\newcommand{\Svinv}{{\Sv}^{-1}}$
+  $\newcommand{\psiv}{\boldsymbol{\psi}}$
+  $\newcommand{\psivn}{\boldsymbol{\psi}^0}$
+  $\newcommand{\psivs}{\boldsymbol{\psi}^*}$
+  $\newcommand{\psivsT}{{\boldsymbol{\psi}^*}^T}$
+  $\newcommand{\ys}{y^*}$
+  $\newcommand{\ysq}{{y^*}^2}$
+  $\newcommand{\sigys}{{\sigma^*}}$
+  $\newcommand{\muys}{\mu^*}$
+  `
