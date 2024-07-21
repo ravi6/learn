@@ -80,7 +80,8 @@ class Ham {
 	 } 
 	 so.v = this.vPdf.sample() ; // get new momentum
       }
-      console.log ("Accepted Samples: ", xv.length) ;
+      console.log (JSON.stringify ({Samples: this.N, 
+	             Accept: Math.round (100 * xv.length / this.N) +"%"})) ;
       return (xv) ;  // ready to bin and producing pdf
 
     } // end sample

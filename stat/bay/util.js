@@ -9,8 +9,8 @@ static genPdf (xv, nb) { // Generate pdf from samples
       let xmin = jStat(xv).min() ;
       let xmax = jStat(xv).max() ;
       let dx = (xmax - xmin) / nb ;
-      console.log ({xmin: xmin , xmax: xmax});
-      console.log ({mean: jStat.mean(xv), std: jStat.stdev(xv)}) ;
+      console.log (JSON.stringify({xmin: xmin , xmax: xmax}));
+      console.log (JSON.stringify({mean: jStat.mean(xv), std: jStat.stdev(xv)})) ;
       let spdf  = jStat.histogram (xv, nb) ;
       let xm = [] ;
       for (let k=0 ; k < nb ; k++) {
