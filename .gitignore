@@ -2,3 +2,4 @@
 torch/data/*
 node_modules/*
 bun.*
+cdn

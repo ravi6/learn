@@ -101,9 +101,6 @@ static  doall() {
   } // end doall
 
 
-
-
-
   /* Helper method to include html file within html */
 static  incHTML(fname) {
     var xhr= new XMLHttpRequest();
