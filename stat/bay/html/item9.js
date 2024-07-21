@@ -157,6 +157,28 @@ as follows. Here $\delta t$ is the fractional time step used to integrate equati
        \end{align*}
     \]
 </p>
+
+<p>
+Performance of Hamiltonion sampling for another 
+example of unnormalised distribution  with  
+functional form given below will be examined.  
+</p>
+<p>
+     \[
+       \begin{align*}
+        f(x) &= e^{-x^2} \left(2 + sin(5x) + sin(2x)\right) \\
+        U(x) &= - log f(x)  \\
+	     &= x^2 - log \left(2 + sin(5x) + sin(2x)\right) \\
+        \frac{dU}{dx} &= 
+	  2x - \frac{5 * cos(5x) + 2 * cos(2x)}
+	       {2 + sin(5x) + sin(2x)} 
+       \end{align*}
+     \]
+</p>
+  <figure class=figure  id="figHam2" 
+      title="click mouse to alter sampling parameters"></figure>
+</div>
+
 <h4>Some illuminating links on Hamiltonion Sampling </h4>
 <a href="https://danieltakeshi.github.io/2017/12/18/on-the-momentum-sign-flipping-for-hamiltonian-monte-carlo/">MomentumSignFlipping</a>
 <a href="https://stats.stackexchange.com/questions/324346/hamiltonian-monte-carlo-how-to-make-sense-of-the-metropolis-hasting-proposal">Conservation of H</a>

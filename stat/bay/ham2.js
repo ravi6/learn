@@ -5,11 +5,11 @@
  *  This  a posterior whose mean or std is not
  *  known.
  */
-class Ham {
+class Ham2 {
 
     constructor (id) {
        this.fig = document.getElementById (id) ;
-       this.std = 1 ;   
+       this.std = 2 ;   
        this.T = 10 ;  // integration time of trajectory
        this.nT = 10 ;  // number of time steps
        this.nb = 200 ;  // sampling bvins to generate pdf
@@ -28,7 +28,7 @@ class Ham {
       // negative log of Normal dist N(0, this.std)
       let K =  v * v / (2 * this.std * this.std) ;   
       // negative log of Unnormalised pdf
-      let U =  (- x * x) 
+      let U =  (x * x) - 
 	Math.log (2 + Math.sin (5 * x) + Math.sin (2 * x)) ;  
       return (K + U) ;
       
@@ -38,7 +38,7 @@ class Ham {
 
       let Kv =  v / (this.std * this.std) ;  // partial derivative w.r.t v
       // partial derivative w.r.t x
-      let Ux =  (-2 * x) + (5 * Math.cos (5 * x) + 2 * Math.cos (2 * x))  
+      let Ux =  (2 * x) - (5 * Math.cos (5 * x) + 2 * Math.cos (2 * x))  
 	                  / (2 + Math.sin (5 * x) + Math.sin (2 * x)) ;
 	        
       return ({Kv: Kv , Ux : Ux}) ;
@@ -74,6 +74,7 @@ class Ham {
       for (let i=0 ; i < this.N ; i++) {
          let sn = this.leapFrog (so) ;
 	 let aP = Math.exp ( this.H (so.x, so.v) - this.H (sn.x, sn.v) );
+	 console.log("Hello", sn.x, aP) ;
 	 aP = Math.min (1, aP) ;
 	 if (uPdf.sample() < aP)  { // accept the move
 	   xv.push (sn.x) ;
@@ -81,7 +82,7 @@ class Ham {
 	 } 
 	 so.v = this.vPdf.sample() ; // get new momentum
       }
-      console.log (JSON.Stringify ({Samples: this.N, 
+      console.log (JSON.stringify ({Samples: this.N, 
 	            Accept: Math.round (100 * xv.length / this.N) + "%"})) ;
       return (xv) ;  // ready to bin and producing pdf
 

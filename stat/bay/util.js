@@ -93,11 +93,10 @@ static  doall() {
 
   // Metropolis Sampling
     new Metro ("figMetro") ;
- //   document.getElementById ("figMetro").click() ;
 
   // Hamiltonian Sampling
     new Ham ("figHam") ; 
-  //  document.getElementById ("figHam").click() ;
+    new Ham2 ("figHam2") ;
   } // end doall
 
 
