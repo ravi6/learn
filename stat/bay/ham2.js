@@ -74,7 +74,6 @@ class Ham2 {
       for (let i=0 ; i < this.N ; i++) {
          let sn = this.leapFrog (so) ;
 	 let aP = Math.exp ( this.H (so.x, so.v) - this.H (sn.x, sn.v) );
-	 console.log("Hello", sn.x, aP) ;
 	 aP = Math.min (1, aP) ;
 	 if (uPdf.sample() < aP)  { // accept the move
 	   xv.push (sn.x) ;
@@ -132,10 +131,10 @@ class Ham2 {
     OKbtn.type = "submit" ;
 
     // populate the input form
-    Util.addSlider (this.frm, "N", 1000, 50000, 1000, 25000, "Sample Size") ;
-    Util.addSlider (this.frm, "burnF", 0, 0.3, 0.02, 0.1, "Sample burnin fraction") ;
-    Util.addSlider (this.frm, "T", 0.1, 55, 0.2, 10, "Integration Time") ;
-    Util.addSlider (this.frm, "std", 0, 10, 0.2, 1, "momentum dist std") ;
+    Util.addSlider (this.frm, "N", 1000, 50000, 1000, this.N, "Sample Size") ;
+    Util.addSlider (this.frm, "burnF", 0, 0.3, 0.02, this.burnF, "Sample burnin fraction") ;
+    Util.addSlider (this.frm, "T", 0.1, 55, 0.2, this.T, "Integration Time") ;
+    Util.addSlider (this.frm, "std", 0, 10, 0.2, this.std, "momentum dist std") ;
 
     this.frm.appendChild (OKbtn) ;
     this.dlg.appendChild (this.frm) ;
