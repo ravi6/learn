@@ -30,7 +30,31 @@ function localise (local) {
 	  document.getElementById ("plotly").src = "cdn/plotly.min.js" ;
 	  document.getElementById ("MathJax-script").src =
 		       "cdn/MathJax/es5/tex-chtml.js"; 
+	  document.getElementById ("mathjax").innerHTML = String.raw `
+          MathJax = { tex: {
+             tags: 'all',  // should be 'ams', 'none', or 'all'
+             inlineMath: [['$', '$'], ['\\(', '\\)']] , } }; `;
+    console.log (document.getElementById ("MathJax-script"));
       }); // end adding eventListener
          console.log ("Using local cdn") ;
-      }
+    } else {
+      document.addEventListener ("DOMContentLoaded", () => {
+	  document.getElementById ("boot").src =
+               "https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js";
+	  document.getElementById ("jstat").src =
+                "https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js";
+	  document.getElementById ("plotly").src = 
+                 "https://cdn.plot.ly/plotly-2.4.2.min.js";
+	  document.getElementById ("MathJax-script").src =
+                 "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js";
+	  document.getElementById ("mathjax").innerHTML = String.raw `
+          MathJax = { tex: {
+             tags: 'all',  // should be 'ams', 'none', or 'all'
+             inlineMath: [['$', '$'], ['\\(', '\\)']] , } }; `;
+
+             console.log (document.getElementById ("MathJax-script"));
+      }); // end adding eventListener
+
+    }
+    
 } // end localise

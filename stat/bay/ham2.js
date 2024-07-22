@@ -5,11 +5,11 @@
  *  This  a posterior whose mean or std is not
  *  known.
  */
-class Ham {
+class Ham2 {
 
     constructor (id) {
        this.fig = document.getElementById (id) ;
-       this.std = 1 ;   
+       this.std = 2 ;   
        this.T = 10 ;  // integration time of trajectory
        this.nT = 10 ;  // number of time steps
        this.nb = 200 ;  // sampling bvins to generate pdf
@@ -28,7 +28,7 @@ class Ham {
       // negative log of Normal dist N(0, this.std)
       let K =  v * v / (2 * this.std * this.std) ;   
       // negative log of Unnormalised pdf
-      let U =  (- x * x) 
+      let U =  (x * x) - 
 	Math.log (2 + Math.sin (5 * x) + Math.sin (2 * x)) ;  
       return (K + U) ;
       
@@ -38,7 +38,7 @@ class Ham {
 
       let Kv =  v / (this.std * this.std) ;  // partial derivative w.r.t v
       // partial derivative w.r.t x
-      let Ux =  (-2 * x) + (5 * Math.cos (5 * x) + 2 * Math.cos (2 * x))  
+      let Ux =  (2 * x) - (5 * Math.cos (5 * x) + 2 * Math.cos (2 * x))  
 	                  / (2 + Math.sin (5 * x) + Math.sin (2 * x)) ;
 	        
       return ({Kv: Kv , Ux : Ux}) ;
@@ -81,7 +81,7 @@ class Ham {
 	 } 
 	 so.v = this.vPdf.sample() ; // get new momentum
       }
-      console.log (JSON.Stringify ({Samples: this.N, 
+      console.log (JSON.stringify ({Samples: this.N, 
 	            Accept: Math.round (100 * xv.length / this.N) + "%"})) ;
       return (xv) ;  // ready to bin and producing pdf
 
@@ -131,10 +131,10 @@ class Ham {
     OKbtn.type = "submit" ;
 
     // populate the input form
-    Util.addSlider (this.frm, "N", 1000, 50000, 1000, 25000, "Sample Size") ;
-    Util.addSlider (this.frm, "burnF", 0, 0.3, 0.02, 0.1, "Sample burnin fraction") ;
-    Util.addSlider (this.frm, "T", 0.1, 55, 0.2, 10, "Integration Time") ;
-    Util.addSlider (this.frm, "std", 0, 10, 0.2, 1, "momentum dist std") ;
+    Util.addSlider (this.frm, "N", 1000, 50000, 1000, this.N, "Sample Size") ;
+    Util.addSlider (this.frm, "burnF", 0, 0.3, 0.02, this.burnF, "Sample burnin fraction") ;
+    Util.addSlider (this.frm, "T", 0.1, 55, 0.2, this.T, "Integration Time") ;
+    Util.addSlider (this.frm, "std", 0, 10, 0.2, this.std, "momentum dist std") ;
 
     this.frm.appendChild (OKbtn) ;
     this.dlg.appendChild (this.frm) ;
