@@ -119,4 +119,19 @@ static  includes() {
       } 
   } // end includes
 
+static autoCor (x) {
+  // Auto correlation coeff, mean and std
+  // get Sample mean and variances
+  let mu = jStat.mean (x) ;  // estimate of sample mean
+  let sig2 = jStat.variance (x,false) ; // biased variance of total sample
+  let n = x.length ;
+  let acc = [] ;  // Auto correlation coefficient vector
+  for (let i = 0 ; i < n - 1 ; i++) {
+      let sum = 0 ;
+      for (let j = 0; j < n - i  ; j++) 
+         sum = sum +  ( x[j] - mu ) * ( x[j+i] - mu ) ;
+      acc.push ( sum / ( n * sig2 ) )  ; // biased auto cor.coeff 
+  }
+  return ( {mean: mu , sig2: sig2, acc: acc} ) ; 
+} // end autocor
 } // end Util class

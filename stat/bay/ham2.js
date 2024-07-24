@@ -15,11 +15,12 @@ class Ham2 {
        this.nb = 200 ;  // sampling bvins to generate pdf
        this.dt = this.T / this.nT ;
        this.state = {x: 0 , v: 0} ; // initial state
-       this.N = 25000 ; // number of samples to generate
+       this.N = 100 ; // number of samples to generate
        this.burnF = 0.1 ; // burnin samples fraction
        this.dlgAdd () ;
        this.run () ;
        this.dlg.close() ;
+       this.pcntAccept ; // % of proposals accepted
     } // end Ham
 
 
@@ -81,8 +82,8 @@ class Ham2 {
 	 } 
 	 so.v = this.vPdf.sample() ; // get new momentum
       }
-      console.log (JSON.stringify ({Samples: this.N, 
-	            Accept: Math.round (100 * xv.length / this.N) + "%"})) ;
+      this.pcntAccept =
+	        Math.round (100 * xv.length / this.N) ;
       return (xv) ;  // ready to bin and producing pdf
 
     } // end sample
@@ -90,14 +91,16 @@ class Ham2 {
 
     plot () {
         let layout = {title: ' Hamiltonian Monte Carlo Sampling',               
-	      xaxis: {title: {text: "x"}},
+	      xaxis: {title: {text: "x"}, range: [-3, 3]},
 	      yaxis: {title: {text: "pdf"}},
-	      annotations: [],
 	      autosize: false,
 	      };
       
        let xs = this.sample () ; 
+       this.xs = xs ;  // save it for future use
+
       // bin and generate pdf without burnIn samples
+       this.nb = Math.round (Math.sqrt (this.N - 1)) ;
        let pdf = Util.genPdf (xs.slice (this.N *  this.burnF),
                               this.nb) ;
 
@@ -105,14 +108,19 @@ class Ham2 {
        series.push ({x: pdf.x, y: pdf.y, mode: 'lines+markers',
 			  markers: true, name: "pdf of samples" });
 
-      /*
        pdf = this.targetPDF () ; 
        series.push ({x: pdf.x, y: pdf.y, mode: 'lines',
 			  markers: false, name: "target" });
-			  */
+
+       layout.annotations = 
+	  [ { xref: "paper", yref: "paper", x: 0.2, y: 0.8,
+	                  text: this.pcntAccept + "% proposals accepted",
+	      showarrow: false} ];
 
        Plotly.newPlot (this.fig, series, layout, 
 		      {scrollZoom: false});     
+
+       this.plotAcc () ; // Generate plot for  Auto Correlation Coeff function
   } // end plot
 
 
@@ -131,7 +139,7 @@ class Ham2 {
     OKbtn.type = "submit" ;
 
     // populate the input form
-    Util.addSlider (this.frm, "N", 1000, 50000, 1000, this.N, "Sample Size") ;
+    Util.addSlider (this.frm, "N", 1, 200, 10, this.N, "Sample Size") ;
     Util.addSlider (this.frm, "burnF", 0, 0.3, 0.02, this.burnF, "Sample burnin fraction") ;
     Util.addSlider (this.frm, "T", 0.1, 55, 0.2, this.T, "Integration Time") ;
     Util.addSlider (this.frm, "std", 0, 10, 0.2, this.std, "momentum dist std") ;
@@ -156,4 +164,48 @@ class Ham2 {
     }).bind (this));
   } //end dlgAdd
 
-} // end Ham Class
+  targetPDF () { // Unnormalised
+    let x = [] ; 
+    let y = [] ;
+    let sum = 0 ;
+    for (let i=0 ; i < 100 ; i++) {
+        let xv =  -3 + i * 6 / 100 ;
+	let yv = Math.exp(- xv * xv) * (2 + Math.sin (5 * xv) + Math.sin (2 * xv)) ;  
+        x.push (xv) ;
+        y.push (yv) ;
+        sum = sum + yv * 6/100.0 ; 
+    }
+    
+    return ({x: x, y: y.map ((v) => v/sum)}) ;
+  } // end targetPDF
+
+    plotAcc () {  // plot auto correlation function
+        let layout = {title: ' Sample Auto Correlation Function',               
+	      xaxis: {title: {text: "n"} },
+	      yaxis: {title: {text: "Auto Correlation Coeff"}},
+	      autosize: false,
+	      };
+      
+       let xs = this.xs ; // 
+       console.log("Samples") ;
+       for (let m=0 ; m < xs.length ; m++) {
+	 console.log(xs[m]) ;
+       }
+       let result = Util.autoCor (xs) ;
+       console.log("Acc") ;
+       for (let m=0 ; m < result.acc.length ; m++) {
+	 console.log(result.acc[m]) ;
+       }
+
+       let i = Array.from ({length: xs.length}, (v, k) => k + 1 )
+
+       let series = [] ;
+       series.push ({x: i, y: result.acc, mode: 'lines',
+			  markers: false, name: "Hamiltonian Sampling Convergence" });
+
+       // bit yuk ... but will do for now
+       let fig = document.getElementById ("figAcc") ;
+       Plotly.newPlot (fig, series, layout, 
+		      {scrollZoom: false});     
+  } // end plotAcc
+} // end Ham2 Class

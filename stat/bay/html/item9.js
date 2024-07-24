@@ -179,6 +179,30 @@ functional form given below will be examined.
       title="click mouse to alter sampling parameters"></figure>
 </div>
 
+<p>
+  Exploring the tunable sampling  parameters $\sigma$, number of samples, and burn
+  in fraction of the samples it can be observed $\sigma$ needs to be tweeked to right
+  value for acceptance ratio of samples is significantly high. In the above plot
+  we show normalized target distribution trace with the help of numerical integration
+  of the unnormalized distribution. But in practice when dimensionality of the 
+  distribution increases it is often not practicable. Then the question arises as
+  to how we can asess if the number of samples are sufficiently high to accurately
+  estimate target distribution assuming we have significantly large (say > 90%) 
+  acceptance of proposals, noting that we have no knowledge of actual shape of
+  the target distribution.
+
+  It appears that it is possible to assess the closeness of fit to target 
+  distribution is through monitoring of auto correlation function of the samples.
+  The argument is that the auto correlated function of the samples as defined below
+  should be driven to the lowest possible value. And this will be explored below.
+</p>
+  <figure class=figure  id="figAcc" 
+      title="Auto Correlation Coef. function of above Hamiltonian Sample"></figure>
+
+<p>In additon, although for now we assumed momentum distribution is Gaussian centered
+  around zero, whether such choice is mandatory is not clear to me.
+</p>
+
 <h4>Some illuminating links on Hamiltonion Sampling </h4>
 <a href="https://danieltakeshi.github.io/2017/12/18/on-the-momentum-sign-flipping-for-hamiltonian-monte-carlo/">MomentumSignFlipping</a>
 <a href="https://stats.stackexchange.com/questions/324346/hamiltonian-monte-carlo-how-to-make-sense-of-the-metropolis-hasting-proposal">Conservation of H</a>
