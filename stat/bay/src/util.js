@@ -134,4 +134,13 @@ static autoCor (x) {
   }
   return ( {mean: mu , sig2: sig2, acc: acc} ) ; 
 } // end autocor
+
+static upload (url, data) {
+// uploads given file to server with url
+  console.log (url, data) ;
+ const send = () => {
+       fetch (url, {method: 'POST', body: data})
+         .then (resp => {console.log (resp);});
+       }
+} // end upload
 } // end Util class

@@ -1,4 +1,5 @@
 .DS_Store
 torch/data/*
-node_modules/*
+node_modules/
 bun.*
+log

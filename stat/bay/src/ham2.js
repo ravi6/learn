@@ -187,17 +187,12 @@ class Ham2 {
 	      };
       
        let xs = this.xs ; // 
-       console.log("Samples") ;
-       for (let m=0 ; m < xs.length ; m++) {
-	 console.log(xs[m]) ;
-       }
        let result = Util.autoCor (xs) ;
-       console.log("Acc") ;
-       for (let m=0 ; m < result.acc.length ; m++) {
-	 console.log(result.acc[m]) ;
-       }
 
        let i = Array.from ({length: xs.length}, (v, k) => k + 1 )
+       
+       Util.upload ("http://localhost:3000/output", 
+	              {xs: xs , auto: result} ) ;
 
        let series = [] ;
        series.push ({x: i, y: result.acc, mode: 'lines',

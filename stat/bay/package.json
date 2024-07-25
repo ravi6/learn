@@ -1,0 +1,12 @@
+{
+  "name": "bay",
+  "scripts": {
+    "dev": "bun run --hot src/index.js >& log&"
+  },
+  "dependencies": {
+    "hono": "^4.5.1"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  }
+}
