@@ -175,8 +175,11 @@ functional form given below will be examined.
        \end{align*}
      \]
 </p>
-  <figure class=figure  id="figHam2" 
+<div class=twofigs>
+  <figure class=figure twof  id="figHam2" style
       title="click mouse to alter sampling parameters"></figure>
+  <figure class=figure twof  id="figAcc" 
+      title="Auto Correlation Coef. function of above Hamiltonian Sample"></figure>
 </div>
 
 <p>
@@ -196,13 +199,11 @@ functional form given below will be examined.
   The argument is that the auto correlated function of the samples as defined below
   should be driven to the lowest possible value. And this will be explored below.
 </p>
-  <figure class=figure  id="figAcc" 
-      title="Auto Correlation Coef. function of above Hamiltonian Sample"></figure>
 
 <p>In additon, although for now we assumed momentum distribution is Gaussian centered
   around zero, whether such choice is mandatory is not clear to me.
 </p>
-
+</div>
 <h4>Some illuminating links on Hamiltonion Sampling </h4>
 <a href="https://danieltakeshi.github.io/2017/12/18/on-the-momentum-sign-flipping-for-hamiltonian-monte-carlo/">MomentumSignFlipping</a>
 <a href="https://stats.stackexchange.com/questions/324346/hamiltonian-monte-carlo-how-to-make-sense-of-the-metropolis-hasting-proposal">Conservation of H</a>

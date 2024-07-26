@@ -11,6 +11,7 @@
 form {
   display: flex ;
   flex-direction: column;
+  width: 50%;
 }
 
 button {
@@ -38,4 +39,12 @@ button {
   right: 0;
   position: absolute;
   z-index: -1;
+}
+.twofigs {
+  display: flex;
+  flex-direction: row;
+}
+
+#figHam2 figAcc {
+  flex: 50%
 }

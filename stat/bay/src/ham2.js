@@ -93,6 +93,7 @@ class Ham2 {
         let layout = {title: ' Hamiltonian Monte Carlo Sampling',               
 	      xaxis: {title: {text: "x"}, range: [-3, 3]},
 	      yaxis: {title: {text: "pdf"}},
+	      legend: {x: 0.8, y:1},
 	      autosize: false,
 	      };
       
@@ -183,6 +184,7 @@ class Ham2 {
         let layout = {title: ' Sample Auto Correlation Function',               
 	      xaxis: {title: {text: "n"} },
 	      yaxis: {title: {text: "Auto Correlation Coeff"}},
+	      legend: {x: 0.8, y:1},
 	      autosize: false,
 	      };
       
