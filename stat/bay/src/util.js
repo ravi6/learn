@@ -119,28 +119,53 @@ static  includes() {
       } 
   } // end includes
 
-static autoCor (x) {
+static autoCor (x, option) {
   // Auto correlation coeff, mean and std
   // get Sample mean and variances
+  // option argument values 1, 2, or 3
+  // 1 -  Wiki Reference
+  // 2 -  Matlab Reference
+  // 3 -  Textbook
   let mu = jStat.mean (x) ;  // estimate of sample mean
   let sig2 = jStat.variance (x,false) ; // biased variance of total sample
   let n = x.length ;
   let acc = [] ;  // Auto correlation coefficient vector
-  for (let i = 0 ; i < n - 1 ; i++) {
-      let sum = 0 ;
-      for (let j = 0; j < n - i  ; j++) 
-         sum = sum +  ( x[j] - mu ) * ( x[j+i] - mu ) ;
-      acc.push ( sum / ( n * sig2 ) )  ; // biased auto cor.coeff 
-  }
+    for (let i = 0 ; i < n - 1 ; i++) {
+	let cov = 0, varj = 0, varjp = 0 ;
+	for (let j = 0; j < n - i  ; j++) {
+	   cov = cov +  ( x[j] - mu ) * ( x[j+i] - mu ) ;
+	   varj = varj + ( x[j] - mu ) ** 2 ;
+	   varjp = varjp + ( x[j+i] - mu ) ** 2;
+	}
+
+        if (option == 1 ) // Wiki refeference
+	   acc.push ( cov / ( (n - i) * sig2 ) )  ; // biased auto cor.coeff 
+        if (option == 2 ) // Matlab Implementation
+	   acc.push ( cov / ( (n - 1) * sig2 ) )  ; // biased auto cor.coeff 
+        if (option == 3 ) // Covers nonstationary conditions (Nick)
+	   acc.push ( cov / Math.sqrt (varj * varjp) ) ; 
+    }
+
   return ( {mean: mu , sig2: sig2, acc: acc} ) ; 
 } // end autocor
 
 static upload (url, data) {
-// uploads given file to server with url
-  console.log (url, data) ;
- const send = () => {
-       fetch (url, {method: 'POST', body: data})
-         .then (resp => {console.log (resp);});
-       }
+  // uploads given file to server with url
+  // fetch could have been used but "hono" is 
+  // not working withit ... tried all combos
+  // so just keep it simple and basic xhr requests
+  //
+  const xhr = new XMLHttpRequest();
+  xhr.open("POST", "http://localhost:3000/output");
+  xhr.setRequestHeader("Content-Type", 
+                "application/json; charset=UTF-8");
+  const body = JSON.stringify(data) ;
+
+  xhr.onload = () => {  // event listener
+    if (xhr.readyState == 4 && xhr.status == 201) {
+      console.log(JSON.parse(xhr.responseText));
+    } else { console.log(`Error: ${xhr.status}`); }
+  };
+  xhr.send(body) ;
 } // end upload
 } // end Util class

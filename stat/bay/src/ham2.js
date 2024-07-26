@@ -12,7 +12,7 @@ class Ham2 {
        this.std = 2 ;   
        this.T = 10 ;  // integration time of trajectory
        this.nT = 10 ;  // number of time steps
-       this.nb = 200 ;  // sampling bvins to generate pdf
+       this.nb = 50 ;  // sampling bvins to generate pdf
        this.dt = this.T / this.nT ;
        this.state = {x: 0 , v: 0} ; // initial state
        this.N = 100 ; // number of samples to generate
@@ -139,7 +139,7 @@ class Ham2 {
     OKbtn.type = "submit" ;
 
     // populate the input form
-    Util.addSlider (this.frm, "N", 1, 200, 10, this.N, "Sample Size") ;
+    Util.addSlider (this.frm, "N", 1, 5000, 50, this.N, "Sample Size") ;
     Util.addSlider (this.frm, "burnF", 0, 0.3, 0.02, this.burnF, "Sample burnin fraction") ;
     Util.addSlider (this.frm, "T", 0.1, 55, 0.2, this.T, "Integration Time") ;
     Util.addSlider (this.frm, "std", 0, 10, 0.2, this.std, "momentum dist std") ;
@@ -187,20 +187,28 @@ class Ham2 {
 	      };
       
        let xs = this.xs ; // 
-       let result = Util.autoCor (xs) ;
-
        let i = Array.from ({length: xs.length}, (v, k) => k + 1 )
        
-       Util.upload ("http://localhost:3000/output", 
-	              {xs: xs , auto: result} ) ;
+       //Util.upload ("http://localhost:3000/output", 
+	//              {xs: xs , auto: result} ) ;
 
        let series = [] ;
+       let result = Util.autoCor (xs, 1) ;
        series.push ({x: i, y: result.acc, mode: 'lines',
-			  markers: false, name: "Hamiltonian Sampling Convergence" });
+			  markers: false, name: "Wiki" });
 
+       result = Util.autoCor (xs, 2) ;
+       series.push ({x: i, y: result.acc, mode: 'lines',
+			  markers: false, name: "Matlab" });
+
+       result = Util.autoCor (xs, 3) ;
+       series.push ({x: i, y: result.acc, mode: 'lines',
+			  markers: false, name: "Textbook" });
+      
        // bit yuk ... but will do for now
        let fig = document.getElementById ("figAcc") ;
        Plotly.newPlot (fig, series, layout, 
 		      {scrollZoom: false});     
   } // end plotAcc
+
 } // end Ham2 Class

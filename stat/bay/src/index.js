@@ -29,11 +29,10 @@ app.post('/output', async (c) => { // saving any ascii file
   console.log ("Output req");
   let url =  new URL(c.req.url) ; // elaborate json url
   let spath = app.basePath + url.pathname   ;
-  console.log( c.req ) ;
-          //await Bun.write (p, data);
- } ); 
-
- return new Response("Success" );
+  let data = await c.req.json() ;
+  console.log(JSON.stringify(data)) ;
+  await Bun.write (spath, JSON.stringify(data));
+ return new Response("Success Always" );
 }) ;  // end post
 
 function getHeader (fname) {
