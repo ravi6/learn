@@ -17,7 +17,7 @@ static genPdf (xv, nb) { // Generate pdf from samples
           xm.push ( xmin + k * dx + dx/2 ) ;
 	  spdf [k] = ( spdf[k] / xv.length ) / dx ;
       }
-     return ({x: xm, y: spdf})
+     return ({x: xm, y: spdf, dx: dx})
 } // end genPdf
 
 static  eigen(A) {

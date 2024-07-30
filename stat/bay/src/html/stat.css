@@ -45,6 +45,10 @@ button {
   flex-direction: row;
 }
 
-#figHam2 figAcc {
-  flex: 50%
+#figHam2 {
+  flex: 1;
+}
+
+#figAcc {
+  flex: 1;
 }

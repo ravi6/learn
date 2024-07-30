@@ -176,9 +176,9 @@ functional form given below will be examined.
      \]
 </p>
 <div class=twofigs>
-  <figure class=figure twof  id="figHam2" style
+  <figure class="figure"  id="figHam2" style
       title="click mouse to alter sampling parameters"></figure>
-  <figure class=figure twof  id="figAcc" 
+  <figure class="figure"  id="figAcc" 
       title="Auto Correlation Coef. function of above Hamiltonian Sample"></figure>
 </div>
 

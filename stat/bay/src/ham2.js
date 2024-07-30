@@ -106,12 +106,18 @@ class Ham2 {
                               this.nb) ;
 
        let series = [] ;
-       series.push ({x: pdf.x, y: pdf.y, mode: 'lines+markers',
-			  markers: true, name: "pdf of samples" });
+       // series.push ({x: pdf.x, y: pdf.y, mode: 'lines+markers',
+	// 		  markers: true, name: "pdf of samples" });
+
+       let w = [] ;
+       for (let i=0 ; i < pdf.x.length ; i++) w.push (pdf.dx);
+       series.push ({x: pdf.x, y: pdf.y,
+	              width: w, type: 'bar', name: "histo" });
 
        pdf = this.targetPDF () ; 
        series.push ({x: pdf.x, y: pdf.y, mode: 'lines',
 			  markers: false, name: "target" });
+
 
        layout.annotations = 
 	  [ { xref: "paper", yref: "paper", x: 0.2, y: 0.8,
