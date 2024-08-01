@@ -146,7 +146,7 @@ class Ham2 {
     OKbtn.type = "submit" ;
 
     // populate the input form
-    Util.addSlider (this.frm, "N", 1, 5000, 50, this.N, "Sample Size") ;
+    Util.addSlider (this.frm, "N", 1, 20000, 50, this.N, "Sample Size") ;
     Util.addSlider (this.frm, "burnF", 0, 0.3, 0.02, this.burnF, "Sample burnin fraction") ;
     Util.addSlider (this.frm, "T", 0.1, 55, 0.2, this.T, "Integration Time") ;
     Util.addSlider (this.frm, "std", 0, 10, 0.2, this.std, "momentum dist std") ;
@@ -193,30 +193,33 @@ class Ham2 {
 	      legend: {x: 0.8, y:1},
 	      autosize: false,
 	      };
-      
-       let xs = this.xs ; // 
-       let i = Array.from ({length: xs.length}, (v, k) => k + 1 )
-       
-       //Util.upload ("http://localhost:3000/output", 
-	//              {xs: xs , auto: result} ) ;
 
+       let xs = this.xs ; 
        let series = [] ;
-       let result = Util.autoCor (xs, 1) ;
+       
+      /*  Disabling other formulae 
+
        series.push ({x: i, y: result.acc, mode: 'lines',
 			  markers: false, name: "Wiki" });
 
        result = Util.autoCor (xs, 2) ;
        series.push ({x: i, y: result.acc, mode: 'lines',
 			  markers: false, name: "Matlab" });
+      */
 
-       result = Util.autoCor (xs, 3) ;
-       series.push ({x: i, y: result.acc, mode: 'lines',
-			  markers: false, name: "Textbook" });
+       let result = Util.autoCor (xs.slice(this.N * this.burnF), 3) ;
+       let i = [] ;
+       for (let j = 0 ; j < result.acc.length ; j ++) i.push (j+1) ;
+       series.push ({x: i, y: result.acc, mode: 'lines+markers',
+			  markers: true, name: "" });
       
        // bit yuk ... but will do for now
        let fig = document.getElementById ("figAcc") ;
        Plotly.newPlot (fig, series, layout, 
 		      {scrollZoom: false});     
+
+       Util.upload ("http://localhost:3000/output", 
+	 {xs: xs} ) ;
   } // end plotAcc
 
 } // end Ham2 Class

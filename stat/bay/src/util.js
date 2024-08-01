@@ -123,14 +123,14 @@ static autoCor (x, option) {
   // Auto correlation coeff, mean and std
   // get Sample mean and variances
   // option argument values 1, 2, or 3
-  // 1 -  Wiki Reference
-  // 2 -  Matlab Reference
-  // 3 -  Textbook
+  // 1 -  Wiki Reference // don't quite understand this one
+  // 2 -  Matlab Reference // consistenet with other ref. stationary assumption
+  // 3 -  Textbook // This actuall observes non-stationary auto correlation
   let mu = jStat.mean (x) ;  // estimate of sample mean
-  let sig2 = jStat.variance (x,false) ; // biased variance of total sample
+  let sig2 = jStat.variance (x, false) ; // biased variance of total sample
   let n = x.length ;
   let acc = [] ;  // Auto correlation coefficient vector
-    for (let i = 0 ; i < n - 1 ; i++) {
+    for (let i = 0 ; i < n  ; i++) {
 	let cov = 0, varj = 0, varjp = 0 ;
 	for (let j = 0; j < n - i  ; j++) {
 	   cov = cov +  ( x[j] - mu ) * ( x[j+i] - mu ) ;
@@ -145,7 +145,7 @@ static autoCor (x, option) {
         if (option == 3 ) // Covers nonstationary conditions (Nick)
 	   acc.push ( cov / Math.sqrt (varj * varjp) ) ; 
     }
-
+  acc.reverse() ;  // Since we iterated from all data to fewer data  
   return ( {mean: mu , sig2: sig2, acc: acc} ) ; 
 } // end autocor
 
@@ -154,7 +154,7 @@ static upload (url, data) {
   // fetch could have been used but "hono" is 
   // not working withit ... tried all combos
   // so just keep it simple and basic xhr requests
-  //
+  // No luck with simpler fetch  method  
   const xhr = new XMLHttpRequest();
   xhr.open("POST", "http://localhost:3000/output");
   xhr.setRequestHeader("Content-Type", 
