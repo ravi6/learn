@@ -146,10 +146,10 @@ class Ham2 {
     OKbtn.type = "submit" ;
 
     // populate the input form
-    Util.addSlider (this.frm, "N", 1, 20000, 50, this.N, "Sample Size") ;
+    Util.addSlider (this.frm, "N", 1, 10000, 50, this.N, "Sample Size") ;
     Util.addSlider (this.frm, "burnF", 0, 0.3, 0.02, this.burnF, "Sample burnin fraction") ;
     Util.addSlider (this.frm, "T", 0.1, 55, 0.2, this.T, "Integration Time") ;
-    Util.addSlider (this.frm, "std", 0, 10, 0.2, this.std, "momentum dist std") ;
+    Util.addSlider (this.frm, "std", 0, 10, 0.25, this.std, "momentum dist std") ;
 
     this.frm.appendChild (OKbtn) ;
     this.dlg.appendChild (this.frm) ;
@@ -187,39 +187,36 @@ class Ham2 {
   } // end targetPDF
 
     plotAcc () {  // plot auto correlation function
-        let layout = {title: ' Sample Auto Correlation Function',               
+        let layout = {
+	      title: ' Sample Auto Correlation Function',               
 	      xaxis: {title: {text: "n"} },
-	      yaxis: {title: {text: "Auto Correlation Coeff"}},
-	      legend: {x: 0.8, y:1},
+	      yaxis: {title: {text: "Auto Correlation Coeff"},
+	              range: [-0.2, 0.2] },
+	      legend: {x: 0.8, y: 1.0},
 	      autosize: false,
 	      };
 
        let xs = this.xs ; 
        let series = [] ;
        
-      /*  Disabling other formulae 
+       let result = Util.autoCor (xs.slice (this.N * this.burnF), 1) ;
 
-       series.push ({x: i, y: result.acc, mode: 'lines',
-			  markers: false, name: "Wiki" });
-
-       result = Util.autoCor (xs, 2) ;
-       series.push ({x: i, y: result.acc, mode: 'lines',
-			  markers: false, name: "Matlab" });
-      */
-
-       let result = Util.autoCor (xs.slice(this.N * this.burnF), 3) ;
        let i = [] ;
-       for (let j = 0 ; j < result.acc.length ; j ++) i.push (j+1) ;
-       series.push ({x: i, y: result.acc, mode: 'lines+markers',
-			  markers: true, name: "" });
-      
+       for (let j = 0 ; j < result.acc.length ; j ++) i.push (j) ;
+
+       series.push ({x: i, y: result.acc, mode: 'lines',
+			  markers: false, name: "" });
+
+       result = Util.autoCor (xs.slice (this.N * this.burnF), 2) ;
+       series.push ({x: i, y: result.acc, mode: 'lines',
+			  markers: false, name: "" });
+
        // bit yuk ... but will do for now
        let fig = document.getElementById ("figAcc") ;
        Plotly.newPlot (fig, series, layout, 
 		      {scrollZoom: false});     
 
-       Util.upload ("http://localhost:3000/output", 
-	 {xs: xs} ) ;
+     //  Util.upload ("http://localhost:3000/output", {xs: xs} ) ;
   } // end plotAcc
 
 } // end Ham2 Class

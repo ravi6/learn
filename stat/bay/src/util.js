@@ -119,33 +119,36 @@ static  includes() {
       } 
   } // end includes
 
-static autoCor (x, option) {
+static autoCor (x, opt) {
   // Auto correlation coeff, mean and std
   // get Sample mean and variances
-  // option argument values 1, 2, or 3
-  // 1 -  Wiki Reference // don't quite understand this one
-  // 2 -  Matlab Reference // consistenet with other ref. stationary assumption
-  // 3 -  Textbook // This actuall observes non-stationary auto correlation
   let mu = jStat.mean (x) ;  // estimate of sample mean
   let sig2 = jStat.variance (x, false) ; // biased variance of total sample
   let n = x.length ;
-  let acc = [] ;  // Auto correlation coefficient vector
-    for (let i = 0 ; i < n  ; i++) {
-	let cov = 0, varj = 0, varjp = 0 ;
-	for (let j = 0; j < n - i  ; j++) {
-	   cov = cov +  ( x[j] - mu ) * ( x[j+i] - mu ) ;
-	   varj = varj + ( x[j] - mu ) ** 2 ;
-	   varjp = varjp + ( x[j+i] - mu ) ** 2;
-	}
+  if (x.length % 2 != 0) n = n - 1 ; // making sure sample size is even
+/* Limit the lag to less than half the sample
+ * size (n). If increase the lag beyond this point autocorrelation
+ * function begins to grow and gets back to 1 at the end.
+ * Need to still understand this well. Some explanation is
+ * that ACC is symmetric with reference to centered point. acc(+T)=acc(-T)
+ * The data is not really time series but random samples. We are using
+ * the data sequence index as time. 
+ */
 
-        if (option == 1 ) // Wiki refeference
-	   acc.push ( cov / ( (n - i) * sig2 ) )  ; // biased auto cor.coeff 
-        if (option == 2 ) // Matlab Implementation
-	   acc.push ( cov / ( (n - 1) * sig2 ) )  ; // biased auto cor.coeff 
-        if (option == 3 ) // Covers nonstationary conditions (Nick)
-	   acc.push ( cov / Math.sqrt (varj * varjp) ) ; 
+  let acc = [] ;  // Auto correlation coefficient 
+    for (let i = 0 ; i < n/2  ; i++) {
+	let cov = 0, varj = 0, varjp = 0 ;
+        let muj = jStat.mean (x.slice(0,n-i-1)) ;
+        let mujp = jStat.mean (x.slice(1,n-i)) ;
+        if (opt == 1) { muj = mu;   mujp = mu  ; } ;
+	  for (let j = 0; j < n - i  ; j++) {
+	   cov = cov +  ( x[j] - muj ) * ( x[j+i] - mujp ) ;
+	   varj = varj + ( x[j] - muj ) ** 2 ;
+	   varjp = varjp + ( x[j+i] - mujp ) ** 2;
+	}
+	acc.push ( cov / Math.sqrt (varj * varjp) ) ; 
     }
-  acc.reverse() ;  // Since we iterated from all data to fewer data  
+  //acc.reverse() ;  // Since we iterated from all data to fewer data  
   return ( {mean: mu , sig2: sig2, acc: acc} ) ; 
 } // end autocor
 

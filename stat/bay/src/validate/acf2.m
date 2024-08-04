@@ -15,8 +15,8 @@ x = java.xs' ;
 x = x(11:64) ;
 
 function acc2 = accf2 (x, N)
-  for i = 1:N-1
-   xt = x(1:N-i) ;  xtp = x(i+1:N)  ;
+  for i = 1:N
+   xt = x(1:N-i+1) ;  xtp = x(i:N)  ;
    mut = mean (xt) ; mutp = mean (xtp) ;
    acov (i) =  (xt - mut) * (xtp - mutp)' ;  
     w  = (xt - mut) * (xt - mut)'  ; 
@@ -29,8 +29,8 @@ endfunction
 
 function acc1 = accf1 (x, N)
   mu = mean (x) ;
-  for i = 1:N-1
-   xt = x(1:N-i) ;  xtp = x(i+1:N)  ;
+  for i = 1:N
+   xt = x(1:N-i+1) ;  xtp = x(i:N)  ;
    acov (i) =  (xtp - mu) * (xt - mu)' ;  
     w  = (xt - mu) * (xt - mu)'  ; 
     wp  = (xtp - mu) * (xtp - mu)'  ; 
@@ -43,16 +43,23 @@ endfunction
 N = size(x,2) ;
 ylim ([-1 1]) ;
 z = accf1(x,N) ;
-plot ([1:N-1], z,"-;globalMean;") ;
+plot ([1:N], z,"*-;globalMean;", 'linewidth', 3, 'color', 'blue') ;
 hold on ;
-#z = accf2(x,N) ;
-#plot ([1:N-1], z,"-;slicedMean;") ;
+
+z = accf2(x,N) ;
+plot ([1:N], z,"x-;slicedMean;", 'linewidth', 3, 'color', 'green') ;
+
+plot ([1:size(java.acf,1)], java.acf',"o;java;", "linewidth", 3) ;
+hold off ;
+
+
+
+set(gca,"color", [0.9, 0.9, 0.9]) ;
+set(gca,"fontsize", 20) ;
+grid on ;
 
 c.mean = [mean(x) java.mean];
 c.std = [std(x)^2 java.sig2];
-c.N = N ;
-c.size = [size(z)  size(java.acf)] ;
-c
-plot ([1:size(java.acf,1)], java.acf',"-o;java;") ;
-hold off ;
-pause  ;
+c.size = [N size(z,2)  size(java.acf,1)] ;
+
+pause ;
