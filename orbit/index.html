@@ -39,19 +39,22 @@
 <script type=module>
   import  {THREE, GUI, loader, scene, camera, renderer} from "./init.js" ;
   import {Cube} from "./cube.js" ;
+  import {plane} from "./plane.js" ;
   import {light, dlight, lightGUI} from  "./lights.js" ;
   import {Bishop} from "./chess.js" ;
   import {setColor, setPos} from "./util.js" ;
 
-  camera.position.set(0,0,6);
+  plane() ;  // add plane to scene
   let cube = Cube() ;
   scene.add(cube);
   scene.add(Bishop());
   scene.add(light); 
   scene.add(dlight);
-//  lightGUI() ; // GUI for controlling lighting
-  animate();
+  scene.add (new THREE.AxesHelper(40)) ;
+ // lightGUI() ; // GUI for controlling lighting
+//  animate();
 	
+    renderer.render(scene, camera);
 // Functions 
 	
 function animate(){

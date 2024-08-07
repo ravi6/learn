@@ -3,10 +3,10 @@
 import {THREE} from "./init.js" ;
 export function Bishop(){
     const curve = new THREE.CubicBezierCurve(
-    	new THREE.Vector2( -10, 0 ),
+    	new THREE.Vector2( 0, 0 ),
     	new THREE.Vector2( -5, 15 ),
-    	new THREE.Vector2( 20, 15 ),
-    	new THREE.Vector2( 10, 0 )
+    	new THREE.Vector2( 20, -15 ),
+    	new THREE.Vector2( 0, 0 ),
     );
     
     const points = curve.getPoints( 50 );
