@@ -9,8 +9,8 @@
   const camera = new THREE.PerspectiveCamera (
                 45, window.innerWidth / window.innerHeight,
                 0.1, 1000);
-  camera.position.set (10,-10, 150);
-  camera.up = new THREE.Vector3 (0, 0, 1) ;
+  camera.position.set (2,-5, 50);
+ camera.up = new THREE.Vector3 (0, 0, 1) ;
 
   const renderer = new THREE.WebGLRenderer();
  

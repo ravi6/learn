@@ -71,7 +71,7 @@ export function setPos (obj){
           let div = document.createElement("div"); 
 	  let input = document.createElement("input"); 
 	    input.id = val ;
-	    input.min = 0 ; input.max = 10 ; input.value = vec[index]  ; input.step = 0.1 ;
+	    input.min = -50 ; input.max = 50 ; input.value = vec[index]  ; input.step = 0.1 ;
 	    input.class = "slider"; input.type = "range" ; 
   	    input.addEventListener("input", function(){
 	          obj.position.x = document.getElementById("x").value; 

@@ -2,40 +2,29 @@
 import {THREE, loader, scene} from "./init.js" ;
 import {STLLoader}  from 'three/addons/loaders/STLLoader.js';
 
-export  function plane(){
+export  async function Plane ()  {
  // Let me tru load an stl file of the plane
 
-  const loader = new STLLoader () ;
-  loader.load ("./plane/plane.stl", function (geom) {
-   var mshMat ;
-   if ( geom.hasColors ) {
+  const loader = new STLLoader ();
+  const geom = await loader.loadAsync ("plane.stl") ;
+    // Aircraft Skin
+    const texture = new THREE.TextureLoader().load( "imgs/plane.png" );
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set( 4, 4 );
+
+     var mshMat ;
+     if ( geom.hasColors ) {
 	  mshMat = new THREE.MeshPhongMaterial({
-	 opacity: geometry.alpha, 
-	 vertexColors: true });
-    } else { 
-          mshMat = new THREE.MeshPhongMaterial({
-	   color: new THREE.Color ("rgb(255, 0, 0)"),
-	   specular: 0x111111, shininess: 200 });
-      // mshMat = new THREE.MeshPhongMaterial( { color: 0x0000ff } );
-         console.log ("no colors") 
-    };
+	  opacity: geometry.alpha, vertexColors: true });
+      } else { 
+	 mshMat = new THREE.MeshPhongMaterial ({  
+	 map: texture, color: 0xcccccc, shininess: 50 }); 
+	 console.log ("no colors") ;
+      };
 
-    const mesh = new THREE.Mesh (geom, mshMat) ;
-
-    geom.computeBoundingBox() ;
-    mesh.scale.set (1e-2, 1e-2, 1e-2) ;
-    //mesh.position.set (0, 0, 0) ;
-    //mesh.rotation.set ( -Math.PI / 2, 0, 0 ) ;
-    const v3 = new THREE.Vector3() ;
-    const b3 = new THREE.Box3() ;
-    b3.setFromObject(mesh) ;
-    b3.getCenter(v3);
-    console.log(v3) ;
-
-
-
-
-    mesh.castShadow = true ;
-    mesh.receiveShadow = true ;
-    scene.add (mesh) ; // Note that scene is global so we have access
-}); }// end plane
+      geom.scale (1e-2, 1e-2, 1e-2) ;
+      const obj = new THREE.Mesh (geom, mshMat) ;
+      obj.position.set (0, 0, 0) ;
+      return (obj) ;
+}// end plane
