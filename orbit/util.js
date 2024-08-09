@@ -1,3 +1,5 @@
+import {THREE} from "./init.js" ;
+
 // This module provides some useful stuff
 //
 export function sleep(ms) {
@@ -27,6 +29,7 @@ export function setColor (obj) {
      dlg.appendChild(hdr);
      
      let rgbvec = obj.color.toArray() ;
+     // console.log ("rgbvec", rgbvec) ;
      // Create three sliders 
       ["r", "g", "b"].forEach(function(val, index){
           let div = document.createElement("div"); 
@@ -71,7 +74,7 @@ export function setPos (obj){
           let div = document.createElement("div"); 
 	  let input = document.createElement("input"); 
 	    input.id = val ;
-	    input.min = -50 ; input.max = 50 ; input.value = vec[index]  ; input.step = 0.1 ;
+	    input.min = -150 ; input.max = 150 ; input.value = vec[index]  ; input.step = 0.1 ;
 	    input.class = "slider"; input.type = "range" ; 
   	    input.addEventListener("input", function(){
 	          obj.position.x = document.getElementById("x").value; 
@@ -93,3 +96,82 @@ export function setPos (obj){
  return(dlg);
 }// setPosition
 
+
+export function getFaces (mesh) {
+  // Get faces in a mesh / geometry in THREEjs
+
+ const faces = [];
+ const position = mesh.geometry.getAttribute( 'position' );
+ const isIndexed = ( mesh.geometry.index != null ) ;
+
+// Get or Create Face (tirangular) node indicies
+ if (isIndexed) {  // mesh is indexed
+   const index = mesh.geometry.getIndex();
+   for ( let i = 0; i < index.count; i += 3 ) {
+     let face = { a: index.getX(i), b: index.getX(i+1), c: index.getX(i+2),
+	            normal: new Vector3() };
+     faces.push(face);
+   }
+ } else { // not indexed ... why we use 3 instead of itemSize??
+    for ( let i = 0; i < position.count; i += 3 ) {
+	let face = { a: i, b: i+1, c: i+2 };
+	faces.push(face);
+    }
+ }
+
+// Get normals of these faces and store them in faces 
+ faces.forEach ( (face) => {
+     let verts = [] ;  // Add three vertices for each triangular face
+     [face.a, face.b, face.c].forEach ( (idx) => {
+         verts.push ( new THREE.Vector3 (position.getX (idx),
+	                                 position.getY (idx),
+	                                 position.getZ (idx)) ); });
+     let f = new THREE.Triangle (verts[0], verts[1], verts[2]);
+     THREE.Triangle.getNormal (face) ;
+ }); // loop over all faces
+
+} // end getFaces 
+
+export function getVerts (mesh) {
+  // Get vertices of the mesh/geometry in THREEjs
+  const position = mesh.geometry.getAttribute( 'position' );
+  const vertices = [];
+
+  for ( let i = 0; i < position.count / position.itemSize; i++ ) {
+    const vertex = new Vector3( position.getX(i),
+				position.getY(i),
+				position.getZ(i));
+    vertices.push(vertex);
+  }
+
+  return vertices;
+} // end getVerts
+
+export function getfUvs (mesh) {
+  const fUvs = [];
+  const uv = mesh.geometry.getAttribute ('uv');
+
+  if (isIndexed (mesh)) {
+     const index = mesh.geometry.getIndex ();
+     for (let i = 0; i < index.count; i += 3) {
+	const fUv = []  ;
+        for (let k = 0; k < 3 ; k++) {
+	    let j = index.getX (i + k) ;
+	    fUv.push (new Vector2 (uv.getX (j), uv.getY (j)));
+	}
+     }
+     fUvs.push(fUv);
+     return (fUvs) ;
+  }
+
+  for ( let i = 0; i < uv.count; i += 3 ) { // unIndexded case
+    const fUv = []  ;
+    for (let k = 0; k < 3 ; k++) {
+       let j = i + k ;
+       fUv.push (new Vector2 ( uv.getX (j), uv.getY (j)));
+    }
+     fUvs.push(fUv);
+     return (fUvs) ;
+  }
+
+} // end getfUvs

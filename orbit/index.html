@@ -48,6 +48,7 @@
   scene.add(plane) ;
   scene.add(light); 
   scene.add(dlight);
+ //lightGUI() ; // GUI for controlling lighting
   animate();
 
 //  let cube = Cube() ;
@@ -56,7 +57,6 @@
 //  scene.add (new THREE.AxesHelper(40)) ;
 //  measure ("cube", cube) ;
 //  measure ("plane", plane) ;
-// lightGUI() ; // GUI for controlling lighting
 //  renderer.render(scene, camera);
 // Functions 
 
@@ -74,8 +74,9 @@ function measure(name, obj) {
 	
 function animate(){
     requestAnimationFrame(animate);
-    plane.rotation.x += 0.01;
+    plane.rotation.z += 0.01;
     plane.rotation.y += 0.01;
+    plane.rotation.x += 0.01;
     renderer.render(scene, camera);
   }
 
