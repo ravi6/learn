@@ -16,7 +16,7 @@ export class hexColor {
   set value(hexS) {
     this.obj['color'].set(hexS);
   }
-}
+} // end hexColor class
 
 export function setColor (obj) {
   // Change color of  any object with interacive dialogue
@@ -41,7 +41,7 @@ export function setColor (obj) {
 	          let rgb = "rgb(" + document.getElementById("r").value + ","
 		     + document.getElementById("g").value + ","
 		     + document.getElementById("b").value + ")" ;
-	          console.log(rgb) ; obj.color.set(rgb);
+	          //console.log(rgb) ; obj.color.set(rgb);
 	          document.getElementById("msg").innerText = rgb ;
 	     }); // end evenlistener
 	    div.appendChild(input);
@@ -108,14 +108,15 @@ export function getFaces (mesh) {
  if (isIndexed) {  // mesh is indexed
    const index = mesh.geometry.getIndex();
    for ( let i = 0; i < index.count; i += 3 ) {
-     let face = { a: index.getX(i), b: index.getX(i+1), c: index.getX(i+2),
-	            normal: new Vector3() };
-     faces.push(face);
+     let face = { a: index.getX (i), b: index.getX (i+1), c: index.getX (i+2),
+	            normal: new THREE.Vector3 () };
+     faces.push (face);
    }
  } else { // not indexed ... why we use 3 instead of itemSize??
     for ( let i = 0; i < position.count; i += 3 ) {
-	let face = { a: i, b: i+1, c: i+2 };
-	faces.push(face);
+	let face = { a: i, b: i+1, c: i+2,
+	             normal: new THREE.Vector3 () };
+	faces.push (face);
     }
  }
 
@@ -126,11 +127,13 @@ export function getFaces (mesh) {
          verts.push ( new THREE.Vector3 (position.getX (idx),
 	                                 position.getY (idx),
 	                                 position.getZ (idx)) ); });
-     let f = new THREE.Triangle (verts[0], verts[1], verts[2]);
-     THREE.Triangle.getNormal (face) ;
+     let f = new THREE.Triangle (verts [0], verts [1], verts [2]);
+     f.getNormal (face.normal) ;
  }); // loop over all faces
 
+ return (faces) ;
 } // end getFaces 
+
 
 export function getVerts (mesh) {
   // Get vertices of the mesh/geometry in THREEjs
@@ -144,14 +147,16 @@ export function getVerts (mesh) {
     vertices.push(vertex);
   }
 
-  return vertices;
+  return (vertices) ;
 } // end getVerts
 
 export function getfUvs (mesh) {
   const fUvs = [];
-  const uv = mesh.geometry.getAttribute ('uv');
+  const position = mesh.geometry.getAttribute( 'position' );
+  const isIndexed = ( mesh.geometry.index != null ) ;
 
-  if (isIndexed (mesh)) {
+  if (isIndexed) {
+     let uv =  mesh.geometry.getAttribute ('uv') ;
      const index = mesh.geometry.getIndex ();
      for (let i = 0; i < index.count; i += 3) {
 	const fUv = []  ;
@@ -163,15 +168,37 @@ export function getfUvs (mesh) {
      fUvs.push(fUv);
      return (fUvs) ;
   }
+ 
+ // unIndexded case
+  // If uv is undefined and mesh is not indexed
+  // this is the case I am interested in
+  let uv =  mesh.geometry.getAttribute ('uv') ;
+  if (typeof(uv) === "undefined" ) { // let me generate it 
+    console.log("uv undefined so I am creating it :))");
+    mesh.geometry.setAttribute ('uv', 
+      new THREE.BufferAttribute (
+	 new Float32Array (position.count), 
+	  2,  false));
+    uv =  mesh.geometry.getAttribute ('uv') ;
+   
+    for (let i = 0 ; i < uv.count ; i  = i + 2) {
+       mesh.geometry.attributes.uv.setXY (i, 0.0, 0.0) ; // for now we make it arbitrary
+       mesh.geometry.attributes.uv.setXY (i+1, 0.0, 1.0) ; // for now we make it arbitrary
+    }
+    console.log("uv",uv) ;
+  } // end undefined uv code
 
-  for ( let i = 0; i < uv.count; i += 3 ) { // unIndexded case
+  uv.needsUpdate = true ;
+
+  for ( let i = 0; i < uv.count; i += 3 ) {
     const fUv = []  ;
-    for (let k = 0; k < 3 ; k++) {
+    for (let k = 0; k < 3 ; k++) { 
        let j = i + k ;
-       fUv.push (new Vector2 ( uv.getX (j), uv.getY (j)));
+       fUv.push (new THREE.Vector2 ( uv.getX (j), uv.getY (j)));
     }
      fUvs.push(fUv);
      return (fUvs) ;
   }
 
 } // end getfUvs
+

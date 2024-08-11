@@ -43,16 +43,18 @@
   import {Bishop} from "./chess.js" ;
   import {setColor, setPos} from "./util.js" ;
 
+
+  //let cube = Cube() ;
+  //scene.add(cube);
+
+
   let plane = await Plane() ;
-  console.log(plane) ;
   scene.add(plane) ;
   scene.add(light); 
   scene.add(dlight);
  //lightGUI() ; // GUI for controlling lighting
-  animate();
 
-//  let cube = Cube() ;
-//  scene.add(cube);
+   animate();
 //  scene.add(Bishop());
 //  scene.add (new THREE.AxesHelper(40)) ;
 //  measure ("cube", cube) ;
