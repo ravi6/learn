@@ -181,9 +181,10 @@ export function getfUvs (mesh) {
 	  2,  false));
     uv =  mesh.geometry.getAttribute ('uv') ;
    
-    for (let i = 0 ; i < uv.count ; i  = i + 2) {
+    for (let i = 0 ; i < position.count ; i  = i + 3) {
        mesh.geometry.attributes.uv.setXY (i, 0.0, 0.0) ; // for now we make it arbitrary
        mesh.geometry.attributes.uv.setXY (i+1, 0.0, 1.0) ; // for now we make it arbitrary
+       mesh.geometry.attributes.uv.setXY (i+2, 1, 1) ; // for now we make it arbitrary
     }
     console.log("uv",uv) ;
   } // end undefined uv code

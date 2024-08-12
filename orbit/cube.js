@@ -15,6 +15,7 @@ export function Cube(){
        }); 
   // texture map each face of the cube
   let mat = [mat1, mat1, mat1, mat1, mat2, mat1] ; 
+  let cube = new THREE.Mesh (geom, mat) ;
   cube.position.set (0, 0, 0) ;
   return(cube);
 }

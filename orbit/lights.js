@@ -6,7 +6,7 @@ import {THREE, GUI} from "./init.js" ;
   const light = new THREE.AmbientLight(0xffffff); 
 	
   //const dlight = new THREE.DirectionalLight(0xd8f808,1);
-  const dlight = new THREE.DirectionalLight(0xffffff,1);
+  const dlight = new THREE.DirectionalLight(0xffffff, 1);
 	// dlight.position.set(0, 10, 0);
 	// dlight.target.position.set(-5, 0, 0);
 	//scene.add(light.target);

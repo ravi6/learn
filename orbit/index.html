@@ -43,23 +43,20 @@
   import {Bishop} from "./chess.js" ;
   import {setColor, setPos} from "./util.js" ;
 
-
-  //let cube = Cube() ;
-  //scene.add(cube);
-
-
+//  let cube = Cube() ;
+//  scene.add(cube);
   let plane = await Plane() ;
   scene.add(plane) ;
   scene.add(light); 
   scene.add(dlight);
- //lightGUI() ; // GUI for controlling lighting
+  plane.rotation.x += 35;
+  animate(plane);
 
-   animate();
+ lightGUI() ; // GUI for controlling lighting
 //  scene.add(Bishop());
 //  scene.add (new THREE.AxesHelper(40)) ;
 //  measure ("cube", cube) ;
 //  measure ("plane", plane) ;
-//  renderer.render(scene, camera);
 // Functions 
 
 function measure(name, obj) {
@@ -76,12 +73,15 @@ function measure(name, obj) {
 	
 function animate(){
     requestAnimationFrame(animate);
-    plane.rotation.z += 0.01;
-    plane.rotation.y += 0.01;
-    plane.rotation.x += 0.01;
+   // rotate (plane) ;
     renderer.render(scene, camera);
   }
 
+function rotate(obj) {
+    obj.rotation.z += 0.01;
+    obj.rotation.y += 0.01;
+    obj.rotation.x += 0.01;
+}
 document.getElementById("setLight").addEventListener(
        "click",function(){
          setColor(light).showModal();
