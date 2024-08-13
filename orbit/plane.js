@@ -10,10 +10,10 @@ export  async function Plane ()  {
   const loader = new STLLoader ();
   const geom = await loader.loadAsync ("imgs/plane.stl") ;
     // Aircraft Skin
-    const texture = new THREE.TextureLoader().load( "imgs/plane.jpg" );
-    texture.wrapS = THREE.RepeatWrapping ;
- //   texture.wrapT = THREE.RepeatWrapping ;
- //   texture.repeat.set(1.15, 0.9*2) ;
+    const texture = new THREE.TextureLoader().load( "imgs/plane2.jpg" );
+    //texture.wrapS = THREE.RepeatWrapping ;
+   // texture.wrapT = THREE.RepeatWrapping ;
+    texture.repeat.set(0.8,0.8);
 
      var mshMat ;
      if ( geom.hasColors ) {
@@ -22,7 +22,7 @@ export  async function Plane ()  {
       } else { 
 	 mshMat = new THREE.MeshPhongMaterial ({  
 	 map: texture,
-	 color: 0x999999, shininess: 0 
+	 color: 0x999999, shininess: 150 
 	 }); 
 	 console.log ("no colors") ;
       };

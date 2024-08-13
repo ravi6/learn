@@ -175,21 +175,23 @@ export function getfUvs (mesh) {
   let uv =  mesh.geometry.getAttribute ('uv') ;
   if (typeof(uv) === "undefined" ) { // let me generate it 
     console.log("uv undefined so I am creating it :))");
+    console.log("Position Count:", position.count) ;
     mesh.geometry.setAttribute ('uv', 
       new THREE.BufferAttribute (
-	 new Float32Array (position.count), 
+	 new Float32Array (position.count*2), 
 	  2,  false));
     uv =  mesh.geometry.getAttribute ('uv') ;
+    console.log("uv",uv) ;
    
-    for (let i = 0 ; i < position.count ; i  = i + 3) {
+    for (let i = 0 ; i < position.count - 3  ; i  = i + 3) { // count = number of vertices
+       // we have all triangles
        mesh.geometry.attributes.uv.setXY (i, 0.0, 0.0) ; // for now we make it arbitrary
        mesh.geometry.attributes.uv.setXY (i+1, 0.0, 1.0) ; // for now we make it arbitrary
-       mesh.geometry.attributes.uv.setXY (i+2, 1, 1) ; // for now we make it arbitrary
+       mesh.geometry.attributes.uv.setXY (i+2, 1.0, 1.0) ; // for now we make it arbitrary
     }
-    console.log("uv",uv) ;
   } // end undefined uv code
 
-  uv.needsUpdate = true ;
+  // uv.needsUpdate = true ;
 
   for ( let i = 0; i < uv.count; i += 3 ) {
     const fUv = []  ;
