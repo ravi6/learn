@@ -1,5 +1,7 @@
 import {THREE} from "./init.js" ;
 import { SimplifyModifier } from 'three/addons/modifiers/SimplifyModifier.js';
+import { DecalGeometry } from 'three/addons/geometries/DecalGeometry.js';
+
 
 // This module provides some useful stuff
 //
@@ -230,3 +232,18 @@ export function simplify (mesh, factor) {
   let nnmesh = nmesh.geometry.toNonIndexed() ;
   return (nnmesh) ;
 } // end simple
+
+export function splatter (mesh) {
+  let pos =  THREE.Vector3 (0, 0, 0) ; //  projector pos
+  let orient = THREE.Vector3 (0, 0, 1) ; // projector orientation (euler angles)
+  let size = THREE.Vector3 (1, 1, 1) ;  // projector size
+  const geom =  new DecalGeometry (mesh, pos, orient, size);
+  const mat = new THREE.MeshBasicMaterial ({color: 0x00ff00});
+  const obj = new THREE.Mesh (geom, mat);
+  scene.add ( obj );
+
+//const dir = new THREE.Vector3();
+// dir = (obj - dummy)   (vector from dummy to obj)
+//dir.subVectors(obj.position, dummy.position).normalize();
+}
+
