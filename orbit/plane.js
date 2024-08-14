@@ -2,7 +2,7 @@
 import {THREE, loader, scene} from "./init.js" ;
 import {STLLoader}  from 'three/addons/loaders/STLLoader.js';
 import {SimplifyModifier} from 'three/addons/modifiers/SimplifyModifier.js';
-import {getfUvs, getVerts, getFaces} from "./util.js";
+import {getfUvs, getVerts, getFaces, simplify} from "./util.js";
 
 export  async function Plane ()  {
  // Let me tru load an stl file of the plane
@@ -32,5 +32,6 @@ export  async function Plane ()  {
       obj.position.set (0, 0, 0) ;
       getfUvs (obj) ;  // generates UV attribute for my plane
       console.log ("plane", obj) ;
+      
       return (obj) ;
 }// end plane

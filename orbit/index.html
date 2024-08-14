@@ -43,7 +43,7 @@
   import {Bishop} from "./chess.js" ;
   import {setColor, setPos} from "./util.js" ;
 
-//  let cube = Cube() ;
+///  let cube = Cube() ;
 //  scene.add(cube);
   let plane = await Plane() ;
   scene.add(plane) ;
@@ -51,8 +51,8 @@
   scene.add(dlight);
   plane.rotation.x += 35;
   console.log(plane) ;
-//  renderer.render(scene, camera);
-  animate(plane);
+  renderer.render(scene, camera);
+//  animate(plane);
 
 // lightGUI() ; // GUI for controlling lighting
 //  scene.add(Bishop());

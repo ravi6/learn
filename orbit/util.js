@@ -1,4 +1,5 @@
 import {THREE} from "./init.js" ;
+import { SimplifyModifier } from 'three/addons/modifiers/SimplifyModifier.js';
 
 // This module provides some useful stuff
 //
@@ -205,3 +206,27 @@ export function getfUvs (mesh) {
 
 } // end getfUvs
 
+export function simplify (mesh, factor) {
+  // redduce the number of facets to desired fraction
+  // Not working for my plane
+  const nmesh = mesh.clone();
+  nmesh.geometry.computeVertexNormals() ;
+
+/* Delete all attributes excepting position */ 
+//for ( const name in nmesh.geometry.attributes ) {
+//     if ( name !== 'position' ) 
+//     nmesh.geometry.deleteAttribute( name );
+//}
+
+  //  why bother tinkering with the material ??
+  nmesh.material = mesh.material.clone();
+  nmesh.material.flatShading = true;
+  const count = Math.floor( 
+  nmesh.geometry.attributes.position.count * factor ); // number of vertices to remove
+
+  const modifier = new SimplifyModifier();
+  nmesh.geometry = modifier.modify( nmesh.geometry, count );
+  console.log("geo", nmesh.geometry) ;
+  let nnmesh = nmesh.geometry.toNonIndexed() ;
+  return (nnmesh) ;
+} // end simple
