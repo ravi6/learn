@@ -41,48 +41,35 @@
   import {Plane} from "./plane.js" ;
   import {light, dlight, lightGUI} from  "./lights.js" ;
   import {Bishop} from "./chess.js" ;
-  import {setColor, setPos} from "./util.js" ;
+  import {setColor, setPos, measure} from "./util.js" ;
 
-///  let cube = Cube() ;
+  let plane = await Plane () ;
+  scene.add (plane) ;
+  scene.add (light); 
+  scene.add (dlight);
+  plane.rotation.x += -65;
+  plane.rotation.z += -8;
+  animate(plane);
+
+//  let cube = Cube() ;
 //  scene.add(cube);
-  let plane = await Plane() ;
-  scene.add(plane) ;
-  scene.add(light); 
-  scene.add(dlight);
-  plane.rotation.x += 35;
-  console.log(plane) ;
-  renderer.render(scene, camera);
-//  animate(plane);
-
 // lightGUI() ; // GUI for controlling lighting
 //  scene.add(Bishop());
 //  scene.add (new THREE.AxesHelper(40)) ;
 //  measure ("cube", cube) ;
-//  measure ("plane", plane) ;
+
 // Functions 
 
-function measure(name, obj) {
-    obj.geometry.computeBoundingBox() ;
-    obj.geometry.computeBoundingSphere() ;
-    const radius = obj.geometry.boundingSphere.radius;
-    const v3 = new THREE.Vector3() ;
-    const b3 = new THREE.Box3() ;
-    b3.setFromObject(obj) ;
-    b3.getCenter(v3);
-    console.log( {name: name, cntr: v3, radius: radius}) ;
-    console.log(obj.geometry.boundingBox);
-}
-	
 function animate(){
     requestAnimationFrame(animate);
-   // rotate (plane) ;
+    rotate (plane) ;
     renderer.render(scene, camera);
   }
 
 function rotate(obj) {
     obj.rotation.z += 0.01;
-    obj.rotation.y += 0.01;
-    obj.rotation.x += 0.01;
+   // obj.rotation.y += 0.01;
+   // obj.rotation.x += 0.01;
 }
 document.getElementById("setLight").addEventListener(
        "click",function(){

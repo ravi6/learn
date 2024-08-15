@@ -184,7 +184,6 @@ export function getfUvs (mesh) {
 	 new Float32Array (position.count*2), 
 	  2,  false));
     uv =  mesh.geometry.getAttribute ('uv') ;
-    console.log("uv",uv) ;
    
     for (let i = 0 ; i < position.count - 3  ; i  = i + 3) { // count = number of vertices
        // we have all triangles
@@ -233,17 +232,37 @@ export function simplify (mesh, factor) {
   return (nnmesh) ;
 } // end simple
 
-export function splatter (mesh) {
-  let pos =  THREE.Vector3 (0, 0, 0) ; //  projector pos
-  let orient = THREE.Vector3 (0, 0, 1) ; // projector orientation (euler angles)
-  let size = THREE.Vector3 (1, 1, 1) ;  // projector size
-  const geom =  new DecalGeometry (mesh, pos, orient, size);
-  const mat = new THREE.MeshBasicMaterial ({color: 0x00ff00});
-  const obj = new THREE.Mesh (geom, mat);
-  scene.add ( obj );
+export function measure (mesh) {
+    let geom = mesh.geometry ;
+    geom.computeBoundingBox () ;
+    geom.computeBoundingSphere () ;
+    let radius = geom.boundingSphere.radius;
+    let v3 = new THREE.Vector3 () ;
+    let b3 = geom.boundingBox   ;
+    let size = new THREE.Vector3 () ;
+    b3.getSize (size) ;
+    b3.getCenter (v3);
+    let ans = {name: mesh.name, cntr: v3, size: size, radius: radius} ;
+    console.log ("Measure of ", mesh.name, ":", ans) ;
+    return (ans) ;
+}
+	
+export function skinMesh (geom, img) {
+  // wraps the geom with a skin (specified as image) and returns mesh
 
-//const dir = new THREE.Vector3();
-// dir = (obj - dummy)   (vector from dummy to obj)
-//dir.subVectors(obj.position, dummy.position).normalize();
+  const tex = new THREE.TextureLoader().load (img);
+  var mat = new THREE.MeshPhongMaterial ({  
+    map: tex, color: 0x999999, shininess: 150, specular: 0x555555 }) ; 
+  let mesh = new THREE.Mesh (geom, mat) ;
+  mesh.name = "tmpMesh" ;
+  console.log(img, geom) ;
+  let meas = measure (mesh) ;
+  // We make the decal projector cover entire mesh
+  let pos =  meas.cntr ; //  projector pos
+  let orient = new THREE.Vector3 (0, 0, 0) ; // projector orientation (euler angles)
+  let size = meas.size ;  // projector size
+  let ngeom =  new DecalGeometry (mesh, pos, orient, size) ;
+  let obj = new THREE.Mesh (ngeom, mat) ;
+  return (obj) ;
 }
 
