@@ -49,8 +49,7 @@
   scene.add (dlight);
   plane.rotation.x += -65;
   plane.rotation.z += -8;
-  animate(plane);
-
+ animate() ;
 //  let cube = Cube() ;
 //  scene.add(cube);
 // lightGUI() ; // GUI for controlling lighting
@@ -61,9 +60,9 @@
 // Functions 
 
 function animate(){
-    requestAnimationFrame(animate);
+    requestAnimationFrame (animate);
     rotate (plane) ;
-    renderer.render(scene, camera);
+    renderer.render (scene, camera);
   }
 
 function rotate(obj) {

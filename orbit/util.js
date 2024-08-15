@@ -252,7 +252,7 @@ export function skinMesh (geom, img) {
 
   const tex = new THREE.TextureLoader().load (img);
   var mat = new THREE.MeshPhongMaterial ({  
-    map: tex, color: 0x999999, shininess: 150, specular: 0x555555 }) ; 
+    map: tex, color: 0x99a999, shininess: 150, specular: 0x555555 }) ; 
   let mesh = new THREE.Mesh (geom, mat) ;
   mesh.name = "tmpMesh" ;
   console.log(img, geom) ;
