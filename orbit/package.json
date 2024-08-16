@@ -1,7 +1,7 @@
 {
   "name": "orbitApp",
   "scripts": {
-    "dev": "bun run --hot src/index.js "
+    "dev": "bun run --hot src/index.js >& log & "
   },
   "dependencies": {
     "hono": "^4.4.7"

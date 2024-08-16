@@ -1,5 +1,8 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
+  <link rel="icon" href="/imgs/favicon.png">
+      <meta charset="utf-8">
   <script type="importmap">
       {
 	"imports": {
@@ -41,15 +44,21 @@
   import {Plane} from "./plane.js" ;
   import {light, dlight, lightGUI} from  "./lights.js" ;
   import {Bishop} from "./chess.js" ;
-  import {setColor, setPos, measure} from "./util.js" ;
+  import {setColor, setPos, measure, saveScene} from "./util.js" ;
+//  import {OrbitControls} from 'three/addons/controls/OrbitControls'
 
   let plane = await Plane () ;
   scene.add (plane) ;
   scene.add (light); 
   scene.add (dlight);
   plane.rotation.x += -65;
-  plane.rotation.z += -8.1;
- animate() ;
+  plane.rotation.z += -8.0;
+  //renderer.render (scene, camera);
+  render () ;
+  sleep (5000).then ( () => {
+         console.log ("wait over") ;
+	 saveScene (); } ) ;
+    
 //  let cube = Cube() ;
 //  scene.add(cube);
 // lightGUI() ; // GUI for controlling lighting
@@ -58,6 +67,10 @@
 //  measure ("cube", cube) ;
 
 // Functions 
+function sleep (ms) {  // returns a promise
+ console.log("Sleeping");
+ return new Promise (resolve => setTimeout (resolve, ms)) ;
+}
 
 function animate(){
     requestAnimationFrame (animate);
@@ -65,6 +78,10 @@ function animate(){
     renderer.render (scene, camera);
   }
 
+function render() {
+    requestAnimationFrame (render);
+    renderer.render (scene, camera);
+}
 function rotate(obj) {
     obj.rotation.z += 0.01;
    // obj.rotation.y += 0.01;

@@ -213,12 +213,6 @@ export function simplify (mesh, factor) {
   const nmesh = mesh.clone();
   nmesh.geometry.computeVertexNormals() ;
 
-/* Delete all attributes excepting position */ 
-//for ( const name in nmesh.geometry.attributes ) {
-//     if ( name !== 'position' ) 
-//     nmesh.geometry.deleteAttribute( name );
-//}
-
   //  why bother tinkering with the material ??
   nmesh.material = mesh.material.clone();
   nmesh.material.flatShading = true;
@@ -255,7 +249,7 @@ export function skinMesh (geom, img) {
     map: tex, color: 0x99a999, shininess: 150, specular: 0x555555 }) ; 
   let mesh = new THREE.Mesh (geom, mat) ;
   mesh.name = "tmpMesh" ;
-  console.log(img, geom) ;
+
   let meas = measure (mesh) ;
   // We make the decal projector cover entire mesh
   let pos =  meas.cntr ; //  projector pos
@@ -267,33 +261,23 @@ export function skinMesh (geom, img) {
 }
 
 export function saveScene () {
-/* saves the scene to a blob that will be in the
-   the form of jpeg and will be uploaded
-*/
-  var  canvas = document.getElementsByTagName('canvas');
-  canvas.toBlob ((blob) => { 
-    let data = {img: blob, name: "hello"} ;
-    upload ("http://localhost:3000/output", data) ;
-  });
+/* saves the scene to a blob and upload it */
+  var  canvas = document.getElementsByTagName('canvas')[0];
+  console.log (canvas) ;
+  canvas.toBlob ((blob) => { upload (blob, "hello.png") ; });
 } // end save Scene 
 
-
-function upload (url, data) {
-  // uploads given file to server with url
-  // fetch could have been used but "hono" is 
-  // not working withit ... tried all combos
-  // so just keep it simple and basic xhr requests
-  // No luck with simpler fetch  method  
-  const xhr = new XMLHttpRequest();
-  xhr.open("POST", url);
-  xhr.setRequestHeader("Content-Type", 
-                "application/json; charset=UTF-8");
-  const body = JSON.stringify(data) ;
-
-  xhr.onload = () => {  // event listener
+function upload (blob, fname) {
+ let url = "http://localhost:3000/output" ;
+ let form = new FormData () ;
+ form.append("blob", blob);
+ form.append("name", fname) ;
+ const xhr = new XMLHttpRequest();
+ xhr.open("POST", url);
+ xhr.onload = () => {  // event listener
     if (xhr.readyState == 4 && xhr.status == 201) {
-      console.log(JSON.parse(xhr.responseText));
+      console.log(xhr.responseText);
     } else { console.log(`Error: ${xhr.status}`); }
-  };
-  xhr.send(body) ;
+ };
+ xhr.send(form) ;
 } // end upload

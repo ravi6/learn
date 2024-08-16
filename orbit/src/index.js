@@ -29,9 +29,9 @@ app.post('/output', async (c) => { // saving any ascii file
   console.log ("Output req");
   let url =  new URL(c.req.url) ; // elaborate json url
   let spath = app.basePath + url.pathname   ;
-  let data = await c.req.json() ;
-  console.log(JSON.stringify(data)) ;
-  await Bun.write (spath, JSON.stringify(data));
+  const frm = await c.req.formData()
+  let fname = spath + "/" + frm.get('name') ;
+  await Bun.write (fname, frm.get('blob'));
  return new Response("Success Always" );
 }) ;  // end post
 
