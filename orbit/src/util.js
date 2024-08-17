@@ -260,11 +260,11 @@ export function skinMesh (geom, img) {
   return (obj) ;
 }
 
-export function saveScene () {
+export function saveScene (fname) {
 /* saves the scene to a blob and upload it */
   var  canvas = document.getElementsByTagName('canvas')[0];
   console.log (canvas) ;
-  canvas.toBlob ((blob) => { upload (blob, "hello.png") ; });
+  canvas.toBlob ((blob) => { upload (blob, fname) ; });
 } // end save Scene 
 
 function upload (blob, fname) {

@@ -40,24 +40,35 @@
   scene.add (plane) ;
   scene.add (light); 
   scene.add (dlight);
-  render () ;
-           sleep (100).then ( () => { saveScene (); } ) ;
-  //animate () ;
-  //genImages () ;
+  genImages (true, 1) ;
 //  scene.add (new THREE.AxesHelper(40)) ;
 
 
 // Functions 
 /////////////////////////////////////////////
-function genImages () {
-  let n = 3 ;
-  for (let i = 0 ; i < n ; i ++) {
-     for (let j = 0 ; j < n ; j++) {
-       for (let k = 0 ; k < n ; k++) {
-           render () ;
-           sleep (100).then ( () => { saveScene (); } ) ;
-       }}}
-} 
+function genImages (go, i) {
+     render () ;
+     sleep (1000).then (saveFile (go, i)) 
+} // genImages
+
+function saveFile (go, i) { 
+// when go is false we stop saving
+  return (
+      () => { 
+       if (go) { // do nothing if go is false 
+	 let str = (plane.rotation.x).toFixed(0) +
+	           (plane.rotation.y).toFixed(0) +
+		   (plane.rotation.z).toFixed(0) ;
+
+         let fname =  "p" + str + ".png"; 
+         saveScene (fname); 
+	 console.log("Saving " + fname) ;
+         go = rotate (plane, 15) ;
+	 i = i + 1 ;
+         genImages (go, i) ; //
+       }
+      }) ;
+} // end saveFile
 
 function sleep (ms) {  // returns a promise
  console.log("Sleeping");
@@ -66,7 +77,7 @@ function sleep (ms) {  // returns a promise
 
 function animate(){
     requestAnimationFrame (animate);
-    rotate (plane) ;
+    rotate (plane, 0.01) ;
     renderer.render (scene, camera);
   }
 
@@ -84,10 +95,15 @@ function resize_canvas( x = 512, y = 512 ) {
   camera.updateProjectionMatrix();
 }
 
-function rotate(obj) {
-    obj.rotation.z += 0.1;
-    obj.rotation.y += 0.1;
-    obj.rotation.x += 0.1;
+function rotate(obj, dt) {
+  // Keep rotatting until all combos done
+  if (obj.rotation.z < 45)   obj.rotation.z += dt;
+  if (obj.rotation.y < 45)   obj.rotation.y += dt;
+  if (obj.rotation.x < 45)   obj.rotation.x += dt;
+  if (obj.rotation.z >= 45 && obj.rotation.y >= 45 &&
+      obj.rotation.x >= 45 ) return (false) ;
+  else
+      return (true) ;
 }
 document.getElementById("setLight").addEventListener(
        "click",function(){
