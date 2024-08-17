@@ -33,7 +33,7 @@ app.post('/output', async (c) => { // saving any ascii file
   const frm = await c.req.formData()
   let fname = spath + "/" + frm.get('name') ;
   await Bun.write (fname, frm.get('blob'));
-  const res = await $`ls `;
+  const res = await $`mogrify -colorspace Gray ${fname} `;
  return new Response("Success Always" );
  
 }) ;  // end post
