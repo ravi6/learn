@@ -17,7 +17,7 @@
   const renderer = new THREE.WebGLRenderer (
     {preserveDrawingBuffer: true }); 
 
-  console.log(renderer.getContextAttributes()) ;
+ // console.log(renderer.getContextAttributes()) ;
   // Setup display on the web page
   renderer.setSize(window.innerWidth, window.innerHeight);
   document.body.appendChild(renderer.domElement); 

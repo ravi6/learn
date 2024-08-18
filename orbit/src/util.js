@@ -237,7 +237,7 @@ export function measure (mesh) {
     b3.getSize (size) ;
     b3.getCenter (v3);
     let ans = {name: mesh.name, cntr: v3, size: size, radius: radius} ;
-    console.log ("Measure of ", mesh.name, ":", ans) ;
+    //console.log ("Measure of ", mesh.name, ":", ans) ;
     return (ans) ;
 }
 	
@@ -263,7 +263,6 @@ export function skinMesh (geom, img) {
 export function saveScene (fname) {
 /* saves the scene to a blob and upload it */
   var  canvas = document.getElementsByTagName('canvas')[0];
-  console.log (canvas) ;
   canvas.toBlob ((blob) => { upload (blob, fname) ; });
 } // end save Scene 
 
