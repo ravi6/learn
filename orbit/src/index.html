@@ -17,6 +17,8 @@
            integrity="sha384-fbbOQedDUMZZ5KreZpsbe1LCZPVmfTnH7ois6mU1QK+m14rQ1l2bGBq41eYeM/fS" 
            crossorigin="anonymous">
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis@latest"></script>
 
 <style>
   .dlgFrame
@@ -40,7 +42,8 @@
   scene.add (plane) ;
   scene.add (light); 
   scene.add (dlight);
-  genImage (0) ;
+  getTensor () ;
+//  genImage (0) ;
 //  scene.add (new THREE.AxesHelper(40)) ;
 
 
@@ -55,7 +58,7 @@ function rotations (tmax, n) {
  for (let k = 0; k < n ; k++)
     rot.push ({x: i*dt , y: j*dt, z: k*dt}) ;
  return (rot) ;
-}
+} // end rotations
 
 function genImage (i) {
      render () ;
@@ -98,6 +101,17 @@ function animate(){
 function render() {
     requestAnimationFrame (render);
     renderer.render (scene, camera);
+}
+
+function getTensor () {
+  const im = new Image()
+  im.src = "output/p000.png"
+  im.onload = () => {
+      let nch = 1 ;
+      const a = tf.browser.fromPixels(im, nch)
+      a.print() ;
+      console.log("using TensorFlow: ", a.flatten())
+  }
 }
 
 function resize_canvas( x = 512, y = 512 ) {
