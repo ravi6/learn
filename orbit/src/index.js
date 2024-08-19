@@ -27,13 +27,14 @@ app.get ('/*', (c) => {      // resources from app source
 });
 
 app.post('/output', async (c) => { // saving any ascii file
-  console.log ("Output req");
+  //console.log ("Output req");
   let url =  new URL(c.req.url) ; // elaborate json url
   let spath = app.basePath + url.pathname   ;
   const frm = await c.req.formData()
   let fname = spath + "/" + frm.get('name') ;
   await Bun.write (fname, frm.get('blob'));
-  const res = await $`mogrify -colorspace Gray ${fname} `;
+
+  const res = await $`./src/ggg ${fname}  `;
  return new Response("Success Always" );
  
 }) ;  // end post
