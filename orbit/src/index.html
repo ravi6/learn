@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <link rel="icon" href="/imgs/favicon.png">
-      <meta charset="utf-8">
+  <meta charset="utf-8">
   <script type="importmap">
       {
 	"imports": {
@@ -21,8 +21,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis@latest"></script>
 
 <style>
-  .dlgFrame
-  {
+  .dlgFrame {
     border-radius: 16px 16px 16px 16px;
     box-shadow: 3px 3px 5px #535353;
     background: lightYellow;
@@ -30,26 +29,28 @@
 
 </style>
 </head>
-<!--////////////////////////  END HEADERS ///////////////////-->
+<!--------------------------- END HEADERS ------------------------->
+
 <script type=module>
-  import  {THREE, GUI, loader, scene, camera, renderer} from "./init.js" ;
+  import  {THREE, GUI, loader, scene, camera, 
+           getRenderer, relRenderer} from "./init.js" ;
   import {Plane} from "./plane.js" ;
   import {light, dlight, lightGUI} from  "./lights.js" ;
-  import {setColor, setPos, measure, saveScene} from "./util.js" ;
+  import {setColor, setPos, sleep,
+          measure, saveScene} from "./util.js" ;
 //  import {OrbitControls} from 'three/addons/controls/OrbitControls'
 
   let plane = await Plane () ;
   scene.add (plane) ;
   scene.add (light); 
   scene.add (dlight);
-//  getTensor () ;
-  genImage (2870) ;
-//  scene.add (new THREE.AxesHelper(40)) ;
+  var renderer = getRenderer () ;
+  genImage (4780) ;
+  //  scene.add (new THREE.AxesHelper(40)) ;
 
-
+//======================================
 // Functions 
-/////////////////////////////////////////////
-
+//======================================
 function rotations (tmax, n) {
  let dt = tmax / n ;
  let rot = [] ;
@@ -61,21 +62,18 @@ function rotations (tmax, n) {
 } // end rotations
 
 function genImage (i) {
-     render () ;
+     renderer.render (scene, camera) ;
      sleep (100).then (rotate (i)) 
 } // genImages
 
 function rotate (i) { 
   var j = i ;
-  return (
-      () => { 
+  return ( () => { 
 	 let str = format (plane.rotation.x) +
 	           format (plane.rotation.y) +
 		   format (plane.rotation.z) ;
-
          let fname =  "p" + str + ".png"; 
          saveScene (fname); 
-//	 console.log("Saving " + fname) ;
 	 j = j + 1 ;
 
          let n = 45, tmax = 45 ; 
@@ -84,7 +82,6 @@ function rotate (i) {
             plane.rotation.x = rots[j].x ;
             plane.rotation.y = rots[j].y ;
             plane.rotation.z = rots[j].z ;
-
             genImage (j) ; // next rotation
 	 }}) ;
 } // end rotate
@@ -95,21 +92,11 @@ function format (num) {
  return (s) ;
 }
 
-function sleep (ms) {  // returns a promise
- //console.log("Sleeping");
- return new Promise (resolve => setTimeout (resolve, ms)) ;
-}
-
 function animate(){
     requestAnimationFrame (animate);
     // some rotation ito be added
     renderer.render (scene, camera);
   }
-
-function render() {
-    requestAnimationFrame (render);
-    renderer.render (scene, camera);
-}
 
 function getTensor () {
   const im = new Image()
@@ -120,15 +107,6 @@ function getTensor () {
       a.print() ;
       console.log("using TensorFlow: ", a.flatten())
   }
-}
-
-function resize_canvas( x = 512, y = 512 ) {
-  // not giving good result
-  var  canvas = document.getElementsByTagName('canvas')[0];
-  canvas.width = x;
-  canvas.height = y;
-  camera.aspect = canvas.clientWidth / canvas.clientHeight;
-  camera.updateProjectionMatrix();
 }
 
 document.getElementById("setLight").addEventListener(
