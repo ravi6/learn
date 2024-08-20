@@ -35,6 +35,7 @@
   import  {THREE, GUI, loader, scene, camera, 
            getRenderer, relRenderer} from "./init.js" ;
   import {Plane} from "./plane.js" ;
+  import {Rots} from "./rots.js" ;
   import {light, dlight, lightGUI} from  "./lights.js" ;
   import {setColor, setPos, sleep,
           measure, saveScene} from "./util.js" ;
@@ -45,69 +46,25 @@
   scene.add (light); 
   scene.add (dlight);
   var renderer = getRenderer () ;
-  genImage (4780) ;
   //  scene.add (new THREE.AxesHelper(40)) ;
 
-//======================================
-// Functions 
-//======================================
-function rotations (tmax, n) {
- let dt = tmax / n ;
- let rot = [] ;
- for (let i = 0; i < n ; i++)
- for (let j = 0; j < n ; j++)
- for (let k = 0; k < n ; k++)
-    rot.push ({x: i*dt , y: j*dt, z: k*dt}) ;
- return (rot) ;
-} // end rotations
-
-function genImage (i) {
+// Generate images and save until done
+var rotObj = new Rots (10, 40 * Math.PI / 180.0) ;
+genImage () ;
+function genImage () {
      renderer.render (scene, camera) ;
-     sleep (100).then (rotate (i)) 
+     sleep (100).then ( () => {
+	     let more = rotObj.rotate (plane)
+	     saveScene (rotObj.fname) ;
+	     if (more) genImage () ; // recurisive call
+            }); 
 } // genImages
-
-function rotate (i) { 
-  var j = i ;
-  return ( () => { 
-	 let str = format (plane.rotation.x) +
-	           format (plane.rotation.y) +
-		   format (plane.rotation.z) ;
-         let fname =  "p" + str + ".png"; 
-         saveScene (fname); 
-	 j = j + 1 ;
-
-         let n = 45, tmax = 45 ; 
-	 if (j < n*n*n)  {
-	    let rots = rotations (tmax, n) ;  // bit yuk that we repeat this here
-            plane.rotation.x = rots[j].x ;
-            plane.rotation.y = rots[j].y ;
-            plane.rotation.z = rots[j].z ;
-            genImage (j) ; // next rotation
-	 }}) ;
-} // end rotate
-
-function format (num) {
- let s = num.toFixed(0) ;
- if (num < 10) s = "0" + s ;
- return (s) ;
-}
 
 function animate(){
     requestAnimationFrame (animate);
     // some rotation ito be added
     renderer.render (scene, camera);
   }
-
-function getTensor () {
-  const im = new Image()
-  im.src = "output/p000.png"
-  im.onload = () => {
-      let nch = 1 ;
-      const a = tf.browser.fromPixels(im, nch)
-      a.print() ;
-      console.log("using TensorFlow: ", a.flatten())
-  }
-}
 
 document.getElementById("setLight").addEventListener(
        "click",function(){

@@ -280,3 +280,14 @@ function upload (blob, fname) {
  };
  xhr.send(form) ;
 } // end upload
+
+function getTensor () {
+  const im = new Image()
+  im.src = "output/p000.png"
+  im.onload = () => {
+      let nch = 1 ;
+      const a = tf.browser.fromPixels(im, nch)
+      a.print() ;
+      console.log("using TensorFlow: ", a.flatten())
+  }
+} // end getTensor
