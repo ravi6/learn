@@ -34,7 +34,7 @@ app.post('/output', async (c) => { // saving any ascii file
   let fname = spath + "/" + frm.get('name') ;
   await Bun.write (fname, frm.get('blob'));
 
-  const res = await $`./src/ggg ${fname}  `;
+  const res = await $`./src/imgclip ${fname}  `;
  return new Response("Success Always" );
  
 }) ;  // end post
