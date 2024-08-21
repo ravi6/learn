@@ -23,7 +23,7 @@ let loggerD = document.getElementById("logger");
 //tvis.open() ;     
 
 let imgNet = document.getElementById ("imgNet") ;
-imgNet.src = "images/cnn.png" ; 
+imgNet.src = "imgs/cnn.png" ; 
 
 logger("Setup CNN Model") ; 
 await f.setupModel ();

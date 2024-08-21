@@ -10,9 +10,9 @@ var renderer = getRenderer () ;
 var samples = {n: 10, tmax: 40} ;
 var rotObj = new Rots (samples.n, samples.tmax * Math.PI / 180.0) ;
 let plane = await Plane () ;
-capture () ;
+// capture () ;
 
-async function capture () {
+export async function capture () {
   scene.add (plane) ;
   scene.add (light); 
   scene.add (dlight);

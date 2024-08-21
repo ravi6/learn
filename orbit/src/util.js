@@ -2,7 +2,6 @@ import {THREE} from "./init.js" ;
 import { SimplifyModifier } from 'three/addons/modifiers/SimplifyModifier.js';
 import { DecalGeometry } from 'three/addons/geometries/DecalGeometry.js';
 
-
 // This module provides some useful stuff
 //
 export function sleep(ms) {
@@ -281,13 +280,13 @@ function upload (blob, fname) {
  xhr.send(form) ;
 } // end upload
 
-function getTensor () {
-  const im = new Image()
-  im.src = "output/p000.png"
+function getTensor (url) {
+  const im = new Image () ;
+  im.src = url ;
   im.onload = () => {
       let nch = 1 ;
-      const a = tf.browser.fromPixels(im, nch)
+      const a = tf.browser.fromPixels (im, nch)
       a.print() ;
-      console.log("using TensorFlow: ", a.flatten())
+      console.log(url + ": ", a.flatten ())
   }
 } // end getTensor
