@@ -30,3 +30,20 @@ export function lightGUI() {
 
 function callme(){console.log(light.color);}
 	
+export function addBtns () {
+  let cont = document.getElementsByClassName("container")[0];
+  let btn = document.createElement("button") ; 
+  btn.id = "setLight" ; btn.innerText = btn.id ;
+  cont.appendChild (btn) ;
+  document.getElementById(btn.id).addEventListener(
+       "click",function(){
+         setColor(light).showModal();
+       });
+  btn = document.createElement("button") ; 
+  btn.id = "setCamPos" ; btn.innerText = btn.id ;
+  cont.appendChild (btn) ;
+  document.getElementById(btn.id).addEventListener(
+       "click",function(){
+         setPos(camera).showModal();
+       });
+}

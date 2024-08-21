@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" href="/imgs/favicon.png">
+  <meta charset="utf-8">
+  <script type="importmap">
+      {
+	"imports": {
+	  "three": 
+	      "https://unpkg.com/three@v0.154.0/build/three.module.js",
+	  "three/addons/":
+	      "https://unpkg.com/three@v0.154.0/examples/jsm/"
+	}
+      }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js" 
+           integrity="sha384-fbbOQedDUMZZ5KreZpsbe1LCZPVmfTnH7ois6mU1QK+m14rQ1l2bGBq41eYeM/fS" 
+           crossorigin="anonymous">
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis@latest"></script>
+
+<style>
+  .dlgFrame {
+    border-radius: 16px 16px 16px 16px;
+    box-shadow: 3px 3px 5px #535353;
+    background: lightYellow;
+  }
+</style>
+</head>
+
+<script type=module src=capture.js></script>
+<body>
+  <div class=container>
+    <h2>Capture Images </h2>
+  </div>
+</body>
+</html>
