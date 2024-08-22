@@ -7,21 +7,21 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Albert+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
         
-    <link rel="icon" type="image/png" href="/images/favicon.png">
+    <link rel="icon" type="image/png" href="/imgs/favicon.png">
     <link rel="stylesheet" href="pose.css">
   </head>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis@latest"></script>
   <body>
 
-    <h2 >Fashion Images Classifier</h2>
+    <h2 >Poser</h2>
     <p> Exploring neural networks with tensorflow.js.  </p>
-    <div style="display: flex ; ">
+    <div style="display: flex;" >
           <div id=controls>
-            <input type=checkbox name=Trained id=cbTrained> 
-                <label for=Trained> Trained </label>
-          <form>
-          </form>
+	    <div>
+		<input type=checkbox name=Trained id=cbTrained ></input>
+		<label for=Trained> Trained </label>
+	    </div>
              <button title="Load Datasets" id=btnData>getData</button>
              <button title="Train the Model" id=btnTrain>Train</button>
              <button title="Evaluate with Test Data" id=btnEval>Eval</button>
@@ -33,7 +33,7 @@
 
      <h4 style="margin:5px">Logger</h4>
      <div id=logger ></div>
-       <script src = "pose.js"> </script>
-       <script src = "gui.js"></script>
+       <script type=module src = "pose.js"> </script>
+       <script type=module src = "gui.js"></script>
   </body>
 </html>

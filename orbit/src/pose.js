@@ -3,24 +3,26 @@
 /* 
  *  CNN model in Anger
  **/
+import {loadData} from "./util.js" ;
 
-class pose {
+export class pose {
 
    constructor () {
      this.imgW = 115 ;
      this.imgH = 115 ;
      this.nCh = 1 ; // grey scale (channel)
-     this.imgSize = 115 * 115 ;
-     this.nL = 3 ; // number of outputs
-     this.bS = 60 ; // No. of samples in a batch
-     this.dataSize = 60 ;
+     this.imgSize = this.imgW * this.imgH ;
+     this.nL = 3 ; // number of outputs (Euler angles)
+     this.bS = 10 ; // No. of samples in a batch
+     this.dataSize = 160 ;
      this.epochs = 5 ;
-     this.trnFile = "data/train.csv" ;
-     this.tstFile = "data/test.csv" ;
      this.trained = false ;   
      this.learnRate = .01 ;
      this.opt = tf.train.sgd (this.learnRate) ;
-     this.loss =  "categoricalCrossentropy" ;
+     this.loss='mean_squared_logarithmic_error'; 
+     this.metrics=['mse'] ;
+     this.trnData = null ;  // training Data
+     this.tstData = null ; //  test Data
    } // end constructor
 
 
@@ -30,11 +32,8 @@ class pose {
 	if (this.trained) 
 	   this.model = await tf.loadLayersModel (this.mdlFile + "/model.json") ;
         else this.cnnModel () ;
-        }
-
+        
     this.model.compile ({optimizer: this.opt,  loss: this.loss}) ;
-
-	  
   } //setupModel
 	
   cnnModel () {  // try convolutional model
@@ -42,7 +41,7 @@ class pose {
        layers: [ 
 	         tf.layers.inputLayer ({
 		      inputShape: [this.imgW, this.imgH, this.nCh] }),
-	         tf.layers.rescaling (scale = 1.0/255),
+	         tf.layers.rescaling ({scale: 1.0/255}),
 	         tf.layers.conv2d ({filters: 1, kernelSize: (3,3), stride: (1, 1),
 		                     padding: 'valid', dataFormat: 'channelsLast',
 		                     activation: "relu"}),
@@ -55,9 +54,11 @@ class pose {
    } // end cnnModel
 
 
-  loadData () {
-    // load training and test data
+  async getData () {
+    // training and test data
     console.log ("Loading pose training data \n") ;
+    let ds  = await loadData ({prefix: "output/set1", dt: 4.0, n: 5}) ;
+    this.trnData = (ds.take (this.dataSize)).batch (this.bS) ; // grab a subset in chunks of bS
   } // end loadData
 
 
@@ -127,26 +128,22 @@ class pose {
 	  let idx = Math.floor (Math.random () * this.bS);
 
 	  // Make prediction with xs as input
-	  let shape ;
-	  if (this.cnn){  // single sample bS=1
-	      shape = [1, this.imgW, this.imgH, this.nCh] ;
-	  }
-	  else { 
-	      shape = [1, this.imgSize] ;
-	  };
-
-	  let result = await this.model.predict (tf.reshape (xs[idx], shape));
+	  let shape = [1, this.imgW, this.imgH, this.nCh] ;
+	  let result = await this.model.predict (xs[idx]);
 	  let yp = await result.data() ;
-	  let tp = this.getTag(yp) ;
-	  let tt = this.getTag(ys[idx]) ;
-	  console.log ("Actual: ", tt, 
-	      "\t\tpredicted: ",  tp) ; 
-          tblData.push ([i, tt, tp]) ;
-	}
 
+	  console.log (
+	    {y: ys[0], yp: yp[0]},
+	    {y: ys[1], yp: yp[1]},
+	    {y: ys[2], yp: yp[2]} ) ;
+       //   tblData.push ([i, tt, tp]) ;
+	} // end samples
+
+    /*
       const headers = ['sample', 'predicted', 'actual'  ];
       const surface = { name: 'Predictions', tab: 'Charts' };
       tfvis.render.table(surface, { headers, values:tblData });
+      */
 
   } // end visTest
 

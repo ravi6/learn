@@ -301,7 +301,7 @@ export async function loadData (prefix, dt, n) {
           items.push ( {x: x , y: y} ) ;
       }
    console.log ("Done loading") ;  
-   return ( tf.data.array (items) ) ;
+   return ( tf.data.array (items) ) ; // return tflow Dataset
 } // end loadData
 
 function format (num) {

@@ -1,12 +1,17 @@
 // Author: Ravi Saripalli
 // Place for all GUI interaction Code
 //  Fashion object instantiation
+import {pose} from "./pose.js"
+
+let loggerD = document.getElementById("logger");
+let imgNet = document.getElementById ("imgNet") ;
+imgNet.src = "imgs/cnn.png" ; 
 
 f = new pose () ;  
 f.trained = document.getElementById ("cbTrained").checked ;
-f.setupModel (isCnn) ;  // startup setup
-
-let loggerD = document.getElementById("logger");
+logger("Setup CNN Model") ; 
+f.setupModel () ;  // startup setup
+logger("Model File:  " + f.mdlFile);
 
 // All of this just to print Model Summary
       let btnSum = document.getElementById ("btnSum");
@@ -22,15 +27,6 @@ let loggerD = document.getElementById("logger");
 //let tvis = tfvis.visor() ;
 //tvis.open() ;     
 
-let imgNet = document.getElementById ("imgNet") ;
-imgNet.src = "imgs/cnn.png" ; 
-
-logger("Setup CNN Model") ; 
-await f.setupModel ();
-logger("Model File:  " + f.mdlFile);
-btnSum.click() ;
-
-
 // Train , Eval and Predict button actions
 let btnTrain = document.getElementById ("btnTrain");
 btnTrain.addEventListener ( "click",  Train() ) ; 
@@ -45,6 +41,7 @@ function Train () {
          logger ("Training Ended");
 }} ;
 
+// Model Evaluation Control
 let btnEval = document.getElementById ("btnEval");
 btnEval.addEventListener ( "click",  Eval() ) ;   
 function Eval () {
@@ -58,6 +55,7 @@ function Eval () {
          logger ("Evaluation Loss = " + result);
 }} ;
 
+// Loading Train and Test Data Control
 let btnData = document.getElementById ("btnData");
 btnData.addEventListener ( "click",  getData() ) ; 
 function getData () {
@@ -65,12 +63,13 @@ function getData () {
          logger ("Loading Data");
          btnData.disabled = true;
          btnData.innerText= "Loading";
-         await f.loadData () ;
+         await f.getData () ;
          btnData.innerText = "getData" ;
          btnData.disabled = false; 
          logger ("Loaded Data");
 }} ;
 
+// Model Prediction Control
 let btnPred = document.getElementById ("btnPred");
 btnPred.addEventListener ( "click",  predict() ) ; 
 function predict () {
@@ -78,6 +77,7 @@ function predict () {
          await f.visTest () ;
       }};
 
+// Logger Control
 function logger (msg) {
       let  ccc = document.createElement("span");
       let tim = new Date().toLocaleTimeString('en-US', { hour12: false, 
