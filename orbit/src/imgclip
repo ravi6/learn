@@ -1,7 +1,7 @@
 #!/bin/bash
 # Image File save in the way we want
 name=`basename -s .png ${1}`
-mogrify -colorspace Gray -resize 256x256 $1 && \ 
+mogrify -colorspace Gray -resize 256x256 $1 && \
   magick $1 ./src/output/${name}.jpg && /bin/rm $1 && \
   mogrify -gravity Center -crop 115x115-25+0 \
   ./src/output/${name}.jpg

@@ -21,17 +21,11 @@ class pose {
      this.learnRate = .01 ;
      this.opt = tf.train.sgd (this.learnRate) ;
      this.loss =  "categoricalCrossentropy" ;
-
-     /* fix this   we don't have tags 
-    this.tags = [ "T-Shirt",  "Trouser",  "Pullover",
-    */
-
    } // end constructor
 
 
   async setupModel () {
      	     this.mdlFile = "htpp://localhost:3000/upload/cnnX" ;
-
       // if already trained use  saved state
 	if (this.trained) 
 	   this.model = await tf.loadLayersModel (this.mdlFile + "/model.json") ;
@@ -48,6 +42,7 @@ class pose {
        layers: [ 
 	         tf.layers.inputLayer ({
 		      inputShape: [this.imgW, this.imgH, this.nCh] }),
+	         tf.layers.rescaling (scale = 1.0/255),
 	         tf.layers.conv2d ({filters: 1, kernelSize: (3,3), stride: (1, 1),
 		                     padding: 'valid', dataFormat: 'channelsLast',
 		                     activation: "relu"}),
@@ -60,44 +55,10 @@ class pose {
    } // end cnnModel
 
 
-  async loadData () {
+  loadData () {
     // load training and test data
-    console.log ("Loading pose data \n") ;
-    this.trnData =  await this.getCSV (this.trnFile, this.nL, this.bS) ; 
-    this.tstData =  await this.getCSV (this.tstFile, this.nL, this.bS) ; 
-    
-    this.trnData = await this.reShape( this.trnData ) ; // xs = [bs, w, h, ch]
-    this.tstData = await this.reShape( this.tstData ) ; // xs = [bs, w, h, ch]
-    console.log ("Loaded pose data \n") ;
+    console.log ("Loading pose training data \n") ;
   } // end loadData
-
-  async getCSV (fname, nL, bS) {
-  /**
-   * Get csv data of labelled objects
-   * save labels in oneShot format
-   * and split data into bS chunks
-   * return dataSet
-   * @param {integer} nL - number of lables
-   * @param {number}  bS - number of Batches
-   * @returns {object} tf.DataSet object
-   */
-
-    const csvDataset = 
-      await tf.data.csv (fname, {
-	hasHeader: true,
-	columnConfigs:  {label: {isLabel: true} },
-	delimWhitspace: true });
-
-    var dataSet = await csvDataset.map (({xs, ys}) => {
-       let v = new Array (nL).fill(0) ;
-       v [Object.values (ys)] = 1 ;   // ones hot labelling
-       // Scaling is a must to get convergence (tf.js won't do it for you)
-       let xscaled = Object.values (xs).map ( (x) => {return x * (1.0/255)} ) ;
-	     return ( {xs: xscaled, ys: v} ) ;// scaling image
-    }).take(this.dataSize) ;
- 
-    return ( dataSet.batch (this.bS) ) ; 
-  } // end getCSV
 
 
   async train () {
@@ -194,6 +155,7 @@ class pose {
 	   (Math.max.apply (null, y))] );
   }
 
+/*
   async reShape (ds) { // reshaping existing data for cnn
      let z = await ds.toArray() ;
      z.forEach ( (obj) => {
@@ -203,6 +165,7 @@ class pose {
      } ) ;
     return (tf.data.array(z)) ;
   }
+*/
 
   epochLog (start) { 
     // returns callback fn to execute at end of epoch

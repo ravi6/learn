@@ -280,13 +280,32 @@ function upload (blob, fname) {
  xhr.send(form) ;
 } // end upload
 
-function getTensor (url) {
-  const im = new Image () ;
-  im.src = url ;
-  im.onload = () => {
-      let nch = 1 ;
-      const a = tf.browser.fromPixels (im, nch)
-      a.print() ;
-      console.log(url + ": ", a.flatten ())
-  }
-} // end getTensor
+export async function loadData (prefix, dt, n) {
+  // Generate Tensorflow DataSet from images
+  // and return it a dataset
+  // dt ... angle increment (degrees)
+  // n  ... number of rotations in each dir
+  const items = [] ;
+  for (let i = 0 ; i < n ; i++)
+    for (let j = 0 ; j < n ; j++)
+      for (let k = 0 ; k < n ; k++) {
+         const im = new Image () ;
+         let url = prefix + "/p" + format (i) 
+          + format (j) + format (k) + ".jpg" ;
+	  const img = new Image () ;
+	  img.src = url ;
+	  await img.decode () ;
+          let nch = 1 ;
+          const x = tf.browser.fromPixels (img, nch) ;
+          const y = [i*dt, j*dt, k*dt] ;
+          items.push ( {x: x , y: y} ) ;
+      }
+   console.log ("Done loading") ;  
+   return ( tf.data.array (items) ) ;
+} // end loadData
+
+function format (num) {
+   let s = num.toFixed(0) ;
+   if (num < 10) s = "0" + s ;
+     return (s) ;
+} 
