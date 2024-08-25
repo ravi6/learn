@@ -1,8 +1,8 @@
  /* Setup camera, scene, objects */
- import * as THREE from 'three' ;
- import WebGL from 'three/addons/capabilities/WebGL.js';
+ import * as THREE from "three" ;
+ import WebGL from "three/addons/capabilities/WebGL.js";
  if ( ! WebGL.isWebGLAvailable() ) { alert("No WebGL support") }; 
- import {GUI} from 'three/addons/libs/lil-gui.module.min.js';
+ import {GUI} from "three/addons/libs/lil-gui.module.min.js";
 
   const loader = new THREE.TextureLoader();
   const scene = new THREE.Scene();

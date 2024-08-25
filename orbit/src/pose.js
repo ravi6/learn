@@ -14,12 +14,12 @@ export class pose {
      this.imgSize = this.imgW * this.imgH ;
      this.nL = 3 ; // number of outputs (Euler angles)
      this.bS = 10 ; // No. of samples in a batch
-     this.dataSize = 160 ;
-     this.epochs = 5 ;
+     this.dataSize = 1000 ;
+     this.epochs = 50 ;
      this.trained = false ;   
      this.learnRate = .01 ;
      this.opt = tf.train.sgd (this.learnRate) ;
-     this.loss='mean_squared_logarithmic_error'; 
+     this.loss="meanSquaredError" ;
      this.metrics=['mse'] ;
      this.trnData = null ;  // training Data
      this.tstData = null ; //  test Data
@@ -27,7 +27,7 @@ export class pose {
 
 
   async setupModel () {
-     	     this.mdlFile = "htpp://localhost:3000/upload/cnnX" ;
+     	     this.mdlFile = "http://localhost:3000/upload/cnnX" ;
       // if already trained use  saved state
 	if (this.trained) 
 	   this.model = await tf.loadLayersModel (this.mdlFile + "/model.json") ;
@@ -57,7 +57,7 @@ export class pose {
   async getData () {
     // training and test data
     console.log ("Loading pose training data \n") ;
-    let ds  = await loadData ({prefix: "output/set1", dt: 4.0, n: 5}) ;
+    let ds  = await loadData ("output/set1", 4.0,  5) ;
     this.trnData = (ds.take (this.dataSize)).batch (this.bS) ; // grab a subset in chunks of bS
   } // end loadData
 
@@ -89,7 +89,6 @@ export class pose {
         }) ; 
     console.log ("Training Ended \n") ;
     this.trained = true ;
-    console.log(this.model) ;
     console.log ("Saving the Model \n", this.mdlFile) ;
     await this.model.save (this.mdlFile);
     console.log ("Saved the Model \n") ;

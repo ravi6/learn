@@ -1,7 +1,7 @@
 // Textured cube objects Module
 import {THREE, loader, scene} from "./init.js" ;
-import {STLLoader}  from 'three/addons/loaders/STLLoader.js';
-import {SimplifyModifier} from 'three/addons/modifiers/SimplifyModifier.js';
+import {STLLoader}  from "three/addons/loaders/STLLoader.js";
+import {SimplifyModifier} from "three/addons/modifiers/SimplifyModifier.js";
 import {getfUvs, getVerts, getFaces, simplify, skinMesh} from "./util.js";
 
 export  async function Plane ()  {

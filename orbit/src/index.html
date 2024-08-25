@@ -2,16 +2,21 @@
 <html lang="en-US">
   <head>
     <meta charset="utf-8" />
-    <title>imgClassifier </title>
+    <title>Poser</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Albert+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-        
     <link rel="icon" type="image/png" href="/imgs/favicon.png">
     <link rel="stylesheet" href="pose.css">
+     <script type="importmap">
+      { "imports": {
+	  "three": "https://cdn.jsdelivr.net/npm/three@v0.167.1/build/three.module.js",
+	  "three/addons/": "https://cdn.jsdelivr.net/npm/three@v0.167.1/examples/jsm/" }
+      }
+     </script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest" ></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis@latest" ></script>
   </head>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis@latest"></script>
   <body>
 
     <h2 >Poser</h2>

@@ -1,6 +1,6 @@
 import {THREE} from "./init.js" ;
-import { SimplifyModifier } from 'three/addons/modifiers/SimplifyModifier.js';
-import { DecalGeometry } from 'three/addons/geometries/DecalGeometry.js';
+import { SimplifyModifier } from "three/addons/modifiers/SimplifyModifier.js";
+import { DecalGeometry } from "three/addons/geometries/DecalGeometry.js";
 
 // This module provides some useful stuff
 //
@@ -297,10 +297,9 @@ export async function loadData (prefix, dt, n) {
 	  await img.decode () ;
           let nch = 1 ;
           const x = tf.browser.fromPixels (img, nch) ;
-          const y = [i*dt, j*dt, k*dt] ;
-          items.push ( {x: x , y: y} ) ;
+          const y = [i/10.0, j/10.0, k/10.0] ;
+          items.push ( {xs: x , ys: y} ) ;
       }
-   console.log ("Done loading") ;  
    return ( tf.data.array (items) ) ; // return tflow Dataset
 } // end loadData
 

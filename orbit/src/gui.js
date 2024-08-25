@@ -7,7 +7,7 @@ let loggerD = document.getElementById("logger");
 let imgNet = document.getElementById ("imgNet") ;
 imgNet.src = "imgs/cnn.png" ; 
 
-f = new pose () ;  
+let f = new pose () ;  
 f.trained = document.getElementById ("cbTrained").checked ;
 logger("Setup CNN Model") ; 
 f.setupModel () ;  // startup setup
@@ -18,7 +18,8 @@ logger("Model File:  " + f.mdlFile);
       function modSum (msg) { logger (msg); } // end modSum
       function doit () {
 	   logger ("<<<<<<<<<<<  Model Summary  >>>>>>>>>>*") ;
-           f.model.summary ( 50, [0.5, 0.75, 1], printFn = modSum ) ;
+	   f.model.summary() ;
+           f.model.summary ( 50, [0.5, 0.75, 1],  modSum ) ;
 	   logger ("<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>")  ;
       }
       btnSum.addEventListener ( "click", doit);                                            
@@ -67,6 +68,8 @@ function getData () {
          btnData.innerText = "getData" ;
          btnData.disabled = false; 
          logger ("Loaded Data");
+	 console.log("Loaded Data") ;
+	 console.log("Data:", f.trnData) ;
 }} ;
 
 // Model Prediction Control

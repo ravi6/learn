@@ -46,6 +46,7 @@ app.get ('/upload/*', async (c) => {   // request for saved model
 app.post('/upload/*', async (c) => { // saving model
   let url =  new URL(c.req.url) ; // elaborate json url
   let spath = app.basePath + url.pathname   ;
+  console.log("Posted: " + spath) ;
   const frmData = await c.req.formData();
  
  // save both model and weights (they arrive as blobs
