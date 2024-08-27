@@ -32,10 +32,10 @@
   import {capture} from "./capture.js" ;
   import {loadData} from "./util.js" ;
   document.getElementById ("cap").addEventListener ("click", async (e) => {
-          //capture () ; 
-	  let ds = await loadData ("output/set1", 4.0, 2) ;
-          console.log("ds:", ds);
-	  ds.forEachAsync (e => console.log (e) );
+          capture () ; 
+	  //let ds = await loadData ("output/set1", 4.0, 2) ;
+          //console.log("ds:", ds);
+	  //ds.forEachAsync (e => console.log (e) );
 	  });
 </script>
 <body>

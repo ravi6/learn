@@ -23,15 +23,21 @@ app.get ('/*', (c) => {      // resources from app source
   return new Response (Bun.file (fpath)) ;
 });
 
-app.post('/output', async (c) => { // saving images to output dir
+app.post ('/output', async (c) => { // saving images to output dir
+                                   // or simple text files
   //console.log ("Output req");
   let url =  new URL(c.req.url) ; // elaborate json url
   let spath = app.basePath + url.pathname   ;
   const frm = await c.req.formData()
   let fname = spath + "/" + frm.get('name') ;
-  await Bun.write (fname, frm.get('blob'));
-  const res = await $`./src/imgclip ${fname}  `;
- return new Response("Success Always" );
+  if (frm.get('txtFile') == "false") {    // it is textfile
+     await Bun.write (fname, frm.get('blob'));
+     let tmp = await $`./src/imgclip ${fname}  `;
+  } else {
+     await Bun.write (fname, frm.get('blob'));
+  }
+
+  return new Response("Success Always" );
  
 }) ;  // end post
 

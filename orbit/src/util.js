@@ -239,8 +239,8 @@ export function measure (mesh) {
     //console.log ("Measure of ", mesh.name, ":", ans) ;
     return (ans) ;
 }
-	
-export function skinMesh (geom, img) {
+	  
+  export function skinMesh (geom, img) {
   // wraps the geom with a skin (specified as image) and returns mesh
 
   const tex = new THREE.TextureLoader().load (img);
@@ -262,14 +262,18 @@ export function skinMesh (geom, img) {
 export function saveScene (fname) {
 /* saves the scene to a blob and upload it */
   var  canvas = document.getElementsByTagName('canvas')[0];
-  canvas.toBlob ((blob) => { upload (blob, fname) ; });
+  canvas.toBlob ((blob) => { upload (blob, fname, false) ; });
 } // end save Scene 
 
-function upload (blob, fname) {
+export function upload (blob, fname, txtFile) {
  let url = "http://localhost:3000/output" ;
  let form = new FormData () ;
- form.append("blob", blob);
+ form.append("blob", blob); // can be blob or text
  form.append("name", fname) ;
+ // boolean flag are transformed to text strings 
+ // at the receiving end (ie. server) why ??
+ form.append("txtFile", txtFile) ;
+
  const xhr = new XMLHttpRequest();
  xhr.open("POST", url);
  xhr.onload = () => {  // event listener
@@ -308,3 +312,4 @@ function format (num) {
    if (num < 10) s = "0" + s ;
      return (s) ;
 } 
+
