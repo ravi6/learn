@@ -58,8 +58,8 @@ function Eval () {
 
 // Loading Train and Test Data Control
 let btnData = document.getElementById ("btnData");
-btnData.addEventListener ( "click",  getData() ) ; 
-function getData () {
+btnData.addEventListener ( "click",  ldData() ) ; 
+function ldData () {
       return async function (e)  { 
          logger ("Loading Data");
          btnData.disabled = true;
@@ -69,7 +69,7 @@ function getData () {
          btnData.disabled = false; 
          logger ("Loaded Data");
 	 console.log("Loaded Data") ;
-	 console.log("Data:", f.trnData) ;
+//	 console.log("Data:", f.trnData) ;
 }} ;
 
 // Model Prediction Control

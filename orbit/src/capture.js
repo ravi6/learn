@@ -7,7 +7,7 @@
 //  import {OrbitControls} from 'three/addons/controls/OrbitControls'
 
 var renderer = getRenderer () ;
-var samples = {n: 2, tmax: 40, isRandom: false} ;
+var samples = {n: 5, tmax: 40, isRandom: true} ;
 var rotObj = new Rots (samples.n, samples.tmax * Math.PI / 180.0, 
                        samples.isRandom) ;
 let plane = await Plane () ;

@@ -22,7 +22,7 @@ export class Rots {
 
          let xa, ya, za ;
          if ( this.isRand ) {
-	   xa = Mah.random () * this.tmax ;
+	   xa = Math.random () * this.tmax ;
 	   ya = Math.random () * this.tmax ;
 	   za = Math.random () * this.tmax ;
 	 }

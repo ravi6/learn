@@ -57,8 +57,9 @@ export class pose {
   async getData () {
     // training and test data
     console.log ("Loading pose training data \n") ;
-    let ds  = await loadData ("output/set1", 4.0,  5) ;
+    let ds  = await loadData ("/output/trnSet") ;
     this.trnData = (ds.take (this.dataSize)).batch (this.bS) ; // grab a subset in chunks of bS
+//    this.tstData  = await loadData ("/output/tstSet") ; // We take everything 
   } // end loadData
 
 
@@ -106,18 +107,13 @@ export class pose {
   } // end of reEval 
 
   async visTest () {  
-    // Grab one batch of data (unfortunately
-    //    the batch size will be unalterable
-    //    unless I reload data from file ... artifact of "ts.js"
-    //    I pick about 10 items at random from it
-    //    and make predictions with trained model
-    //
-    //
-      let ds = await this.tstData.shuffle(2) ;
-      ds = await ds.take(1) ; // just one batch is porcessed
       ds = await ds.toArray() ;
-      let xs = await (await ds[0]).xs ;
-      let ys = await (await ds[0]).ys ;
+      console.log (ds) ;
+      console.log (ds.length) ;
+//      let xs = await (await ds[0]).xs ;
+//      let ys = await (await ds[0]).ys ;
+
+    /*
       xs = xs.arraySync() ;
       ys = ys.arraySync() ;
 
@@ -137,6 +133,7 @@ export class pose {
 	    {y: ys[2], yp: yp[2]} ) ;
        //   tblData.push ([i, tt, tp]) ;
 	} // end samples
+*/
 
     /*
       const headers = ['sample', 'predicted', 'actual'  ];
@@ -145,23 +142,6 @@ export class pose {
       */
 
   } // end visTest
-
-  getTag (y) { // returns category tag give output
-	return ( this.tags [y.indexOf 
-	   (Math.max.apply (null, y))] );
-  }
-
-/*
-  async reShape (ds) { // reshaping existing data for cnn
-     let z = await ds.toArray() ;
-     z.forEach ( (obj) => {
-           obj.xs = tf.reshape (obj.xs, 
-				[this.bS, this.imgW, this.imgH, this.nCh]) ;
-           return(obj) ;
-     } ) ;
-    return (tf.data.array(z)) ;
-  }
-*/
 
   epochLog (start) { 
     // returns callback fn to execute at end of epoch

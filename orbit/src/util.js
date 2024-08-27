@@ -284,24 +284,21 @@ export function upload (blob, fname, txtFile) {
  xhr.send(form) ;
 } // end upload
 
-export async function loadData (prefix, dt, n) {
+export async function loadData (dir) {
   // Generate Tensorflow DataSet from images
   // and return it a dataset
-  // dt ... angle increment (degrees)
-  // n  ... number of rotations in each dir
   const items = [] ;
-  for (let i = 0 ; i < n ; i++)
-    for (let j = 0 ; j < n ; j++)
-      for (let k = 0 ; k < n ; k++) {
-         const im = new Image () ;
-         let url = prefix + "/p" + format (i) 
-          + format (j) + format (k) + ".jpg" ;
+  // key JSON file contains image file to rotation seq. mapping
+  let key = await getFile ( dir + "/key") ;   
+  key = JSON.parse (key) ;  // to proper JSON object
+  console.log ("Key is : ", key) ; 
+  for (let k = 0 ; k < key.length ; k++) {
 	  const img = new Image () ;
-	  img.src = url ;
+	  img.src = dir + "/" + key[k].fname ;
 	  await img.decode () ;
           let nch = 1 ;
-          const x = tf.browser.fromPixels (img, nch) ;
-          const y = [i/10.0, j/10.0, k/10.0] ;
+          const x = tf.browser.fromPixels (img, nch) ; // pixel data
+          const y = [key[k].x, key[k].y, key[k].z] ;  //rotation angles in radians 
           items.push ( {xs: x , ys: y} ) ;
       }
    return ( tf.data.array (items) ) ; // return tflow Dataset
@@ -312,4 +309,16 @@ function format (num) {
    if (num < 10) s = "0" + s ;
      return (s) ;
 } 
+
+export async function getFile (fname) { 
+  // Get a textfile content from server
+  const xhr = new XMLHttpRequest();
+  var data = null  ;
+  xhr.onload = function() { data = xhr.responseText ; } ;
+  xhr.open("GET", fname);
+  xhr.send();
+  await sleep (100) ; // give time for response
+  if (data === null) console.log ("Failed to load :" +fname) ;
+  return (data) ;
+} // end getFile
 
