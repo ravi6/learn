@@ -291,7 +291,7 @@ export async function loadData (dir) {
   // key JSON file contains image file to rotation seq. mapping
   let key = await getFile ( dir + "/key") ;   
   key = JSON.parse (key) ;  // to proper JSON object
-  console.log ("Key is : ", key) ; 
+  console.log ("Keys : ", key.length) ; 
   for (let k = 0 ; k < key.length ; k++) {
 	  const img = new Image () ;
 	  img.src = dir + "/" + key[k].fname ;
@@ -299,6 +299,7 @@ export async function loadData (dir) {
           let nch = 1 ;
           const x = tf.browser.fromPixels (img, nch) ; // pixel data
           const y = [key[k].x, key[k].y, key[k].z] ;  //rotation angles in radians 
+          y.map ( (e) => e / (40 / Math.PI) );    // scaling Targets aswell
           items.push ( {xs: x , ys: y} ) ;
       }
    return ( tf.data.array (items) ) ; // return tflow Dataset

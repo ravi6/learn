@@ -59,7 +59,7 @@ export class pose {
     console.log ("Loading pose training data \n") ;
     let ds  = await loadData ("/output/trnSet") ;
     this.trnData = (ds.take (this.dataSize)).batch (this.bS) ; // grab a subset in chunks of bS
-//    this.tstData  = await loadData ("/output/tstSet") ; // We take everything 
+    this.tstData = await loadData ("/output/tstSet") ; // We take everything 
   } // end loadData
 
 
@@ -107,33 +107,18 @@ export class pose {
   } // end of reEval 
 
   async visTest () {  
-      ds = await ds.toArray() ;
-      console.log (ds) ;
-      console.log (ds.length) ;
-//      let xs = await (await ds[0]).xs ;
-//      let ys = await (await ds[0]).ys ;
-
-    /*
-      xs = xs.arraySync() ;
-      ys = ys.arraySync() ;
-
+      let ds = await this.tstData.toArray() ;
+      let shape =  [1, this.imgW, this.imgH, this.nCh] ; 
       // pick few random samples from the above batch 
-      var tblData =  [] ;
-      for (let i = 0 ; i < 10 ; i ++) {
-	  let idx = Math.floor (Math.random () * this.bS);
-
-	  // Make prediction with xs as input
-	  let shape = [1, this.imgW, this.imgH, this.nCh] ;
-	  let result = await this.model.predict (xs[idx]);
+      for (let i = 0 ; i < ds.length ; i ++) {
+	  let xs = tf.reshape (ds[i].xs, shape) ; 
+	  let ys = ds[i].ys ;
+	  let result = await this.model.predict (xs);
 	  let yp = await result.data() ;
-
-	  console.log (
-	    {y: ys[0], yp: yp[0]},
-	    {y: ys[1], yp: yp[1]},
-	    {y: ys[2], yp: yp[2]} ) ;
-       //   tblData.push ([i, tt, tp]) ;
+	  console.log ( {y: ys[0], yp: yp[0]},
+	                {y: ys[1], yp: yp[1]},
+	                {y: ys[2], yp: yp[2]} ) ;
 	} // end samples
-*/
 
     /*
       const headers = ['sample', 'predicted', 'actual'  ];
