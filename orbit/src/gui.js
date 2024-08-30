@@ -85,11 +85,13 @@ function predict () {
 //
 let btnLoop = document.getElementById ("btnLoop") ;
 btnLoop.addEventListener ("click", async () => {
+    f.learnRate = 0.05 ;
+    f.epochs = 5 ;
+    f.sIndex = 9000 ;
+
     for (let i=0 ; i < 90 ; i ++) {
          await f.getData () ; // load Data
-         logger ("Loaded Data" + 1) ;
          await f.train () ;
-         logger ("Trained" + i) ;
     }
 });
 // Logger Control

@@ -102,8 +102,8 @@ export class pose {
       { batchSize: this.bS, 
 	epochs:    this.epochs,
 	callbacks: 
-	//  { onEpochEnd: this.epochLog (start),
-         //   onBatchEnd: this.batchLog () }
+	//{onEpochEnd: this.epochLog (start),
+	//onBatchEnd: this.batchLog ()}
   	    tfvis.show.fitCallbacks (surface, ['loss'])    
         }) ; 
     console.log ("Training Ended \n") ;
