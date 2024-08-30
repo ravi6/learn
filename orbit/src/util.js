@@ -284,22 +284,24 @@ export function upload (blob, fname, txtFile) {
  xhr.send(form) ;
 } // end upload
 
-export async function loadData (dir) {
+export async function loadData (dir, tScale, dsize) {
   // Generate Tensorflow DataSet from images
-  // and return it a dataset
+  // and return it a dataset 
+  // tScale : target Value scaling factor
+
   const items = [] ;
   // key JSON file contains image file to rotation seq. mapping
   let key = await getFile ( dir + "/key") ;   
   key = JSON.parse (key) ;  // to proper JSON object
   console.log ("Keys : ", key.length) ; 
-  for (let k = 0 ; k < key.length ; k++) {
+  for (let k = 0 ; k < dsize ; k++) {
 	  const img = new Image () ;
 	  img.src = dir + "/" + key[k].fname ;
 	  await img.decode () ;
           let nch = 1 ;
-          const x = tf.browser.fromPixels (img, nch) ; // pixel data
-          const y = [key[k].x, key[k].y, key[k].z] ;  //rotation angles in radians 
-          y.map ( (e) => e / (40 / Math.PI) );    // scaling Targets aswell
+          let x = tf.browser.fromPixels (img, nch) ; // pixel data
+          let y = [key[k].x, key[k].y, key[k].z] ;  //rotation angles in radians 
+          y = y.map ( (e) => e / tScale ) ;    // scaling Targets aswell
           items.push ( {xs: x , ys: y} ) ;
       }
    return ( tf.data.array (items) ) ; // return tflow Dataset

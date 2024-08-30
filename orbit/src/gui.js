@@ -36,6 +36,8 @@ function Train () {
          logger ("Started Training");
          btnTrain.disabled = true ;
          btnTrain.innerText = "Training";
+	 f.learnRate = parseFloat (document.getElementById ("learnRate").value) ;
+	 f.epochs = parseInt (document.getElementById ("epochs").value) ;
          await f.train () ;
          btnTrain.innerText = "Train" ;
          btnTrain.disabled = false;  

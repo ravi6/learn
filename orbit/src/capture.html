@@ -32,11 +32,21 @@
   import {capture} from "./capture.js" ;
   import {loadData} from "./util.js" ;
 
+function getTime() {
+      let tim = new Date().toLocaleTimeString('en-US', { hour12: false, 
+                                       hour: "numeric", 
+                                       minute: "numeric",
+                                       second: "numeric"});
+      return (tim) ;
+}
+
 function sleep(ms) {
       return new Promise(resolve => setTimeout(resolve, ms));
 }
   document.getElementById ("cap").addEventListener ("click", async (e) => {
-          capture () ; 
+          console.log ( " Start: " +  getTime()) ;
+          await capture () ; 
+          console.log ( " End: " +  getTime()) ;
 	  });
 </script>
 <body>

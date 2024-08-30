@@ -3,3 +3,4 @@ torch/data/*
 node_modules/
 bun.*
 log
+output/

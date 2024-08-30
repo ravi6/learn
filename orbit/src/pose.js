@@ -3,7 +3,7 @@
 /* 
  *  CNN model in Anger
  **/
-import {loadData} from "./util.js" ;
+import {loadData, upload} from "./util.js" ;
 
 export class pose {
 
@@ -14,15 +14,16 @@ export class pose {
      this.imgSize = this.imgW * this.imgH ;
      this.nL = 3 ; // number of outputs (Euler angles)
      this.bS = 10 ; // No. of samples in a batch
-     this.dataSize = 1000 ;
-     this.epochs = 50 ;
+     this.dataSize = 10 ;
+     this.epochs = 10 ;
      this.trained = false ;   
-     this.learnRate = .01 ;
+     this.learnRate = .05 ;
      this.opt = tf.train.sgd (this.learnRate) ;
      this.loss="meanSquaredError" ;
      this.metrics=['mse'] ;
      this.trnData = null ;  // training Data
      this.tstData = null ; //  test Data
+     this.tScale = 45 * Math.PI / 180 ;  // scaling target values
    } // end constructor
 
 
@@ -42,14 +43,30 @@ export class pose {
 	         tf.layers.inputLayer ({
 		      inputShape: [this.imgW, this.imgH, this.nCh] }),
 	         tf.layers.rescaling ({scale: 1.0/255}),
-	         tf.layers.conv2d ({filters: 1, kernelSize: (3,3), stride: (1, 1),
+
+	        // First Pair
+	         tf.layers.conv2d ({filters: 6, kernelSize: (15,15), stride: (2, 2),
 		                     padding: 'valid', dataFormat: 'channelsLast',
 		                     activation: "relu"}),
-	         tf.layers.maxPooling2d ({poolSize: (2, 2), strides: (1, 1),
+	         tf.layers.maxPooling2d ({poolSize: (2, 2), strides: (2, 2),
 		                          padding: 'valid', dataFormat: 'channelsLast' }),
+
+                 // Second Pair
+	         tf.layers.conv2d ({filters: 16, kernelSize: (15,15), stride: (2, 2),
+		                     padding: 'valid', dataFormat: 'channelsLast',
+		                     activation: "relu"}),
+	         tf.layers.maxPooling2d ({poolSize: (2, 2), strides: (2, 2),
+		                          padding: 'valid', dataFormat: 'channelsLast' }),
+
+	         // Last one with many filters
+	         tf.layers.conv2d ({filters: 120, kernelSize: (15,15), stride: (2, 2),
+		                     padding: 'valid', dataFormat: 'channelsLast',
+		                     activation: "relu"}),
+
 	         tf.layers.flatten(),  // need it before we go dense :)
+		 tf.layers.dense ({units: 200, activation: "relu"}),   // middle
 		 tf.layers.dense ({units: 50, activation: "relu"}),   // middle
-		 tf.layers.dense ({units: this.nL, activation: "softmax"})  // output
+		 tf.layers.dense ({units: this.nL, activation: "relu"})  // output
 	       ] });
    } // end cnnModel
 
@@ -57,9 +74,9 @@ export class pose {
   async getData () {
     // training and test data
     console.log ("Loading pose training data \n") ;
-    let ds  = await loadData ("/output/trnSet") ;
+    let ds  = await loadData ("/output/big", this.tScale, this.dataSize) ;
     this.trnData = (ds.take (this.dataSize)).batch (this.bS) ; // grab a subset in chunks of bS
-    this.tstData = await loadData ("/output/tstSet") ; // We take everything 
+   // this.tstData = await loadData ("/output/tstSet", this.tScale) ; // We take everything 
   } // end loadData
 
 
@@ -79,7 +96,6 @@ export class pose {
 
     console.log ("Training Started \n") ;
     const surface = { name: 'trends', tab: 'Training' } ;
-
     await this.model.fitDataset (this.trnData, 
       { batchSize: this.bS, 
 	epochs:    this.epochs,
@@ -110,16 +126,21 @@ export class pose {
       let ds = await this.tstData.toArray() ;
       let shape =  [1, this.imgW, this.imgH, this.nCh] ; 
       // pick few random samples from the above batch 
+      let table = [] ;
       for (let i = 0 ; i < ds.length ; i ++) {
 	  let xs = tf.reshape (ds[i].xs, shape) ; 
 	  let ys = ds[i].ys ;
 	  let result = await this.model.predict (xs);
 	  let yp = await result.data() ;
+	  yp = yp.map ( (e) => e * this.tScale * 180 / Math.PI) ; // back to unscaled
+	  ys = ys.map ( (e) => e * this.tScale * 180 / Math.PI) ; // back to unscaled
 	  console.log ( {y: ys[0], yp: yp[0]},
 	                {y: ys[1], yp: yp[1]},
 	                {y: ys[2], yp: yp[2]} ) ;
+	  table.push ({ys: ys, yp: yp}) ;
 	} // end samples
 
+        upload (JSON.stringify (table), "pred", true) ;
     /*
       const headers = ['sample', 'predicted', 'actual'  ];
       const surface = { name: 'Predictions', tab: 'Charts' };
