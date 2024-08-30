@@ -3,7 +3,7 @@
 /* 
  *  CNN model in Anger
  **/
-import {loadData, upload} from "./util.js" ;
+import {upload, getFile} from "./util.js" ;
 
 export class pose {
 
@@ -14,8 +14,8 @@ export class pose {
      this.imgSize = this.imgW * this.imgH ;
      this.nL = 3 ; // number of outputs (Euler angles)
      this.bS = 10 ; // No. of samples in a batch
-     this.dataSize = 10 ;
-     this.epochs = 10 ;
+     this.dataSize = 1000 ;
+     this.epochs = 5 ;
      this.trained = false ;   
      this.learnRate = .05 ;
      this.opt = tf.train.sgd (this.learnRate) ;
@@ -24,6 +24,8 @@ export class pose {
      this.trnData = null ;  // training Data
      this.tstData = null ; //  test Data
      this.tScale = 45 * Math.PI / 180 ;  // scaling target values
+     this.sIndex = 0 ;   // Start index of keys (from which data is loaded)
+     this.eIndex = 0 ;
    } // end constructor
 
 
@@ -74,7 +76,7 @@ export class pose {
   async getData () {
     // training and test data
     console.log ("Loading pose training data \n") ;
-    let ds  = await loadData ("/output/big", this.tScale, this.dataSize) ;
+    let ds  = await this.loadData ("/output/big") ;
     this.trnData = (ds.take (this.dataSize)).batch (this.bS) ; // grab a subset in chunks of bS
    // this.tstData = await loadData ("/output/tstSet", this.tScale) ; // We take everything 
   } // end loadData
@@ -109,7 +111,8 @@ export class pose {
     console.log ("Saving the Model \n", this.mdlFile) ;
     await this.model.save (this.mdlFile);
     console.log ("Saved the Model \n") ;
-
+    console.log ("with Index : ", this.sIndex, this.eIndex) ;
+    this.sIndex = this.eIndex  ;  // next 
   } // end train
 
   async Eval () { // Prints average loss on test data set
@@ -166,5 +169,31 @@ export class pose {
 		           " Loss: " + logs.loss ) ;
                      }); 
   } // end of batchLog
+
+async loadData (dir) {
+  // Generate Tensorflow DataSet from images
+  // and return it a dataset 
+  // tScale : target Value scaling factor
+  // sIndex:  pickup from sIndex of the key
+  // dSize:   data items to choose
+
+  const items = [] ;
+  // key JSON file contains image file to rotation seq. mapping
+  let key = await getFile ( dir + "/keyshuf") ;  // use shuffled keyfile 
+  key = JSON.parse (key) ;  // to proper JSON object
+  this.eIndex = Math.min (key.length, this.sIndex + this.dataSize) ;
+  console.log ("Keys : ", key.length, this.sIndex, this.eIndex) ; 
+  for (let k = this.sIndex ; k < this.eIndex ; k++) {
+	  const img = new Image () ;
+	  img.src = dir + "/" + key[k].fname ;
+	  await img.decode () ;
+          let nch = 1 ;
+          let x = tf.browser.fromPixels (img, nch) ; // pixel data
+          let y = [key[k].x, key[k].y, key[k].z] ;  //rotation angles in radians 
+          y = y.map ( (e) => e / this.tScale ) ;    // scaling Targets aswell
+          items.push ( {xs: x , ys: y} ) ;
+      }
+   return ( tf.data.array (items) ) ; // return tflow Dataset
+} // end loadData
 
 } // end of pose class

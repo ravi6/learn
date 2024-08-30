@@ -82,6 +82,16 @@ function predict () {
          await f.visTest () ;
       }};
 
+//
+let btnLoop = document.getElementById ("btnLoop") ;
+btnLoop.addEventListener ("click", async () => {
+    for (let i=0 ; i < 90 ; i ++) {
+         await f.getData () ; // load Data
+         logger ("Loaded Data" + 1) ;
+         await f.train () ;
+         logger ("Trained" + i) ;
+    }
+});
 // Logger Control
 function logger (msg) {
       let  ccc = document.createElement("span");
