@@ -75,10 +75,11 @@ export class pose {
 
   async getData () {
     // training and test data
-    console.log ("Loading pose training data \n") ;
-    let ds  = await this.loadData ("/output/big") ;
-    this.trnData = (ds.take (this.dataSize)).batch (this.bS) ; // grab a subset in chunks of bS
-   // this.tstData = await loadData ("/output/tstSet", this.tScale) ; // We take everything 
+    //console.log ("Loading pose training data \n") ;
+    //let ds  = await this.loadData ("/output/big") ;
+    //this.trnData = (ds.take (this.dataSize)).batch (this.bS) ; // grab a subset in chunks of bS
+    console.log ("Loading pose test data \n") ;
+    this.tstData = await this.loadData ("/output/tstSet", this.tScale) ; // We take everything 
   } // end loadData
 
 
@@ -119,13 +120,15 @@ export class pose {
 
     this.model = await tf.loadLayersModel (this.mdlFile + "/model.json") ;
     this.model.compile ({optimizer: this.opt,  loss: this.loss}) ;
-    let result = await this.model.evaluateDataset (this.tstData) ;
-    result = (await result.data())[0] ; 
-    console.log("Evaluation Loss:  ", result);
-	return (result) ;
+    let result = await this.model.evaluateDataset (await this.tstData.batch(this.bS)) ;
+    result = (await result.data()) ; 
+    console.log("Evaluation Loss:  ", result[0]);
+	return (result[0]) ;
   } // end of reEval 
 
   async visTest () {  
+      this.model = await tf.loadLayersModel (this.mdlFile + "/model.json") ;
+      this.model.compile ({optimizer: this.opt,  loss: this.loss}) ;
       let ds = await this.tstData.toArray() ;
       let shape =  [1, this.imgW, this.imgH, this.nCh] ; 
       // pick few random samples from the above batch 
@@ -134,7 +137,7 @@ export class pose {
 	  let xs = tf.reshape (ds[i].xs, shape) ; 
 	  let ys = ds[i].ys ;
 	  let result = await this.model.predict (xs);
-	  let yp = await result.data() ;
+	  let yp = Array.from (await result.data()) ;
 	  yp = yp.map ( (e) => e * this.tScale * 180 / Math.PI) ; // back to unscaled
 	  ys = ys.map ( (e) => e * this.tScale * 180 / Math.PI) ; // back to unscaled
 	  console.log ( {y: ys[0], yp: yp[0]},
@@ -179,7 +182,7 @@ async loadData (dir) {
 
   const items = [] ;
   // key JSON file contains image file to rotation seq. mapping
-  let key = await getFile ( dir + "/keyshuf") ;  // use shuffled keyfile 
+  let key = await getFile ( dir + "/key") ;  // use shuffled keyfile 
   key = JSON.parse (key) ;  // to proper JSON object
   this.eIndex = Math.min (key.length, this.sIndex + this.dataSize) ;
   console.log ("Keys : ", key.length, this.sIndex, this.eIndex) ; 

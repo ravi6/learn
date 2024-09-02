@@ -52,7 +52,7 @@ function Eval () {
          logger ("Evaluation Started");
          btnEval.disabled = true ;
          btnEval.innerText = "Evaluating";
-         result = await f.Eval () ;
+         let result = await f.Eval () ;
          btnEval.innerText = "Eval";
          btnEval.disabled = false;  
          logger ("Evaluation Loss = " + result);
