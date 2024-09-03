@@ -79,7 +79,7 @@ export class pose {
     //let ds  = await this.loadData ("/output/big") ;
     //this.trnData = (ds.take (this.dataSize)).batch (this.bS) ; // grab a subset in chunks of bS
     console.log ("Loading pose test data \n") ;
-    this.tstData = await this.loadData ("/output/tstSet", this.tScale) ; // We take everything 
+    this.tstData = await this.loadData ("/output/fine/trnSet", this.tScale) ; // We take everything 
   } // end loadData
 
 
@@ -126,7 +126,7 @@ export class pose {
 	return (result[0]) ;
   } // end of reEval 
 
-  async visTest () {  
+  async visTest () { // Downloads prediction vs expected in a JSON table  
       this.model = await tf.loadLayersModel (this.mdlFile + "/model.json") ;
       this.model.compile ({optimizer: this.opt,  loss: this.loss}) ;
       let ds = await this.tstData.toArray() ;
@@ -182,7 +182,7 @@ async loadData (dir) {
 
   const items = [] ;
   // key JSON file contains image file to rotation seq. mapping
-  let key = await getFile ( dir + "/key") ;  // use shuffled keyfile 
+  let key = await getFile ( dir + "/keyshuf") ;  // use shuffled keyfile 
   key = JSON.parse (key) ;  // to proper JSON object
   this.eIndex = Math.min (key.length, this.sIndex + this.dataSize) ;
   console.log ("Keys : ", key.length, this.sIndex, this.eIndex) ; 

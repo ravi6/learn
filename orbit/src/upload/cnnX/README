@@ -1,6 +1,8 @@
 coarse:   4degree increment 40deg samples total 1000
           prediction very poor
-big:     1deg increment45deg samples total 45x45x45 samples
+fine:     1deg increment45deg samples total 45x45x45 samples
+           pass1:   shuffled keys 
+           pass2:   ... redo with using end of pass1
 
 r20000:   Intermediate result saved for the big data set
 

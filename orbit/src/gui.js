@@ -2,6 +2,7 @@
 // Place for all GUI interaction Code
 //  Fashion object instantiation
 import {pose} from "./pose.js"
+import {upload, getFile} from "./util.js" ;
 
 let loggerD = document.getElementById("logger");
 let imgNet = document.getElementById ("imgNet") ;
@@ -10,7 +11,7 @@ imgNet.src = "imgs/cnn.png" ;
 let f = new pose () ;  
 f.trained = document.getElementById ("cbTrained").checked ;
 logger("Setup CNN Model") ; 
-f.setupModel () ;  // startup setup
+await f.setupModel () ;  // startup setup
 logger("Model File:  " + f.mdlFile);
 
 // All of this just to print Model Summary
@@ -85,14 +86,34 @@ function predict () {
 //
 let btnLoop = document.getElementById ("btnLoop") ;
 btnLoop.addEventListener ("click", async () => {
+   // Big Bathced Calculations here we jettison many of gui
+  //  Buttons.
     f.learnRate = 0.05 ;
     f.epochs = 5 ;
-    f.sIndex = 9000 ;
+    f.sIndex = 0 ;
+    f.bS = 100 ;
+    f.dataSize = 100 ;
+    f.trained = true ;
+    let longTrain = false ; // if false evaluation  
 
-    for (let i=0 ; i < 90 ; i ++) {
-         await f.getData () ; // load Data
-         await f.train () ;
+    f.model = await tf.loadLayersModel (f.mdlFile + "/model.json") ;
+    f.model.compile ({optimizer: f.opt,  loss: f.loss}) ;
+
+    let tbl = [] ;
+    for (let i=0 ; i < 970 ; i ++) {
+        f.tstData = await f.loadData ("/output/fine/trnSet", f.tScale) ; // We take everything 
+        if (longTrain) 
+	    await f.train () ;
+        else {
+            let result = await f.model.evaluateDataset (await f.tstData.batch(f.bS)) ;
+            result = (await result.data()) ; 
+	    tbl.push (result[0]) ;
+	    f.sIndex = f.eIndex ;
+            console.log("Evaluation Loss " + i + ": ", result[0]);
+	}
     }
+    console.log("table", tbl); ;
+    upload (JSON.stringify ({tbl: tbl}), "loss", true) ;
 });
 // Logger Control
 function logger (msg) {
