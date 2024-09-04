@@ -50,6 +50,7 @@ export class pose {
 	         tf.layers.conv2d ({filters: 6, kernelSize: (15,15), stride: (2, 2),
 		                     padding: 'valid', dataFormat: 'channelsLast',
 		                     activation: "relu"}),
+	         tf.layers.batchNormalization (),  
 	         tf.layers.maxPooling2d ({poolSize: (2, 2), strides: (2, 2),
 		                          padding: 'valid', dataFormat: 'channelsLast' }),
 
@@ -57,6 +58,7 @@ export class pose {
 	         tf.layers.conv2d ({filters: 16, kernelSize: (15,15), stride: (2, 2),
 		                     padding: 'valid', dataFormat: 'channelsLast',
 		                     activation: "relu"}),
+	         tf.layers.batchNormalization (),  
 	         tf.layers.maxPooling2d ({poolSize: (2, 2), strides: (2, 2),
 		                          padding: 'valid', dataFormat: 'channelsLast' }),
 
@@ -67,19 +69,21 @@ export class pose {
 
 	         tf.layers.flatten(),  // need it before we go dense :)
 		 tf.layers.dense ({units: 200, activation: "relu"}),   // middle
+	         tf.layers.batchNormalization (),  
 		 tf.layers.dense ({units: 50, activation: "relu"}),   // middle
+	         tf.layers.batchNormalization (),  
 		 tf.layers.dense ({units: this.nL, activation: "relu"})  // output
 	       ] });
    } // end cnnModel
 
 
-  async getData () {
-    // training and test data
-    //console.log ("Loading pose training data \n") ;
-    //let ds  = await this.loadData ("/output/big") ;
-    //this.trnData = (ds.take (this.dataSize)).batch (this.bS) ; // grab a subset in chunks of bS
-    console.log ("Loading pose test data \n") ;
-    this.tstData = await this.loadData ("/output/fine/trnSet", this.tScale) ; // We take everything 
+  async getData ()  {  // need to fixthis up later
+     // training and test data
+     console.log ("Loading pose training data \n") ;
+     let ds  = await this.loadData ("/output/big") ;
+     this.trnData = (ds.take (this.dataSize)).batch (this.bS) ; // grab a subset in chunks of bS
+     console.log ("Loading pose test data \n") ;
+     this.tstData = await this.loadData ("/output/fine/tstSet", this.tScale) ; // We take everything 
   } // end loadData
 
 

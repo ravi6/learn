@@ -88,34 +88,42 @@ let btnLoop = document.getElementById ("btnLoop") ;
 btnLoop.addEventListener ("click", async () => {
    // Big Bathced Calculations here we jettison many of gui
   //  Buttons.
-    f.learnRate = 0.05 ;
-    f.epochs = 5 ;
-    f.sIndex = 0 ;
-    f.bS = 100 ;
+    f.learnRate = 0.01 ;
+    f.epochs = 10 ;
+    f.bS = 10 ;
     f.dataSize = 100 ;
     f.trained = true ;
-    let longTrain = false ; // if false evaluation  
+    f.mdlFile = "http://localhost:3000/upload/cnnX/fine/pass2" ;
+    f.sIndex = 0 ;
 
-    f.model = await tf.loadLayersModel (f.mdlFile + "/model.json") ;
-    f.model.compile ({optimizer: f.opt,  loss: f.loss}) ;
-
-    let tbl = [] ;
-    for (let i=0 ; i < 970 ; i ++) {
-        f.tstData = await f.loadData ("/output/fine/trnSet", f.tScale) ; // We take everything 
-        if (longTrain) 
-	    await f.train () ;
-        else {
-            let result = await f.model.evaluateDataset (await f.tstData.batch(f.bS)) ;
+  //===========   batchwise training 
+  /**
+    for (let i=0 ; i < 633 ; i ++) {
+       let ds  = await f.loadData ("/output/fine/trnSet") ;
+       f.trnData = (ds.take (f.dataSize)).batch (f.bS) ; // grab a subset in chunks of bS
+       await f.train () ;
+    }
+  **/
+        // === batchwise eval (with trained data)
+          f.model = await tf.loadLayersModel (f.mdlFile + "/model.json") ;
+          f.model.compile ({optimizer: f.opt,  loss: f.loss}) ;
+          let tbl = [] ;
+          for (let i=0 ; i < 970 ; i ++) {
+            f.trnData = await f.loadData ("/output/fine/trnSet", f.tScale) ; 
+            let result = await f.model.evaluateDataset (await f.trnData.batch(f.bS)) ;
             result = (await result.data()) ; 
 	    tbl.push (result[0]) ;
 	    f.sIndex = f.eIndex ;
             console.log("Evaluation Loss " + i + ": ", result[0]);
-	}
-    }
-    console.log("table", tbl); ;
-    upload (JSON.stringify ({tbl: tbl}), "loss", true) ;
+	  }
+          console.log("table", tbl); ;
+          upload (JSON.stringify ({tbl: tbl}), "lossPass2", true) ;
 });
+
+
+
 // Logger Control
+
 function logger (msg) {
       let  ccc = document.createElement("span");
       let tim = new Date().toLocaleTimeString('en-US', { hour12: false, 
