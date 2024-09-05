@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" href="/imgs/favicon.png">
+  <meta charset="utf-8">
+  <script type="importmap">
+      { "imports": {
+	  "three": "https://unpkg.com/three@v0.154.0/build/three.module.js",
+	  "three/addons/": "https://unpkg.com/three@v0.154.0/examples/jsm/" }
+      }
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js" 
+           integrity="sha384-fbbOQedDUMZZ5KreZpsbe1LCZPVmfTnH7ois6mU1QK+m14rQ1l2bGBq41eYeM/fS" 
+           crossorigin="anonymous">
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis@latest"></script>
+
+<style>
+  .dlgFrame {
+    border-radius: 16px 16px 16px 16px;
+    box-shadow: 3px 3px 5px #535353;
+    background: lightYellow;
+  }
+</style>
+</head>
+
+<script>
+</script>
+
+<script type=module >
+
+// Captures images and saves them with incremental rotations
+  import  {THREE, scene, camera, getRenderer, GUI} from "./init.js" ;
+  import {light, dlight, addBtns} from  "./lights.js" ;
+  import {sleep, measure, saveScene, upload} from "./util.js" ;
+
+var renderer = getRenderer () ;
+let geom = new THREE.BoxGeometry (30, 30, 30);
+  let mat = new THREE.MeshPhongMaterial ({  
+       color: 'rgb(200,200,0)',
+       shininess: 350,
+       opacity: 0.3,
+       wireframe: true,
+       }); 
+let cube = new THREE.Mesh (geom, mat) ;
+cube.name = "cube" ;
+cube.position.set (0, 0, 0) ;
+//cube.rotation.y = 45 * Math.PI / 180 ; 
+//cube.rotation.x = 45 * Math.PI / 180 ; 
+  scene.add (cube) ;
+  scene.add (light); 
+  scene.add (dlight);
+  renderer.render (scene, camera) ;
+  scene.add (new THREE.AxesHelper(100)) ;
+  let gui = new GUI();
+  gui.add(cube.rotation, 'x', 0, 180*Math.PI/180).onChange(()=>{renderer.render(scene, camera)});
+  gui.add(cube.rotation, 'y', 0, 180*Math.PI/180).onChange(()=>{renderer.render(scene, camera)});
+  gui.add(cube.rotation, 'z', 0, 180*Math.PI/180).onChange(()=>{renderer.render(scene, camera)});
+
+function sample () {
+    return ( (e) => {
+  e.preventDefault();
+  let mouse_position = {x:null, y:null} ;
+  mouse_position.x = (e.clientX / renderer.domElement.clientWidth) * 2 - 1;
+  mouse_position.y = -(e.clientY / renderer.domElement.clientHeight) * 2 + 1;
+  console.log(mouse_position)
+ const rayCaster = new THREE.Raycaster();
+
+  rayCaster.setFromCamera(mouse_position, camera);
+  const intersects = rayCaster.intersectObjects([cube], true);
+  console.log(intersects.length)
+  if (intersects.length > 0) {
+       const p = intersects[0].point ;
+       console.log ("World: ", p.x, p.y, p.z) ;
+       cube.updateWorldMatrix(true, false) ;
+       const local_p = cube.worldToLocal(p) ;
+       console.log ("Local: ", local_p.x, local_p.y, local_p.z) ;
+   }
+    });} // end sample|
+      document.addEventListener ("click", sample()) ;
+</script>
+
+<body>
+  <div class=container>
+    <h2>Digitize Mesh </h2>
+  </div>
+  <script>
+  </script>
+</body>
+</html>
