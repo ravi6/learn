@@ -38,49 +38,67 @@
   import {sleep, measure, saveScene, upload} from "./util.js" ;
 
 var renderer = getRenderer () ;
-let geom = new THREE.BoxGeometry (30, 30, 30);
+let geom = new THREE.BoxGeometry (20, 20, 20);
   let mat = new THREE.MeshPhongMaterial ({  
        color: 'rgb(200,200,0)',
        shininess: 350,
        opacity: 0.3,
        wireframe: true,
        }); 
+
+const gdot = new THREE.SphereGeometry(0.6);
+const dotMat = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
+const dot = new THREE.Mesh (gdot, dotMat) ;
+
 let cube = new THREE.Mesh (geom, mat) ;
 cube.name = "cube" ;
 cube.position.set (0, 0, 0) ;
 //cube.rotation.y = 45 * Math.PI / 180 ; 
 //cube.rotation.x = 45 * Math.PI / 180 ; 
-  scene.add (cube) ;
   scene.add (light); 
   scene.add (dlight);
   renderer.render (scene, camera) ;
   scene.add (new THREE.AxesHelper(100)) ;
-  let gui = new GUI();
-  gui.add(cube.rotation, 'x', 0, 180*Math.PI/180).onChange(()=>{renderer.render(scene, camera)});
-  gui.add(cube.rotation, 'y', 0, 180*Math.PI/180).onChange(()=>{renderer.render(scene, camera)});
-  gui.add(cube.rotation, 'z', 0, 180*Math.PI/180).onChange(()=>{renderer.render(scene, camera)});
 
+  let group = new THREE.Group() ;
+  group.add (cube) ;
+  group.add (dot) ;
+  scene.add (group) ;
+renderer.render (scene, camera) ;
+
+
+  let gui = new GUI();
+  gui.add(group.rotation, 'x', 0, 180*Math.PI/180).onChange(()=>{renderer.render(scene, camera)});
+  gui.add(group.rotation, 'y', 0, 180*Math.PI/180).onChange(()=>{renderer.render(scene, camera)});
+  gui.add(group.rotation, 'z', 0, 180*Math.PI/180).onChange(()=>{renderer.render(scene, camera)});
+  
 function sample () {
     return ( (e) => {
   e.preventDefault();
-  let mouse_position = {x:null, y:null} ;
-  mouse_position.x = (e.clientX / renderer.domElement.clientWidth) * 2 - 1;
-  mouse_position.y = -(e.clientY / renderer.domElement.clientHeight) * 2 + 1;
-  console.log(mouse_position)
- const rayCaster = new THREE.Raycaster();
+  let mpos = {x:null, y:null} ;
+  mpos.x = (e.clientX / renderer.domElement.clientWidth) * 2 - 1;
+  mpos.y = -(e.clientY / renderer.domElement.clientHeight) * 2 + 1;
+  const rayCaster = new THREE.Raycaster();
 
-  rayCaster.setFromCamera(mouse_position, camera);
+  rayCaster.setFromCamera(mpos, camera);
+  group.updateWorldMatrix(true, true) ;
   const intersects = rayCaster.intersectObjects([cube], true);
   console.log(intersects.length)
   if (intersects.length > 0) {
        const p = intersects[0].point ;
-       console.log ("World: ", p.x, p.y, p.z) ;
-       cube.updateWorldMatrix(true, false) ;
-       const local_p = cube.worldToLocal(p) ;
-       console.log ("Local: ", local_p.x, local_p.y, local_p.z) ;
+       console.log ("InterSect World: ", p.x, p.y, p.z) ;
+       group.updateWorldMatrix(true, true) ;
+       const ploc = cube.worldToLocal (p) ;
+       console.log ("InterSect Loc: ", ploc.x, ploc.y, ploc.z) ;
+
+
+       group.add (dot) ;  dot.position.set (ploc.x, ploc.y, ploc.z) ;  renderer.render (scene, camera) ;
+       let wpos = dot.getWorldPosition(new THREE.Vector3())  ;
+       console.log ("dot world: ", wpos ) ;
    }
     });} // end sample|
       document.addEventListener ("click", sample()) ;
+
 </script>
 
 <body>
