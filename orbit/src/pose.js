@@ -14,28 +14,27 @@ export class pose {
      this.imgSize = this.imgW * this.imgH ;
      this.nL = 3 ; // number of outputs (Euler angles)
      this.bS = 10 ; // No. of samples in a batch
-     this.dataSize = 1000 ;
+     this.dataSize = 20 ;  // 
      this.epochs = 5 ;
      this.trained = false ;   
      this.learnRate = .05 ;
      this.opt = tf.train.sgd (this.learnRate) ;
      this.loss="meanSquaredError" ;
      this.metrics=['mse'] ;
-     this.trnData = null ;  // training Data
-     this.tstData = null ; //  test Data
+     this.trnDataDir = "/data/trnSet" ;  // training Data Location
+     this.tstDataDir = "/data/tstSet" ; //  test Data Location
      this.tScale = 45 * Math.PI / 180 ;  // scaling target values
-     this.sIndex = 0 ;   // Start index of keys (from which data is loaded)
-     this.eIndex = 0 ;
+     this.sIndex = 0  ;   // Start index of keys (from which data is loaded)
+     this.eIndex = -1 ;
+     this.mdlFile = "http://localhost:3000/upload/cnnX" ;
    } // end constructor
 
 
   async setupModel () {
-     	     this.mdlFile = "http://localhost:3000/upload/cnnX" ;
       // if already trained use  saved state
 	if (this.trained) 
 	   this.model = await tf.loadLayersModel (this.mdlFile + "/model.json") ;
         else this.cnnModel () ;
-        
     this.model.compile ({optimizer: this.opt,  loss: this.loss}) ;
   } //setupModel
 	
@@ -50,7 +49,7 @@ export class pose {
 	         tf.layers.conv2d ({filters: 6, kernelSize: (15,15), stride: (2, 2),
 		                     padding: 'valid', dataFormat: 'channelsLast',
 		                     activation: "relu"}),
-	         tf.layers.batchNormalization (),  
+	         //tf.layers.batchNormalization (),  
 	         tf.layers.maxPooling2d ({poolSize: (2, 2), strides: (2, 2),
 		                          padding: 'valid', dataFormat: 'channelsLast' }),
 
@@ -58,7 +57,7 @@ export class pose {
 	         tf.layers.conv2d ({filters: 16, kernelSize: (15,15), stride: (2, 2),
 		                     padding: 'valid', dataFormat: 'channelsLast',
 		                     activation: "relu"}),
-	         tf.layers.batchNormalization (),  
+	         //tf.layers.batchNormalization (),  
 	         tf.layers.maxPooling2d ({poolSize: (2, 2), strides: (2, 2),
 		                          padding: 'valid', dataFormat: 'channelsLast' }),
 
@@ -69,22 +68,12 @@ export class pose {
 
 	         tf.layers.flatten(),  // need it before we go dense :)
 		 tf.layers.dense ({units: 200, activation: "relu"}),   // middle
-	         tf.layers.batchNormalization (),  
+	        // tf.layers.batchNormalization (),  
 		 tf.layers.dense ({units: 50, activation: "relu"}),   // middle
-	         tf.layers.batchNormalization (),  
+	        // tf.layers.batchNormalization (),  
 		 tf.layers.dense ({units: this.nL, activation: "relu"})  // output
 	       ] });
    } // end cnnModel
-
-
-  async getData ()  {  // need to fixthis up later
-     // training and test data
-     console.log ("Loading pose training data \n") ;
-     let ds  = await this.loadData ("/output/big") ;
-     this.trnData = (ds.take (this.dataSize)).batch (this.bS) ; // grab a subset in chunks of bS
-     console.log ("Loading pose test data \n") ;
-     this.tstData = await this.loadData ("/output/fine/tstSet", this.tScale) ; // We take everything 
-  } // end loadData
 
 
   async train () {
@@ -99,83 +88,59 @@ export class pose {
       this.model.compile ({optimizer: this.opt,  loss: this.loss}) ;
     }
    
-    var start = performance.now() ;
-
     console.log ("Training Started \n") ;
-    const surface = { name: 'trends', tab: 'Training' } ;
-    await this.model.fitDataset (this.trnData, 
-      { batchSize: this.bS, 
-	epochs:    this.epochs,
-	callbacks: 
-	//{onEpochEnd: this.epochLog (start),
-	//onBatchEnd: this.batchLog ()}
-  	    tfvis.show.fitCallbacks (surface, ['loss'])    
-        }) ; 
-    console.log ("Training Ended \n") ;
-    this.trained = true ;
-    console.log ("Saving the Model \n", this.mdlFile) ;
-    await this.model.save (this.mdlFile);
-    console.log ("Saved the Model \n") ;
-    console.log ("with Index : ", this.sIndex, this.eIndex) ;
-    this.sIndex = this.eIndex  ;  // next 
+
+    // Loading data in batches of "dataSize: because of low GPU memeory
+    //  don't confuse this training batch size "bS"
+    // Data set size is available through key file
+    this.sIndex = 0 ; 
+      let dSet =  (await this.loadData (this.trnDataDir)).batch (this.bS) ;
+      while ( dSet != null ) {
+	const surface = { name: 'trends', tab: 'Training' } ;
+	await this.model.fitDataset (dSet, 
+	  { batchSize: this.bS, 
+	    epochs:    this.epochs,
+	    callbacks: 
+		tfvis.show.fitCallbacks (surface, ['loss'])    
+	    }) ; 
+	console.log ("Training Ended \n") ;
+	this.trained = true ;
+
+	console.log ("Saving the Model \n", this.mdlFile) ;
+	await this.model.save (this.mdlFile);
+	console.log ("Saved the Model \n") ;
+	console.log ("with Index : ", this.sIndex, this.eIndex) ;
+        dSet =  (await this.loadData (this.trnDataDir)).batch (this.bS) ; ;
+    } // end of data
   } // end train
 
-  async Eval () { // Prints average loss on test data set
-
-    this.model = await tf.loadLayersModel (this.mdlFile + "/model.json") ;
-    this.model.compile ({optimizer: this.opt,  loss: this.loss}) ;
-    let result = await this.model.evaluateDataset (await this.tstData.batch(this.bS)) ;
-    result = (await result.data()) ; 
-    console.log("Evaluation Loss:  ", result[0]);
-	return (result[0]) ;
-  } // end of reEval 
-
-  async visTest () { // Downloads prediction vs expected in a JSON table  
+  async pred () { // Evaluate a Data set ... just get predicted and input
       this.model = await tf.loadLayersModel (this.mdlFile + "/model.json") ;
       this.model.compile ({optimizer: this.opt,  loss: this.loss}) ;
-      let ds = await this.tstData.toArray() ;
-      let shape =  [1, this.imgW, this.imgH, this.nCh] ; 
-      // pick few random samples from the above batch 
-      let table = [] ;
-      for (let i = 0 ; i < ds.length ; i ++) {
-	  let xs = tf.reshape (ds[i].xs, shape) ; 
-	  let ys = ds[i].ys ;
-	  let result = await this.model.predict (xs);
-	  let yp = Array.from (await result.data()) ;
-	  yp = yp.map ( (e) => e * this.tScale * 180 / Math.PI) ; // back to unscaled
-	  ys = ys.map ( (e) => e * this.tScale * 180 / Math.PI) ; // back to unscaled
-	  console.log ( {y: ys[0], yp: yp[0]},
-	                {y: ys[1], yp: yp[1]},
-	                {y: ys[2], yp: yp[2]} ) ;
-	  table.push ({ys: ys, yp: yp}) ;
-	} // end samples
 
-        upload (JSON.stringify (table), "pred", true) ;
-    /*
-      const headers = ['sample', 'predicted', 'actual'  ];
-      const surface = { name: 'Predictions', tab: 'Charts' };
-      tfvis.render.table(surface, { headers, values:tblData });
-      */
+      this.sIndex = 0 ; 
+      let dSet =  await this.loadData (this.trnDataDir) ;
+      while ( dSet != null ) {
+	let ds = await dSet.toArray() ;
+	let shape =  [1, this.imgW, this.imgH, this.nCh] ; 
 
-  } // end visTest
-
-  epochLog (start) { 
-    // returns callback fn to execute at end of epoch
-      return ( async function (epoch, logs) {
-	              let dt = performance.now() - start ;
-	              console.log ("Epoch: " + epoch +
-		           " Loss: " + logs.loss + "  delT: ", Math.round(dt) ); 
-                      start = performance.now() ; //  retart cpu timer
-              }); 
-  } // end of epochLog
-
-  batchLog () { 
-    // returns callback fn to execute at end of batch
-      return ( async function (batch, logs) {
-	              console.log ("Batch: " + batch +
-		           " Loss: " + logs.loss ) ;
-                     }); 
-  } // end of batchLog
+	let predTable = [] ;
+	for (let i = 0 ; i < ds.length ; i ++) {
+	    let xs = tf.reshape (ds[i].xs, shape) ; 
+	    let ys = ds[i].ys ;
+	    let result = await this.model.predict (xs);
+	    let yp = Array.from (await result.data()) ;
+	    yp = yp.map ( (e) => e * this.tScale * 180 / Math.PI) ; // back to unscaled
+	    ys = ys.map ( (e) => e * this.tScale * 180 / Math.PI) ; // back to unscaled
+	    console.log ( {y: ys[0], yp: yp[0]},
+			  {y: ys[1], yp: yp[1]},
+			  {y: ys[2], yp: yp[2]} ) ;
+	    predTable.push ({ys: ys, yp: yp}) ;
+	  } // end samples
+	upload (JSON.stringify(predTable), "predTable", true) ;
+        dSet =  await this.loadData (this.trnDataDir) ;
+      } // done with all data
+  } // end Eval
 
 async loadData (dir) {
   // Generate Tensorflow DataSet from images
@@ -184,12 +149,14 @@ async loadData (dir) {
   // sIndex:  pickup from sIndex of the key
   // dSize:   data items to choose
 
-  const items = [] ;
   // key JSON file contains image file to rotation seq. mapping
-  let key = await getFile ( dir + "/keyshuf") ;  // use shuffled keyfile 
+  let key = await getFile ( dir + "/key") ;  // key file to pick data 
   key = JSON.parse (key) ;  // to proper JSON object
   this.eIndex = Math.min (key.length, this.sIndex + this.dataSize) ;
   console.log ("Keys : ", key.length, this.sIndex, this.eIndex) ; 
+  if (this.sIndex == this.eIndex) return (null) ;
+
+  let items = [] ;
   for (let k = this.sIndex ; k < this.eIndex ; k++) {
 	  const img = new Image () ;
 	  img.src = dir + "/" + key[k].fname ;

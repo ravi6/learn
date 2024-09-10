@@ -45,85 +45,15 @@ function Train () {
          logger ("Training Ended");
 }} ;
 
-// Model Evaluation Control
-let btnEval = document.getElementById ("btnEval");
-btnEval.addEventListener ( "click",  Eval() ) ;   
-function Eval () {
-      return async function (e)  {  
-         logger ("Evaluation Started");
-         btnEval.disabled = true ;
-         btnEval.innerText = "Evaluating";
-         let result = await f.Eval () ;
-         btnEval.innerText = "Eval";
-         btnEval.disabled = false;  
-         logger ("Evaluation Loss = " + result);
-}} ;
-
-// Loading Train and Test Data Control
-let btnData = document.getElementById ("btnData");
-btnData.addEventListener ( "click",  ldData() ) ; 
-function ldData () {
-      return async function (e)  { 
-         logger ("Loading Data");
-         btnData.disabled = true;
-         btnData.innerText= "Loading";
-         await f.getData () ;
-         btnData.innerText = "getData" ;
-         btnData.disabled = false; 
-         logger ("Loaded Data");
-	 console.log("Loaded Data") ;
-//	 console.log("Data:", f.trnData) ;
-}} ;
-
 // Model Prediction Control
 let btnPred = document.getElementById ("btnPred");
 btnPred.addEventListener ( "click",  predict() ) ; 
 function predict () {
       return async function (e)  {             
-         await f.visTest () ;
+         await f.pred () ; 
       }};
 
-//
-let btnLoop = document.getElementById ("btnLoop") ;
-btnLoop.addEventListener ("click", async () => {
-   // Big Bathced Calculations here we jettison many of gui
-  //  Buttons.
-    f.learnRate = 0.01 ;
-    f.epochs = 10 ;
-    f.bS = 10 ;
-    f.dataSize = 100 ;
-    f.trained = true ;
-    f.mdlFile = "http://localhost:3000/upload/cnnX/fine/pass2" ;
-    f.sIndex = 0 ;
-
-  //===========   batchwise training 
-  /**
-    for (let i=0 ; i < 633 ; i ++) {
-       let ds  = await f.loadData ("/output/fine/trnSet") ;
-       f.trnData = (ds.take (f.dataSize)).batch (f.bS) ; // grab a subset in chunks of bS
-       await f.train () ;
-    }
-  **/
-        // === batchwise eval (with trained data)
-          f.model = await tf.loadLayersModel (f.mdlFile + "/model.json") ;
-          f.model.compile ({optimizer: f.opt,  loss: f.loss}) ;
-          let tbl = [] ;
-          for (let i=0 ; i < 970 ; i ++) {
-            f.trnData = await f.loadData ("/output/fine/trnSet", f.tScale) ; 
-            let result = await f.model.evaluateDataset (await f.trnData.batch(f.bS)) ;
-            result = (await result.data()) ; 
-	    tbl.push (result[0]) ;
-	    f.sIndex = f.eIndex ;
-            console.log("Evaluation Loss " + i + ": ", result[0]);
-	  }
-          console.log("table", tbl); ;
-          upload (JSON.stringify ({tbl: tbl}), "lossPass2", true) ;
-});
-
-
-
 // Logger Control
-
 function logger (msg) {
       let  ccc = document.createElement("span");
       let tim = new Date().toLocaleTimeString('en-US', { hour12: false, 

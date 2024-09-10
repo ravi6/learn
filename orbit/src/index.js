@@ -9,6 +9,9 @@ import {$} from "bun"
 
 const app = new Hono() ;
 app.basePath = "./src" ;
+const file = Bun.file("./src/upload/predTable");
+const writer = file.writer();
+
 
 app.get ('/', (c) => {      // serve startup page
    return new Response (
@@ -30,11 +33,18 @@ app.post ('/output', async (c) => { // saving images to output dir
   let spath = app.basePath + url.pathname   ;
   const frm = await c.req.formData()
   let fname = spath + "/" + frm.get('name') ;
-  if (frm.get('txtFile') == "false") {    // it is textfile
+  if (frm.get('txtFile') == "false") {    // it is not textfile
      await Bun.write (fname, frm.get('blob'));
      let tmp = await $`./src/imgclip ${fname}  `;
   } else {
-     await Bun.write (fname, frm.get('blob'));
+     if (frm.get('name') == "predTable") {
+       writer.ref () ;
+       writer.write (frm.get('blob')) ;
+       writer.write ("\n") ;
+       writer.flush () ;
+       writer.unref () ;
+      } else
+         await Bun.write (fname, frm.get('blob'));
   }
 
   return new Response("Success Always" );
