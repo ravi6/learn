@@ -167,6 +167,7 @@ async loadData (dir) {
           y = y.map ( (e) => e / this.tScale ) ;    // scaling Targets aswell
           items.push ( {xs: x , ys: y} ) ;
       }
+   this.sIndex = this.eIndex ; // prepare for next batch
    return ( tf.data.array (items) ) ; // return tflow Dataset
 } // end loadData
 

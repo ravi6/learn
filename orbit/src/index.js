@@ -55,21 +55,21 @@ app.post ('/output', async (c) => { // saving images to output dir
 app.get ('/upload/*', async (c) => {   // request for saved model 
   let url =  new URL (c.req.url) ; 
   let fpath = app.basePath + url.pathname ;  
-  console.log("Serving: ",  fpath) ;
+  //console.log("Serving: ",  fpath) ;
   return new Response (Bun.file (fpath));
 });  // end upload file getter
 
 app.post('/upload/*', async (c) => { // saving model
   let url =  new URL(c.req.url) ; // elaborate json url
   let spath = app.basePath + url.pathname   ;
-  console.log("Posted: " + spath) ;
+  //console.log("Posted: " + spath) ;
   const frmData = await c.req.formData();
  
  // save both model and weights (they arrive as blobs
   //   encased in FormData pack
  ["model.json", "model.weights.bin"].forEach ( async (f) => {
           let p = spath + "/" + f;
-          console.log("Saving: ",  p) ;
+          //console.log("Saving: ",  p) ;
           const data = await frmData.get(f) ;
           await Bun.write (p, data);
  }); 
