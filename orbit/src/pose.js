@@ -14,8 +14,8 @@ export class pose {
      this.imgSize = this.imgW * this.imgH ;
      this.nL = 3 ; // number of outputs (Euler angles)
      this.bS = 10 ; // No. of samples in a batch
-     this.dataSize = 20 ;  // 
-     this.epochs = 5 ;
+     this.dataSize = 100 ;  // 
+     this.epochs = 10 ;
      this.trained = false ;   
      this.learnRate = .05 ;
      this.opt = tf.train.sgd (this.learnRate) ;

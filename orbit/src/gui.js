@@ -12,6 +12,9 @@ let f = new pose () ;
 f.trained = document.getElementById ("cbTrained").checked ;
 logger("Setup CNN Model") ; 
 await f.setupModel () ;  // startup setup
+document.getElementById ("epochs").value = f.epochs ;
+document.getElementById ("learnRate").value = f.learnRate ;
+
 logger("Model File:  " + f.mdlFile);
 
 // All of this just to print Model Summary
