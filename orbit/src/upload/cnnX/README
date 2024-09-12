@@ -3,7 +3,10 @@ coarse:   4degree increment 40deg samples total 1000
 fine:     1deg increment45deg samples total 45x45x45 samples
            pass1:   shuffled keys 
            pass2:   ... redo with using end of pass1
+           pass3:   ... redo using end of pass1 ... very shuffled input this time
 
 r20000:   Intermediate result saved for the big data set
 
 big data set is trained with shuffled keys unlike coarse one
+
+

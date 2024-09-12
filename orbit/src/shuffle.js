@@ -4,7 +4,7 @@
 
 import keys from "./keys.json";  // load json object from file
 console.log ("Shuffling") ;
-for (let i=0 ; i < 10000 ; i++) 
+//for (let i=0 ; i < 10000 ; i++) 
  keys.sort(() => 0.5 - Math.random()) // it is an array we shuffle it
 //console.log( JSON.stringify(keys)) ;
 console.log ("Shuffled") ;
