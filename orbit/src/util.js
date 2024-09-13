@@ -297,7 +297,7 @@ export async function getFile (fname) {
   xhr.onload = function() { data = xhr.responseText ; } ;
   xhr.open("GET", fname);
   xhr.send();
-  await sleep (200) ; // give time for response
+  await sleep (100) ; // give time for response
   if (data === null) console.log ("Failed to load :" +fname) ;
   return (data) ;
 } // end getFile
