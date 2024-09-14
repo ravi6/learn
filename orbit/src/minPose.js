@@ -118,8 +118,14 @@ export class pose {
       this.model.compile ({optimizer: this.opt,  loss: this.loss}) ;
 
       this.sIndex = 0 ; 
-      let dSet =  await this.loadData (this.trnDataDir) ;
+      let dSet =  (await this.loadData (this.trnDataDir)).batch (this.bS) ;
+      //let predTable = [] ;
+      
       while ( dSet != null ) {
+        let result = await this.model.evaluateDataset (dSet) ;
+        result = (await result.data())[0] ; 
+        //console.log("Evaluation Loss:  ", result);
+/*
 	let ds = await dSet.toArray() ;
 	let shape =  [1, this.imgW, this.imgH, this.nCh] ; 
 
@@ -129,16 +135,19 @@ export class pose {
 	    let ys = ds[i].ys ;
 	    let result = await this.model.predict (xs);
 	    let yp = Array.from (await result.data()) ;
-	    yp = yp.map ( (e) => e * this.tScale * 180 / Math.PI) ; // back to unscaled
-	    ys = ys.map ( (e) => e * this.tScale * 180 / Math.PI) ; // back to unscaled
+	    //yp = yp.map ( (e) => e * this.tScale * 180 / Math.PI) ; // back to unscaled
+	    //ys = ys.map ( (e) => e * this.tScale * 180 / Math.PI) ; // back to unscaled
 	    console.log ( {y: ys[0], yp: yp[0]},
 			  {y: ys[1], yp: yp[1]},
 			  {y: ys[2], yp: yp[2]} ) ;
 	    predTable.push ({ys: ys, yp: yp}) ;
 	  } // end samples
 	upload (JSON.stringify(predTable), "predTable", true) ;
-        dSet =  await this.loadData (this.trnDataDir) ;
+*/
+	upload (result.toString(), "predTable", true) ;
+        dSet =  (await this.loadData (this.trnDataDir)).batch (this.bS) ; ;
       } // done with all data
+
   } // end Eval
 
 async loadData (dir) {
