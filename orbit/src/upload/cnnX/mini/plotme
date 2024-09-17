@@ -1,0 +1,5 @@
+plot "sgd001/predTable" w l
+replot "sgd01/predTable" w l
+replot "sgd05/predTable" w l
+replot "sgd1/predTable" w l
+pause -1

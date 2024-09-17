@@ -9,4 +9,7 @@ r20000:   Intermediate result saved for the big data set
 
 big data set is trained with shuffled keys unlike coarse one
 
+small images data set generated ... training with different sgd values
+Loss function too high for .001 ... but for .01 to 1 it is small but no
+monotonic trend. Looks very flat noisy.
 

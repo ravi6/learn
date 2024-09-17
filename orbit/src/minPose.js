@@ -16,7 +16,7 @@ export class pose {
      this.dataSize = 100 ;  // 
      this.epochs = 10 ;
      this.trained = false ;   
-     this.learnRate = 1 ;
+     this.learnRate = .001 ;
      this.opt = tf.train.sgd (this.learnRate) ;
      this.loss="meanSquaredError" ;
      this.metrics=['mse'] ;
