@@ -179,4 +179,13 @@ async loadData (dir) {
    return ( tf.data.array (items) ) ; // return tflow Dataset
 } // end loadData
 
+features () {  //Examine features  layer visually
+  const layers = this.model.layers ;
+  const n = 1 ;  // convolution layer number
+  const fModel = tf.model ({
+         inputs:  this.model.layers[0].input ,
+         outputs: this.model.layers[n].output }) ;
+  }
+  fModel.predict (
+
 } // end of pose class

@@ -22,6 +22,7 @@ logger("Model File:  " + f.mdlFile);
       function modSum (msg) { logger (msg); } // end modSum
       function doit () {
 	   logger ("<<<<<<<<<<<  Model Summary  >>>>>>>>>>*") ;
+	   console.log ("layers", f.model.layers.length, f.model.layers) ;
 	   f.model.summary() ;
            f.model.summary ( 50, [0.5, 0.75, 1],  modSum ) ;
 	   logger ("<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>")  ;
