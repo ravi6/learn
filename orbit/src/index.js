@@ -22,7 +22,7 @@ app.get ('/', (c) => {      // serve startup page
 app.get ('/*', (c) => {      // resources from app source
   let url =  new URL(c.req.url) ; // elaborate json url
   let fpath = app.basePath + url.pathname ;  // prepend base path
-//  console.log("Serving: ",  fpath) ;
+  //console.log("Serving: ",  fpath) ;
   return new Response (Bun.file (fpath)) ;
 });
 

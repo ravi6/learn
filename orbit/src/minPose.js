@@ -179,13 +179,20 @@ async loadData (dir) {
    return ( tf.data.array (items) ) ; // return tflow Dataset
 } // end loadData
 
-features () {  //Examine features  layer visually
+async features () {  //Examine features  layer visually
+  // For prediction no need to compile models
+  this.model = await tf.loadLayersModel (this.mdlFile + "/model.json") ;
   const layers = this.model.layers ;
-  const n = 1 ;  // convolution layer number
+  const n = 2 ;  // convolution layer number
   const fModel = tf.model ({
          inputs:  this.model.layers[0].input ,
          outputs: this.model.layers[n].output }) ;
-  }
-  fModel.predict (
-
+  const img = new Image () ;
+  img.src = "data/mini/trnSet/p301510.jpg" ;
+  await img.decode () ;
+  let x = tf.browser.fromPixels (img, this.nCh) ; // pixel data
+  let shape = [1, this.imgW, this.imgH, this.nCh] ;
+  let result = await fModel.predict (tf.reshape (x, shape));
+  console.log ("result", result) ;
+} // end of features
 } // end of pose class

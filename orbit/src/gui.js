@@ -4,6 +4,7 @@
 import {pose} from "./pose.js"
 import {upload, getFile} from "./util.js" ;
 
+
 let loggerD = document.getElementById("logger");
 let imgNet = document.getElementById ("imgNet") ;
 imgNet.src = "imgs/cnn.png" ; 
@@ -20,13 +21,12 @@ logger("Model File:  " + f.mdlFile);
 // All of this just to print Model Summary
       let btnSum = document.getElementById ("btnSum");
       function modSum (msg) { logger (msg); } // end modSum
-      function doit () {
+      function  doit () {
 	   logger ("<<<<<<<<<<<  Model Summary  >>>>>>>>>>*") ;
-	   console.log ("layers", f.model.layers.length, f.model.layers) ;
-	   f.model.summary() ;
+	//   f.model.summary() ;
            f.model.summary ( 50, [0.5, 0.75, 1],  modSum ) ;
 	   logger ("<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>")  ;
-      }
+       } // end doit
       btnSum.addEventListener ( "click", doit);                                            
       btnSum.click();
 
@@ -56,6 +56,18 @@ function predict () {
       return async function (e)  {             
          await f.pred () ; 
       }};
+
+// Features display
+let btnFeat = document.getElementById ("btnFeat");
+btnFeat.addEventListener ("click", Feat()) ; 
+function Feat () {
+      const fshow =  ( async function (e)  {  
+	   for (let i=0 ; i < f.model.layers.length ; i++)
+	     console.log (i, " --> ", f.model.layers[i].name) ;
+         await f.features () ;
+       }) ;
+      return (fshow) ;
+} // end Feat
 
 // Logger Control
 function logger (msg) {
