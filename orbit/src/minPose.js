@@ -181,18 +181,65 @@ async loadData (dir) {
 
 async features () {  //Examine features  layer visually
   // For prediction no need to compile models
+
+  // Get convolution layer output and show the filtered images
   this.model = await tf.loadLayersModel (this.mdlFile + "/model.json") ;
   const layers = this.model.layers ;
-  const n = 2 ;  // convolution layer number
+ 
+  // Select convolution layer to explore
+  const nc = 2 ;  // convolution layer number
+  const cLayer = this.model.layers[nc] ;
+  const nf = cLayer.output.shape[3] ;  // number of filters
+  // filtered output parameters
+  const fImg = {w: cLayer.output.shape[1],
+                h: cLayer.output.shape[2],
+                data: [] } ;  // saves all filtered images here
+
+
   const fModel = tf.model ({
          inputs:  this.model.layers[0].input ,
-         outputs: this.model.layers[n].output }) ;
+         outputs: cLayer.output }) ;
+
+
+  // Select some input of interest
   const img = new Image () ;
   img.src = "data/mini/trnSet/p301510.jpg" ;
   await img.decode () ;
   let x = tf.browser.fromPixels (img, this.nCh) ; // pixel data
   let shape = [1, this.imgW, this.imgH, this.nCh] ;
+
+  // Get all filtered images
   let result = await fModel.predict (tf.reshape (x, shape));
-  console.log ("result", result) ;
+
+
+  for (let k = 0 ; k < nf ; k++) {  // loop over all filters
+    let pix  = result.slice([0, 0, 0, k], [1, fImg.w, fImg.h, 1]) ;
+
+    // reshape, scale and convert to int
+    pix = tf.reshape (pix, [fImg.w, fImg.h]).mul (tf.scalar (255)) ;
+    pix = tf.cast (pix, 'int32') ;
+    console.log ("filter: ", k) ;
+    fImg.data.push (pix) ;
+  } // end filters
+  return (fImg) ;
 } // end of features
+
 } // end of pose class
+
+
+
+
+/*  Testing tensorflow storage of multidim arrays
+   let g = tf.tensor3d ([
+                         [[1, 2, 3],
+                         [11,22, 33],
+                         [111,222, 333]],
+                         [[.1, 2, .3],
+                         [.11,222, .33],
+                         [.111,.222, .333]]
+                        ]);
+
+  console.log (g.shape) ;
+  console.log (g.slice([1, 0, 0],[1, 3, 3]).arraySync());
+  */
+
