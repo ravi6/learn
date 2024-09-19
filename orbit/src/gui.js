@@ -2,7 +2,7 @@
 // Place for all GUI interaction Code
 //  Fashion object instantiation
 import {pose} from "./pose.js"
-import {upload, getFile} from "./util.js" ;
+import {upload, getFile, sleep} from "./util.js" ;
 
 
 let loggerD = document.getElementById("logger");
@@ -62,9 +62,13 @@ let btnFeat = document.getElementById ("btnFeat");
 btnFeat.addEventListener ("click", Feat()) ; 
 function Feat () {
       const fshow =  ( async function (e)  {  
+
 	   for (let i=0 ; i < f.model.layers.length ; i++)
 	     console.log (i, " --> ", f.model.layers[i].name) ;
-         await f.features () ;
+             let fImgs = await f.features() ;
+	     for (let i = 0 ; i < fImgs.data.length ; i++) {
+	       drawImg (fImgs.w, fImgs.h, fImgs.data[i] , 40*i) ;
+	     } 
        }) ;
       return (fshow) ;
 } // end Feat
@@ -80,3 +84,18 @@ function logger (msg) {
       loggerD.appendChild(ccc);
       loggerD.scrollTop = loggerD.scrollHeight ;
 }
+
+function drawImg (w, h, pix, xoff, yoff) {
+  let canvas = document.getElementById ("myCanvas") ;
+  let ctx = canvas.getContext ("2d") ;
+  let imgData = ctx.createImageData (w, h) ;
+  let k = 0 ;
+  for (let i = 0; i < imgData.data.length; i += 4) {
+    imgData.data[i] = pix [k]; // red
+    imgData.data[i + 1] = pix [k] // green
+    imgData.data[i + 2] = pix [k] // blue
+    imgData.data[i + 3] = 255 // Brightness ??
+    k = k + 1
+  }
+  ctx.putImageData(imgData, xoff, yoff);
+};

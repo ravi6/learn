@@ -187,7 +187,7 @@ async features () {  //Examine features  layer visually
   const layers = this.model.layers ;
  
   // Select convolution layer to explore
-  const nc = 2 ;  // convolution layer number
+  const nc = 4 ;  // convolution layer number
   const cLayer = this.model.layers[nc] ;
   const nf = cLayer.output.shape[3] ;  // number of filters
   // filtered output parameters
@@ -195,11 +195,9 @@ async features () {  //Examine features  layer visually
                 h: cLayer.output.shape[2],
                 data: [] } ;  // saves all filtered images here
 
-
   const fModel = tf.model ({
          inputs:  this.model.layers[0].input ,
          outputs: cLayer.output }) ;
-
 
   // Select some input of interest
   const img = new Image () ;
@@ -211,13 +209,12 @@ async features () {  //Examine features  layer visually
   // Get all filtered images
   let result = await fModel.predict (tf.reshape (x, shape));
 
-
   for (let k = 0 ; k < nf ; k++) {  // loop over all filters
     let pix  = result.slice([0, 0, 0, k], [1, fImg.w, fImg.h, 1]) ;
-
     // reshape, scale and convert to int
-    pix = tf.reshape (pix, [fImg.w, fImg.h]).mul (tf.scalar (255)) ;
+    pix = tf.reshape (pix, [fImg.w *  fImg.h]).mul (tf.scalar (255)) ;
     pix = tf.cast (pix, 'int32') ;
+    pix = pix.arraySync () ;
     console.log ("filter: ", k) ;
     fImg.data.push (pix) ;
   } // end filters
