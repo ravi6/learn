@@ -179,15 +179,15 @@ async loadData (dir) {
    return ( tf.data.array (items) ) ; // return tflow Dataset
 } // end loadData
 
-async features () {  //Examine features  layer visually
+async features (nc) {  //Examine features  layer visually
+   // Returns image data of a specific convoluiton layer (nc)
+  
   // For prediction no need to compile models
 
   // Get convolution layer output and show the filtered images
   this.model = await tf.loadLayersModel (this.mdlFile + "/model.json") ;
   const layers = this.model.layers ;
  
-  // Select convolution layer to explore
-  const nc = 4 ;  // convolution layer number
   const cLayer = this.model.layers[nc] ;
   const nf = cLayer.output.shape[3] ;  // number of filters
   // filtered output parameters
@@ -215,7 +215,6 @@ async features () {  //Examine features  layer visually
     pix = tf.reshape (pix, [fImg.w *  fImg.h]).mul (tf.scalar (255)) ;
     pix = tf.cast (pix, 'int32') ;
     pix = pix.arraySync () ;
-    console.log ("filter: ", k) ;
     fImg.data.push (pix) ;
   } // end filters
   return (fImg) ;

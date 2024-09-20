@@ -61,16 +61,22 @@ function predict () {
 let btnFeat = document.getElementById ("btnFeat");
 btnFeat.addEventListener ("click", Feat()) ; 
 function Feat () {
-      const fshow =  ( async function (e)  {  
-
-	   for (let i=0 ; i < f.model.layers.length ; i++)
-	     console.log (i, " --> ", f.model.layers[i].name) ;
-             let fImgs = await f.features() ;
-	     for (let i = 0 ; i < fImgs.data.length ; i++) {
-	       drawImg (fImgs.w, fImgs.h, fImgs.data[i] , 40*i) ;
-	     } 
-       }) ;
-      return (fshow) ;
+  const fshow =  ( async function (e)  {  
+    for (let i=0 ; i < f.model.layers.length ; i++)
+       console.log (i, " --> ", f.model.layers[i].name) ;
+    let yoff = 0, maxW = 300 , nc = [2, 4, 6], dg = 2 ;
+    let fImgs ;
+    for (let m = 0 ; m < 3 ; m++) {
+           if (m > 0) yoff = yoff + fImgs.h + dg ;
+	   fImgs = await f.features(nc[m]) ;
+	   let xoff = 0 ; if (xoff + fImgs.w + dg > maxW) {yoff = yoff + fImgs.h + dg ; xoff = 0}
+	   for (let i = 0 ; i < fImgs.data.length ; i++) { 
+		 drawImg (fImgs.w, fImgs.h, fImgs.data[i] , xoff, yoff) ;
+		 if (xoff + fImgs.w > maxW) {yoff = yoff + fImgs.h + dg ; xoff = 0}
+	         else xoff = xoff + fImgs.w + dg;
+	   }} 
+    });
+   return (fshow) ;
 } // end Feat
 
 // Logger Control
@@ -88,14 +94,14 @@ function logger (msg) {
 function drawImg (w, h, pix, xoff, yoff) {
   let canvas = document.getElementById ("myCanvas") ;
   let ctx = canvas.getContext ("2d") ;
-  let imgData = ctx.createImageData (w, h) ;
+  let img = ctx.createImageData (w, h) ;
   let k = 0 ;
-  for (let i = 0; i < imgData.data.length; i += 4) {
-    imgData.data[i] = pix [k]; // red
-    imgData.data[i + 1] = pix [k] // green
-    imgData.data[i + 2] = pix [k] // blue
-    imgData.data[i + 3] = 255 // Brightness ??
+  for (let i = 0; i < img.data.length; i += 4) {
+    img.data[i] = pix [k]; // red
+    img.data[i + 1] = pix [k] // green
+    img.data[i + 2] = pix [k] // blue
+    img.data[i + 3] = 255 // Brightness ??
     k = k + 1
   }
-  ctx.putImageData(imgData, xoff, yoff);
+  ctx.putImageData(img, xoff, yoff);
 };
