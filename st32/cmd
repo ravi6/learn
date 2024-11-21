@@ -1,0 +1,4 @@
+printf "SPI: %x,  RCC: %x,  GPIOA: %x \n", SPI, RCC, GPIOA
+printf "GPIOA:  MODER: %x, AFRL: %x \n", GPIOA->MODER, GPIOA->AFRL
+printf "SPI: SR: %x, CR1: %x, CR2: %x \n", SPI->SR, SPI->CR1, SPI->CR2
+printf "RCC: CR: %x, CFGR: %x, CIR: %x \n", RCC->CR, RCC->CFGR, RCC->CIR

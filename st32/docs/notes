@@ -1,0 +1,28 @@
+/* Below the USB connect (with it on top end)
+on the right row (from top down) */
+PA7  MOSI    -> master to slave  (send data to OLED)
+PA6  MISO   ->  slave to master  (receive data from OLED)
+PA5  SCK    ->  SPI clock
+
+
+===============================
+      REGISTERS (ST32)
+==============================
+
+AHB1 same as PERI_BASE
+AHB1 0x4000 0000  ->    0000 0000
+APB1 0x4001 0000  ->    0000 0000
+
+AHB1 0x4002 0000  ->    0000 0000
+AHB2 0x4800 0000  ->    0000 a800
+AHB3 0x5000 0000  ->    0000 0000
+
+RCC_BASE = AHB1 + 1000
+RCC_BASE  0x4002 1000   ->  5c83 0000
+ 
+GPIOA = AHB2
+GPIOA  0x4800 0000  ->    0000 a800
+GPIOB  0x4800 0400  ->    0280 0000
+GPIOC  0x4800 0800  ->    0000 0000
+GPIOD  0x4800 0C00  ->    0000 0000
+
