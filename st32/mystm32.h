@@ -123,6 +123,7 @@ enum {AF0, AF1, AF2, AF3, AF4, AF5, AF6, AF7,
 #define SPI_RESET    (CLR(RCC->APB2RSTR, 12))    
 #define SPI_CLKON    (SET(RCC->APB2ENR, 12))   
 #define SPI_CLKOFF   (CLR(RCC->APB2ENR, 12))   
+#define HSI_READY    ((RCC->CR & 0x2))
 
 // GPIOA seup macros
 #define PINA_LOW(n)  (SET(GPIOA->BSRR, (n) + 16))  

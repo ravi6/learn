@@ -1,0 +1,16 @@
+To Debug:
+Step 1:
+      /usr/bin/st-util &  (runs in background)  
+      This will create a port for debugging 4242
+      
+Step 2:
+     /usr/bin/arm-eabi-none-gdb  -x=gdbinit app.elf 
+
+While eveyrthing can be done interactively, I use gdbinit
+to do some basic chores  such as
+   ... conneting to the debugger port 
+   ... start logging session
+   ... executing any other commands 
+
+
+
