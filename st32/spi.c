@@ -4,23 +4,6 @@
 // PIN names for use here
 enum {SCLK=5, MISO, MOSI, LED} ;
 
-static void preScale () { 
-  // Clock Scaling 
-
-  // HCLK prescaler AHB block  (sf = /512) 
-  // Looks like you cant douch this unless you change 
-  // FLASH prefetch buffer flag in FLASH_ACR register
-  //
-  // CLRSET(RCC->CFGR, 0b1111 << 4 , 0b1111 << 4) ;
-  // APB1 Low Speed Clock Prescaler (PCLK) sf = /16
-  // CLRSET(RCC->CFGR, 0b111 << 8, 16 >> 1) ;
-
-  // Looks like I can set  with no issues
-  // APB2 Hight Speed Clock Prescaler (PCLK) sf = /16
-  while ( ! HSI_READY  ) {}  // wait for High Speed Internal Clock ready (HSI)
-  CLRSET(RCC->CFGR, 0b111 << 11, 16 >> 1) ;
-}
-
 static void delay (unsigned int time) {
     for (unsigned int i = 0; i < time; i++)
         for (volatile unsigned int j = 0; j < 2000; j++);
@@ -29,17 +12,17 @@ static void delay (unsigned int time) {
 void SPI_setup () {
   // Setup GPIOA and SPI interface 
   // For Simplex comms .... Master to Slave comms only
-
-  //Set the MCO clok source .. without it we wont have clock signal
- //on CLK pin.  (LSI 40kHz as the source for MCO) (010)
- // Choosing System Clock (100)
-  // This not working .... CFGR register does not change
- //    SET(RCC->CFGR, 26) ; CLR(RCC->CFGR, 25) ;  CLR(RCC->CFGR, 24) ;    
     
-    preScale () ;   // slowdown everything
-    SPI_RESET   ;
-    GPIOA_CLKON ;
+  // APB2 Hight Speed Clock Prescale ( HSI is 8MHz , and I devide it by 8)
+  //   SPI1 appears to be on this bus  and I want it run slower 
+  // See documentation page 130 & 272
+
+    while ( ! HSI_READY  ) {}  // wait for High Speed Internal Clock ready (HSI)
+    CLRSET(RCC->CFGR, 0b111 << 11, 0b110 << 11) ; // division by 8
     SPI_CLKON   ;
+    GPIOA_CLKON ;
+    SPI_ENABLE ;
+    SPI_RESET  ;
 
 					   
   // Set Alternate mode (for SPI interface )
@@ -59,12 +42,11 @@ void SPI_setup () {
     CLR(SPI->CR1, RXONLY)  ;  // Duplex (Transmit & Rec)
     SET(SPI->CR1, BIDIOE)  ;  // Output Enabled (Trasmit Only)
     SET(SPI->CR1, BIDIMODE)  ;  // One Line Bidirectional
-    CLRSET(SPI->CR1, 0b111 << BR,  0b111); // Set Baudrate (fsck/256)
+    CLRSET(SPI->CR1, 0b111 << BR,  0b111 << BR); // Set Baudrate (fsck/256)
+    CLRSET(SPI->CR2, 0b1111 << DS, 0b0111 << DS) ;  // 8bit Data Size for transfer
+    SET(SPI->CR2, FRXTH) ;  // FIFO threshold 16bits for RXNE event
 
-    CLRSET(SPI->CR2, 16 << DS, 8) ;  // 8bit Data Size for transfer
-    SET(SPI->CR2, 12) ;  // FIFO threshold 16bits for RXNE event
-
-}
+} // end SPI Setup
 
 void SPI_Tx (uint8_t *data, int size) { // Transmit Data
   int i = 0;
@@ -111,10 +93,7 @@ int main (void) {
 
      dummy = 0 ;
      SPI_setup () ;
-     SPI_ENABLE  ;  // Peripheral Enabled (what does it mean)
-
      dummy = 1 ;	
-
      blink (6, 5) ;
 	  
      // Send Some Data 

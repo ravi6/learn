@@ -70,6 +70,8 @@ typedef enum
 #define SET(reg, n) ((reg) |=  (1<<(n)))
 #define CLR(reg, n) ((reg) &= ~(1<<(n)))
 #define CLRSET(reg, cmask, smask) ( (reg) = ((reg) & ~(cmask)) | (smask) ) 
+#define FLIP(reg, n) ((reg) ^=  (1<<(n)))
+#define CHECK(reg, n) ((reg) &  (1<<(n)))
 
 typedef struct 
 {
@@ -103,6 +105,7 @@ enum {P0, P1, P2, P3, P4, P5, P6, P7,
 enum {CPHA, CPOL, MSTR, BR, BR1, BR2, SPE, LSBFIRST, 
       SSI, SSM, RXONLY, CRCL, CRCNEXT, CRCEN, BIDIOE, BIDIMODE} ;
 
+// SPI Control Register (CR2) flags
 enum {RXDMAEN, TXDMAEN, SSOE, NSSP, FRF, ERRIE, RXNEIE, 
       TXEIE, DS, DS1, DS2, DS3, FRXTH, LDMARX, LDMATX}  ;
 
@@ -115,15 +118,15 @@ enum {AF0, AF1, AF2, AF3, AF4, AF5, AF6, AF7,
       AF8, AF9, AF10, AF11, AF12, AF13, AF14, AF15} ;
 
 // SPI related macros
-#define TX_EMPTY   (( (SPI->SR) & (1 << TXE) )) 
-#define RX_EMPTY   (!( (SPI->SR) & (1 << RXNE) ))
-#define SPI_BUSY   (( (SPI->SR) & (1 << BSY)) )
+#define TX_EMPTY   (CHECK(SPI->SR, TXE)) 
+#define RX_EMPTY   (!( CHECK(SPI->SR, RXNE) ))
+#define SPI_BUSY   (CHECK(SPI->SR, BSY))
 #define SPI_ENABLE   (SET(SPI->CR1, SPE))   
 #define SPI_DISABLE  (CLR(SPI->CR1, SPE))   
 #define SPI_RESET    (CLR(RCC->APB2RSTR, 12))    
 #define SPI_CLKON    (SET(RCC->APB2ENR, 12))   
 #define SPI_CLKOFF   (CLR(RCC->APB2ENR, 12))   
-#define HSI_READY    ((RCC->CR & 0x2))
+#define HSI_READY    (CHECK(RCC->CR, 1))
 
 // GPIOA seup macros
 #define PINA_LOW(n)  (SET(GPIOA->BSRR, (n) + 16))  
@@ -133,4 +136,3 @@ enum {AF0, AF1, AF2, AF3, AF4, AF5, AF6, AF7,
 #define PINA_TYPE(n, mode) (CLRSET(GPIOA->MODER, 3 << 2*(n), (mode) << 2*(n)))  
 // Assign Alternate Functions to GPIOA pins (0 to 7 only)
 #define ALT_FUNA(p, a)  (CLRSET(GPIOA->AFRL, 0xF << 4*(p), (a) << 4*(p)))  
-      
