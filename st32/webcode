@@ -1,0 +1,175 @@
+// This implementation is fairlhyclose to what I did
+//  Look for any missing stuff in my code.
+
+#include <stdint.h>
+#include "stm32f4xx.h"
+
+void SPI1_INIT(void)
+{
+	RCC->APB2ENR |= RCC_APB2ENR_SPI1EN; // Enable SPI1 Clock
+	SPI1->CR1 |= SPI_CR1_BR_0;	//Div 4
+	SPI1->CR1 |= SPI_CR1_MSTR;  	//Bit 2 MSTR: Master selection
+	SPI1->CR1 |= SPI_CR1_SSM | SPI_CR1_SSI;
+	SPI1->CR1 |= SPI_CR1_SPE; 	//Bit 6 SPE: SPI enable
+}
+
+void SPI1_GPIO_INIT(void) 
+// PA4 - SPI1_NSS | PA5-SPI1_SCK | PA6-SPI1_MISO| PA7-SPI1_MOSI
+{
+	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN; //Enable GPIOA Clock
+	GPIOA->MODER |= GPIO_MODER_MODER4_0;  //PA4 GPIO OUT mde
+	GPIOA->MODER |= GPIO_MODER_MODER5_1;  //Enable AF mode for GPIOA PA5
+	GPIOA->MODER |= GPIO_MODER_MODER6_1;  //Enable AF for GPIOA PA6
+	GPIOA->MODER |= GPIO_MODER_MODER7_1;  //Enable AF for GPIOA PA7
+        
+        // This is Strange ... I don't follow this
+        // Very different to what I see for my device ST32F303k8
+	GPIOA->AFR[0] |= 0x5UL<<GPIO_AFRL_AFSEL5_Pos;  //GPIO AF set 0101 AF5 SPI PA5
+	GPIOA->AFR[0] |= 0x5UL<<GPIO_AFRL_AFSEL6_Pos;  //GPIO AF set 0101 AF5 SPI PA6
+	GPIOA->AFR[0] |= 0x5UL<<GPIO_AFRL_AFSEL7_Pos;  //GPIO AF set 0101 AF5 SPI PA7
+}
+
+void spi_send(uint8_t data)
+{
+	while(!(SPI1->SR & SPI_SR_TXE)); // Wait for TX buffer is emptly
+	SPI1->DR = data;				  // Send data to TX buffer
+}
+
+uint8_t spi_receive(void)
+{
+	while(!(SPI1->SR & SPI_SR_RXNE));
+	return SPI1->DR;
+}
+
+
+int main(void)
+{
+
+	SPI1_GPIO_INIT();
+	SPI1_INIT();
+	for(;;){ // infinite loop
+		GPIOA->BSRR = GPIO_BSRR_BR4;
+		while(!(SPI1->SR & SPI_SR_TXE));  // Wait for TX buffer is emptly
+		SPI1->DR = 0xFF;  // Send data to TX buffer
+
+		while(!(SPI1->SR & SPI_SR_RXNE));
+		uint8_t tmp  = SPI1->DR;
+
+
+//		while(!(SPI1->SR & SPI_SR_TXE));
+//		while ((SPI1->SR & SPI_SR_BSY));
+//		for(uint32_t i = 0; i<100; i++);
+
+		GPIOA->BSRR = GPIO_BSRR_BS4;
+
+	}
+}
+
+#include <stdint.h>
+#include "stm32f4xx.h"
+
+
+void SPI1_INIT(void)
+{
+	RCC->APB2ENR |= RCC_APB2ENR_SPI1EN; // Enable SPI1 Clock
+
+	SPI1->CR1 |= SPI_CR1_BR_0;			//Div 4
+	SPI1->CR1 |= SPI_CR1_MSTR; 		 	//Bit 2 MSTR: Master selection
+	SPI1->CR1 |= SPI_CR1_SSM | SPI_CR1_SSI;
+	
+
+	SPI1->CR1 |= SPI_CR1_SPE; 			//Bit 6 SPE: SPI enable
+
+}
+
+void SPI1_GPIO_INIT(void) // PA4 - SPI1_NSS | PA5-SPI1_SCK | PA6-SPI1_MISO| PA7-SPI1_MOSI
+{
+	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN; //Enable GPIOA Clock
+
+	GPIOA->MODER |= GPIO_MODER_MODER4_0;  //PA4 GPIO OUT mde
+	GPIOA->MODER |= GPIO_MODER_MODER5_1;  //Enable Alternate function mode for GPIOA PA5
+	GPIOA->MODER |= GPIO_MODER_MODER6_1;  //Enable Alternate function mode for GPIOA PA6
+	GPIOA->MODER |= GPIO_MODER_MODER7_1;  //Enable Alternate function mode for GPIOA PA7
+
+	GPIOA->AFR[0] |= 0x5UL<<GPIO_AFRL_AFSEL5_Pos;  //GPIO alternate function set 0101 AF5 SPI PA5
+	GPIOA->AFR[0] |= 0x5UL<<GPIO_AFRL_AFSEL6_Pos;  //GPIO alternate function set 0101 AF5 SPI PA6
+	GPIOA->AFR[0] |= 0x5UL<<GPIO_AFRL_AFSEL7_Pos;  //GPIO alternate function set 0101 AF5 SPI PA7
+
+}
+
+
+
+void spi_send(uint8_t data)
+{
+	while(!(SPI1->SR & SPI_SR_TXE)); // Wait for TX buffer is emptly
+	SPI1->DR = data;				  // Send data to TX buffer
+}
+
+uint8_t spi_receive(void)
+{
+	while(!(SPI1->SR & SPI_SR_RXNE));
+	return SPI1->DR;
+}
+
+
+int main(void)
+{
+
+	SPI1_GPIO_INIT();
+	SPI1_INIT();
+
+	for(;;){
+
+
+		GPIOA->BSRR = GPIO_BSRR_BR4;
+
+		while(!(SPI1->SR & SPI_SR_TXE));  // Wait for TX buffer is emptly
+		SPI1->DR = 0xFF;				  // Send data to TX buffer
+
+
+		while(!(SPI1->SR & SPI_SR_RXNE));
+		uint8_t tmp  = SPI1->DR;
+
+
+//		while(!(SPI1->SR & SPI_SR_TXE));
+//		while ((SPI1->SR & SPI_SR_BSY));
+
+//		for(uint32_t i = 0; i<100; i++);
+
+		GPIOA->BSRR = GPIO_BSRR_BS4;
+
+
+	}
+}
+
+
+
+Another Minimalist Implementation
+volatile uint8_t buf[1000] = {0b11001000};
+
+// initialize
+RCC->AHB1ENR |= bit0|bit2;		// enable DMA1 and DMAMUX clocks
+RCC->AHB2ENR |= bit0; // enable GPIOA clock
+RCC->APB2ENR |= bit12; // enable SPI1 clock
+
+GPIOA->MODER &= ~(0b11<<14);
+GPIOA->MODER |= (0b10<<14); // PA7 alternate function
+GPIOA->AFRL |= (5<<28); // PA7 SPI1 MOSI
+GPIOA->OSPEEDR |= (0b11<<14); // MOSI speed high
+
+DMA1_Channel1->CCR = 0; // disable DMA
+DMA1_Channel1->CPAR = (uint32_t)&SPI1->DR; // peripheral SPI1
+DMA1_Channel1->CMAR = (uint32_t)&buf; // memory array
+DMA1_Channel1->CCR |= (bit4|bit7|(0b11<<12)); // memory to peripheral, memory increment, very high priority
+
+DMAMUX1_Channel0->CCR = 11; // DMAMUX SPI1TX
+
+SPI1->CR1 |= (bit2|(0b100<<3)|bit8|bit9|bit14); // SPI1 master, f/32, SSI, SSM, bidirectional mode
+SPI1->CR2 |= bit1;        // SPITX DMA enable
+
+// send bytes
+SPI1->CR1 &= ~bit6; // SPI1 disable
+DMA1_Channel1->CCR &= ~bit0;	// disable DMA
+DMA1_Channel1->CNDTR = 1000; // reload amount
+DMA1_Channel1->CCR |= bit0; // DMA1 enable
+SPI1->CR1 |= bit6; // SPI1 enable

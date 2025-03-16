@@ -11,6 +11,7 @@ to do some basic chores  such as
    ... conneting to the debugger port 
    ... start logging session
    ... executing any other commands 
+   ... We can also source cmds   
 
 
 

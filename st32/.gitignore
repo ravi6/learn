@@ -1,2 +1,6 @@
 oled
+keep
+*.o
+*.elf
+*.bin
 zzz

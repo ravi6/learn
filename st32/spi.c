@@ -1,8 +1,11 @@
+// Author: Ravi Saripalli
+// 10th Sep. 2024
+
 #include "mystm32.h"
 #include <string.h>
 
 // PIN names for use here
-enum {SCLK=5, MISO, MOSI, LED} ;
+enum {MOSI=5, MISO, SCLK, LED} ;
 
 static void delay (unsigned int time) {
     for (unsigned int i = 0; i < time; i++)
@@ -12,39 +15,48 @@ static void delay (unsigned int time) {
 void SPI_setup () {
   // Setup GPIOA and SPI interface 
   // For Simplex comms .... Master to Slave comms only
-    
   // APB2 Hight Speed Clock Prescale ( HSI is 8MHz , and I devide it by 8)
   //   SPI1 appears to be on this bus  and I want it run slower 
   // See documentation page 130 & 272
 
     while ( ! HSI_READY  ) {}  // wait for High Speed Internal Clock ready (HSI)
     CLRSET(RCC->CFGR, 0b111 << 11, 0b110 << 11) ; // division by 8
-    SPI_CLKON   ;
+
+
     GPIOA_CLKON ;
-    SPI_ENABLE ;
-    SPI_RESET  ;
+    ALT_FUNA(MOSI, AF5) ;    // PA5
+    ALT_FUNA(MISO, AF5) ;    // PA6
+    ALT_FUNA(SCLK, AF5) ;    // PA7
 
 					   
   // Set Alternate mode (for SPI interface )
-    PINA_TYPE(SCLK, AF)  ; // PA5 -- SCLK Send to OLED pin (*A4) 
-    ALT_FUNA(P5, AF4) ;
-    PINA_TYPE(MISO, AF)  ; // PA6 -- MISO From OLED (*A5)
-    ALT_FUNA(P6, AF5) ;
-    PINA_TYPE(MOSI, AF)  ; // PA7 -- MOSI to OLED  (*A6)
-    ALT_FUNA(P7, AF6) ; 
+  // Note Alternate Function for all three pins is AF5
+  // While there no table exists that sats AF5 is for
+  // SPI1 .. web trawl seems to suggest this
+  // Anyway how does it know which pin is MISO , MOSI, & SCLK
+  // Is it always in the order of MISO, MOSI, SCLK
+  // * symbols correspond to markings on the PCB
 
-    PINA_TYPE(LED, OUT)  ; // PA8 -- (LED Indicator ... may change later)
+    SPI_CLKON   ;
+    PINA_TYPE(MOSI, AF)  ; // PA5 -- MOSI to OLED  (*A5)
+    PINA_TYPE(MISO, AF)  ; // PA6 -- MISO From OLED (*A6)
+    PINA_TYPE(SCLK, AF)  ; // PA7 -- SCLK Send to OLED pin (*A7) 
 
     CLR(SPI->CR1, CPHA)  ;  // Clock Phase (0) First Clock transition
     CLR(SPI->CR1, CPOL)  ;  // Clock polarity to zero  (clock idle when 0)
     SET(SPI->CR1, MSTR)  ;  // Set Me as as the Master
+    SET(SPI->CR1, SSM)   ;  // Software Slave Mangement Enabled
+    SET(SPI->CR1, SSI)   ;  // Internal Slect Slave on
     SET(SPI->CR1, LSBFIRST) ;  // LSB first then MSB
-    CLR(SPI->CR1, RXONLY)  ;  // Duplex (Transmit & Rec)
+    CLR(SPI->CR1, RXONLY)  ;  // Full Duplex Mode 
     SET(SPI->CR1, BIDIOE)  ;  // Output Enabled (Trasmit Only)
-    SET(SPI->CR1, BIDIMODE)  ;  // One Line Bidirectional
+    CLR(SPI->CR1, BIDIMODE)  ;  // Two Line Bidirectional
     CLRSET(SPI->CR1, 0b111 << BR,  0b111 << BR); // Set Baudrate (fsck/256)
     CLRSET(SPI->CR2, 0b1111 << DS, 0b0111 << DS) ;  // 8bit Data Size for transfer
     SET(SPI->CR2, FRXTH) ;  // FIFO threshold 16bits for RXNE event
+
+    SPI_ENABLE ;
+//  SPI_RESET  ;
 
 } // end SPI Setup
 
@@ -89,21 +101,19 @@ int main (void) {
    char* data ;  
    int dummy ;
 
-   while (1) {
-
+     PINA_TYPE(LED, OUT)  ; // PA8 -- (LED Indicator ... may change later)
      dummy = 0 ;
      SPI_setup () ;
-     dummy = 1 ;	
+     dummy = 1  ;
      blink (6, 5) ;
+
+while (1) {
 	  
      // Send Some Data 
 
-//while (1) {
-//       data = "ABCD " ;
-//       for (int i = 0 ; i < 10 ; i++) 
-//	   SPI_Tx ((uint8_t*) (data), strlen (data));
-//     }
-
+       data = "ABCD " ;
+       for (int i = 0 ; i < 10 ; i++) 
+	   SPI_Tx ((uint8_t*) (data), strlen (data));
    } // infinite loop
 
    return (1) ;
