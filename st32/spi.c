@@ -20,27 +20,28 @@ void SPI_setup () {
   // See documentation page 130 & 272
 
     while ( ! HSI_READY  ) {}  // wait for High Speed Internal Clock ready (HSI)
-    CLRSET(RCC->CFGR, 0b111 << 11, 0b110 << 11) ; // division by 8
-
+    CLRSET(RCC->CFGR, 0b111 << 11, 0b111 << 11) ; // division by 16
 
     GPIOA_CLKON ;
+    /*  Assign Alternate function AF5 the all these SPI1 pins */
     ALT_FUNA(MOSI, AF5) ;    // PA5
     ALT_FUNA(MISO, AF5) ;    // PA6
     ALT_FUNA(SCLK, AF5) ;    // PA7
-
-					   
+    CLRSET(GPIOA->OSPEEDR, 0b11 << MISO, 0b00) ;  // MISO low speed
+    CLRSET(GPIOA->OSPEEDR, 0b11 << SCLK, 0b00) ;  // SCLK low speed
+						   
   // Set Alternate mode (for SPI interface )
   // Note Alternate Function for all three pins is AF5
   // While there no table exists that sats AF5 is for
   // SPI1 .. web trawl seems to suggest this
   // Anyway how does it know which pin is MISO , MOSI, & SCLK
-  // Is it always in the order of MISO, MOSI, SCLK
+  // Is it always in the order of MISO, MOSI, SCLK ??
   // * symbols correspond to markings on the PCB
 
     SPI_CLKON   ;
-    PINA_TYPE(MOSI, AF)  ; // PA5 -- MOSI to OLED  (*A5)
-    PINA_TYPE(MISO, AF)  ; // PA6 -- MISO From OLED (*A6)
-    PINA_TYPE(SCLK, AF)  ; // PA7 -- SCLK Send to OLED pin (*A7) 
+    PINA_TYPE(MOSI, AF)  ; // PA5 -- MOSI to OLED  (*A4)
+    PINA_TYPE(MISO, AF)  ; // PA6 -- MISO From OLED (*A5)
+    PINA_TYPE(SCLK, AF)  ; // PA7 -- SCLK Send to OLED pin (*A6) 
 
     CLR(SPI->CR1, CPHA)  ;  // Clock Phase (0) First Clock transition
     CLR(SPI->CR1, CPOL)  ;  // Clock polarity to zero  (clock idle when 0)
