@@ -15,3 +15,6 @@ to do some basic chores  such as
 
 
 
+#Contents of gdbinit
+#target extended-remote localhost:4242
+#set logging on

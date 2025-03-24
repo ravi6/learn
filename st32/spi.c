@@ -3,9 +3,10 @@
 
 #include "mystm32.h"
 #include <string.h>
+#define CS 0        
 
 // PIN names for use here
-enum {MOSI=5, MISO, SCLK, LED} ;
+enum {SCLK=5, MISO, MOSI, LED} ;
 
 static void delay (unsigned int time) {
     for (unsigned int i = 0; i < time; i++)
@@ -24,9 +25,9 @@ void SPI_setup () {
 
     GPIOA_CLKON ;
     /*  Assign Alternate function AF5 the all these SPI1 pins */
-    ALT_FUNA(MOSI, AF5) ;    // PA5
-    ALT_FUNA(MISO, AF5) ;    // PA6
-    ALT_FUNA(SCLK, AF5) ;    // PA7
+    ALT_FUNA(SCLK, AF5) ;    // PA5  (*A4)
+    ALT_FUNA(MISO, AF5) ;    // PA6  (*A5)
+    ALT_FUNA(MOSI, AF5) ;    // PA7  (*A6)
     CLRSET(GPIOA->OSPEEDR, 0b11 << MISO, 0b00) ;  // MISO low speed
     CLRSET(GPIOA->OSPEEDR, 0b11 << SCLK, 0b00) ;  // SCLK low speed
 						   
@@ -100,31 +101,28 @@ void blink (int n, int rate) { // Blink PA8
 
 int main (void) {
    char* data ;  
-   int dummy ;
+   uint8_t* dummy ;
 
      PINA_TYPE(LED, OUT)  ; // PA8 -- (LED Indicator ... may change later)
-     dummy = 0 ;
+     PINA_TYPE(CS, OUT)   ; // PA0 -- Chip Select to OLED
      SPI_setup () ;
-     dummy = 1  ;
      blink (6, 5) ;
 
 while (1) {
 	  
      // Send Some Data 
 
-       data = "ABCD " ;
-       for (int i = 0 ; i < 10 ; i++) 
-	   SPI_Tx ((uint8_t*) (data), strlen (data));
+       data = "w" ;
+   //    dummy = (uint8_t*) data ;
+   //   for (int j = 0 ; j < 4 ; j++) dummy[j] = 170 ;
+
+    //   for (int i = 0 ; i < 10 ; i++) 
+	   SPI_Tx ((uint8_t*) data, strlen (data));
    } // infinite loop
 
    return (1) ;
 } // end main
-//  from top (usbend) rght
-//  board pin (bpin)
-//  bpin6---> MOSI --> PA7
-//  binp7---> MISO --> PA6
-//  bpin8---> SCLK --> PA5
-//  bpin9---> SSE --> PA4
+  //
 //
 // Board Marker   GPIO CODE 
 //   D9            PA8
