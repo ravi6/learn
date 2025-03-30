@@ -2,18 +2,16 @@
 // 10th Sep. 2024
 
 #include "mystm32.h"
+#include "gpio.h"
+#include "spi.h"
 #include <string.h>
-#define CS 0        
-
-// PIN names for use here
-enum {SCLK=5, MISO, MOSI, LED} ;
 
 static void delay (unsigned int time) {
     for (unsigned int i = 0; i < time; i++)
         for (volatile unsigned int j = 0; j < 2000; j++);
 }
 
-void SPI_setup () {
+void SPI_Setup () {
   // Setup GPIOA and SPI interface 
   // For Simplex comms .... Master to Slave comms only
   // APB2 Hight Speed Clock Prescale ( HSI is 8MHz , and I devide it by 8)
@@ -92,37 +90,13 @@ void SPI_Rx (uint8_t *data, int size) { //Receive Data
     }
 } // end SPI_Rx
 
-void blink (int n, int rate) { // Blink PA8 
+void blinkLED (int n, int rate) { 
+    PINA_TYPE(LED, OUT)  ; // PA8 -- (LED Indicator ... may change later)
     for (int i=0 ; i < n ; i++) {
         PINA_LOW(LED)  ; delay (500/rate) ;
 	PINA_HIGH(LED) ; delay (500/rate) ;
     }
 } // end Blink
 
-int main (void) {
-   char* data ;  
-   uint8_t* dummy ;
-
-     PINA_TYPE(LED, OUT)  ; // PA8 -- (LED Indicator ... may change later)
-     PINA_TYPE(CS, OUT)   ; // PA0 -- Chip Select to OLED
-     SPI_setup () ;
-     blink (6, 5) ;
-
-while (1) {
-	  
-     // Send Some Data 
-
-       data = "w" ;
-   //    dummy = (uint8_t*) data ;
-   //   for (int j = 0 ; j < 4 ; j++) dummy[j] = 170 ;
-
-    //   for (int i = 0 ; i < 10 ; i++) 
-	   SPI_Tx ((uint8_t*) data, strlen (data));
-   } // infinite loop
-
-   return (1) ;
-} // end main
-  //
-//
 // Board Marker   GPIO CODE 
 //   D9            PA8

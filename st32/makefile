@@ -32,19 +32,21 @@ CXXFLAGS += -fno-rtti
 CXXFLAGS += -fno-exceptions
 CXXFLAGS += -fno-unwind-tables
 
+OBJ =  main.o  oled.o spi.o 
+
 all: app.bin
 
-main.o: main.c 
-	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c -o main.o  main.c
+$(OBJ): %.o: %.c
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c $^ -o $@
 
 sys.o: $(SYS).c
-	$(CC) $(CPPLAGS) $(CXXFLAGS) -c -o sys.o  $(SYS).c
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c -o sys.o  $(SYS).c
 
 startup.o: $(DEV).s
 	$(CC) $(CPPFLAGS) $(CXXFLAGS)  -c -o startup.o  $(DEV).s
 
-app.elf:  main.o startup.o sys.o
-	$(CC) $(CPPFLAGS) $(CXXFLAGS)   -o app.elf startup.o sys.o  main.o
+app.elf:  $(OBJ) startup.o sys.o
+	$(CC) $(CPPFLAGS) $(CXXFLAGS)   -o app.elf  startup.o sys.o $(OBJ) 
 
 app.bin: app.elf
 	$(BIN) -O binary app.elf app.bin

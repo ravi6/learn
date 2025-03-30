@@ -1,3 +1,6 @@
+#ifndef MYSTM32_H
+#define MYSTM32_H
+
 #define __CM4_REV                 0x0001U  /*!< Core revision r0p1                            */
 #define __MPU_PRESENT             0U       /*!< STM32F303x8 devices do not provide an MPU */
 #define __NVIC_PRIO_BITS          4U       /*!< STM32F303x8 devices use 4 Bits for the Priority Levels */
@@ -139,3 +142,5 @@ enum {AF0, AF1, AF2, AF3, AF4, AF5, AF6, AF7,
 #define PINA_TYPE(n, mode) (CLRSET(GPIOA->MODER, 3 << 2*(n), (mode) << 2*(n)))  
 // Assign Alternate Functions to GPIOA pins (0 to 7 only)
 #define ALT_FUNA(p, a)  (CLRSET(GPIOA->AFRL, 0xF << 4*(p), (a) << 4*(p)))  
+
+#endif
