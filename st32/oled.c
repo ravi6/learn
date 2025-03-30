@@ -9,22 +9,22 @@
 #include "oled.h"
 
 void oled_sendCMD (uint8_t cmd) { /* Good for single byte CMD */
-    PINA_LOW (CS) ;    // Chip Select
+    PINA_LOW (DC) ;    // Chip Select
     SPI_Tx (&cmd, 1) ;
 }
 
 void oled_setRange (uint8_t cmd, uint8_t start, uint8_t end) {
     uint8_t data [2] = {start, end} ;
 
-    PINA_LOW (CS) ;
+    PINA_LOW (DC) ;
     SPI_Tx (&cmd, 1) ;
 
-    PINA_HIGH (CS) ;
+    PINA_HIGH (DC) ;
     SPI_Tx (&data[0] , sizeof (data)) ;
 }
 
 void oled_Hscroll (uint8_t cmd) {
-    PINA_LOW (CS) ;
+    PINA_LOW (DC) ;
     SPI_Tx (&cmd, 1) ;
 }
 
@@ -37,9 +37,9 @@ void oled_Hscroll_Conf () {
     hs.speed = NORMAL ;
 
     uint8_t cmd = 0x96 ;   // Horizontal Scroll Setup
-    PINA_LOW (CS) ;
+    PINA_LOW (DC) ;
     SPI_Tx (&cmd, 1) ;
-    PINA_HIGH (CS) ;
+    PINA_HIGH (DC) ;
     SPI_Tx ((uint8_t *) (&hs) , sizeof (hs)) ;
 }
 
@@ -47,24 +47,23 @@ void oled_Address_Inc (uint8_t dir) {
     uint8_t cmd = 0xA0   ; 
     uint8_t data = dir ;
 
-    PINA_LOW (CS) ;
+    PINA_LOW (DC) ;
     SPI_Tx (&cmd, 1) ;
 
-    PINA_HIGH (CS) ;
+    PINA_HIGH (DC) ;
     SPI_Tx (&data , sizeof (data)) ;
 }
 
-
 void oled_init () {
    static uint8_t data [4] = { \
-            DISP_ALLOFF,     /* Black Screen */
-            DISP_ON,         /* White Screen */
+            //DISP_ALLOFF,     /* Black Screen */
+            //DISP_ON,         /* White Screen */
 	    DISP_OFF,         /* Show contents of GDDRAM */
-	    SLEEP_OFF
-   }; 
+	    SLEEP_OFF }; 
 
    SPI_Setup () ;
-   PINA_TYPE(CS, OUT)   ; //  Chip Select to OLED
-   PINA_LOW (CS) ;  
+   blinkLED (6, 5) ;
+   PINA_TYPE(DC, OUT)   ; // Oled Data/Command (DC) control Pin
+   PINA_LOW (DC) ;  
    SPI_Tx (&data[0], sizeof (data));
 }

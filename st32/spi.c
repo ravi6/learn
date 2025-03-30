@@ -38,9 +38,9 @@ void SPI_Setup () {
   // * symbols correspond to markings on the PCB
 
     SPI_CLKON   ;
-    PINA_TYPE(MOSI, AF)  ; // PA5 -- MOSI to OLED  (*A4)
+    PINA_TYPE(SCLK, AF)  ; // PA5 -- SCLK Send to OLED pin (*A4) 
     PINA_TYPE(MISO, AF)  ; // PA6 -- MISO From OLED (*A5)
-    PINA_TYPE(SCLK, AF)  ; // PA7 -- SCLK Send to OLED pin (*A6) 
+    PINA_TYPE(MOSI, AF)  ; // PA7 -- MOSI to OLED  (*A6)
 
     CLR(SPI->CR1, CPHA)  ;  // Clock Phase (0) First Clock transition
     CLR(SPI->CR1, CPOL)  ;  // Clock polarity to zero  (clock idle when 0)

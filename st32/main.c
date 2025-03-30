@@ -5,13 +5,13 @@
 
 int main (void) {
    char* data ;  
-   blinkLED (6, 5) ;
 
-while (1) {
-	  
-     // Send Some Data 
-       data = "w" ;
-       SPI_Tx ((uint8_t*) data, sizeof (data));
+   oled_init () ;
+   while (1) {
+	 data = "w" ;
+       /* Send Some Data 
+	 SPI_Tx ((uint8_t*) data, sizeof (data));
+	 */
    } // infinite loop
 
    return (1) ;
