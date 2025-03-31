@@ -4,14 +4,18 @@
 #include "oled.h"
 
 int main (void) {
-   char* data ;  
+   uint16_t color ;
+   uint8_t i ;
 
    oled_init () ;
+   color = RED ;
    while (1) {
-	 data = "w" ;
-       /* Send Some Data 
-	 SPI_Tx ((uint8_t*) data, sizeof (data));
-	 */
+     oled_draw (i, i, color) ;
+     if ( color == RED ) {
+        color = BLUE ; i = 20 ; 
+     } else  {
+        color = RED ; i = 10 ; 
+     } 
    } // infinite loop
 
    return (1) ;
