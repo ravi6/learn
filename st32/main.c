@@ -9,13 +9,16 @@ int main (void) {
 
    oled_init () ;
    color = RED ;
-   while (1) {
+   i = 1 ;
+
      oled_draw (i, i, color) ;
      if ( color == RED ) {
-        color = BLUE ; i = 20 ; 
+        color = BLUE ; i = 2 ; 
      } else  {
-        color = RED ; i = 10 ; 
+        color = RED ; i = 1 ; 
      } 
+     oled_update () ;
+   while (1) {
    } // infinite loop
 
    return (1) ;

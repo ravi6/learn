@@ -7,10 +7,11 @@
 #include "spi.h"
 
 enum {RAM_WRITE_ENABLE = 0x5C, RAM_READ_ENABLE} ;
-enum {DISP_ALLOFF = 0xA4, DISP_OFF, DISP_ON, DISP_INV} ;
-enum {SLEEP_ON = 0xAE, SLEEP_OFF} ;
+enum {DISP_BLACK = 0xA4, DISP_WHITE, DISP_NORMAL, DISP_INV} ;
+enum {DISP_ON = 0xAE, DISP_OFF} ;
 enum {SET_COL_RANGE = 0x15, SET_ROW_RANGE = 0x75} ;
 enum {HSC_STOP = 0x9E, HSC_START = 0x9F} ;
+enum {GPIO_HIZ = 0, GPIO_LOW = 2, GPIO_HIGH = 3} ;
 
 enum {HORIZ, VERT} ;
 enum {TEST, NORMAL, SLOW, SLOWEST} ;

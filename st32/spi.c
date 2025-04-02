@@ -18,8 +18,9 @@ void SPI_Setup () {
   //   SPI1 appears to be on this bus  and I want it run slower 
   // See documentation page 130 & 272
 
-    while ( ! HSI_READY  ) {}  // wait for High Speed Internal Clock ready (HSI)
-    CLRSET(RCC->CFGR, 0b111 << 11, 0b111 << 11) ; // division by 16
+  //    Default HSI is 8MHz ... check
+//    while ( ! HSI_READY  ) {}  // wait for High Speed Internal Clock ready (HSI)
+//    CLRSET(RCC->CFGR, 0b111 << 11, 0b111 << 11) ; // division by 16
 
     GPIOA_CLKON ;
     /*  Assign Alternate function AF5 the all these SPI1 pins */
@@ -51,7 +52,9 @@ void SPI_Setup () {
     CLR(SPI->CR1, RXONLY)  ;  // Full Duplex Mode 
     SET(SPI->CR1, BIDIOE)  ;  // Output Enabled (Trasmit Only)
     CLR(SPI->CR1, BIDIMODE)  ;  // Two Line Bidirectional
-    CLRSET(SPI->CR1, 0b111 << BR,  0b111 << BR); // Set Baudrate (fsck/256)
+    //CLRSET(SPI->CR1, 0b111 << BR,  0b111 << BR); // Set Baudrate (fsck/256)
+    // SPI Clock will be 4MHz
+    CLRSET(SPI->CR1, 0b111 << BR,  0b0000 << BR); // Set Baudrate (fsck/2)
     CLRSET(SPI->CR2, 0b1111 << DS, 0b0111 << DS) ;  // 8bit Data Size for transfer
     SET(SPI->CR2, FRXTH) ;  // FIFO threshold 16bits for RXNE event
 

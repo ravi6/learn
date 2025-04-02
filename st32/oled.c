@@ -7,6 +7,7 @@
 */
 
 #include "oled.h"
+#define  DELAY ( blinkLED (1, 20) ) 
 
 // Display Memory allocation
 union u_DRAM
@@ -17,12 +18,16 @@ union u_DRAM
 
 void oled_sendCMD (uint8_t cmd) { /* Good for single byte CMD */
     PINA_LOW (DC) ;    // cmd mode
+    PINA_LOW (CS) ;
     SPI_Tx (&cmd, 1) ;
+    PINA_HIGH (CS) ;
 }
 
 void oled_sendDAT (uint8_t data) {
     PINA_HIGH (DC) ;  // data mode
+    PINA_LOW (CS) ;
     SPI_Tx (&data , 1) ;
+    PINA_HIGH (CS) ;
 } 
 
 void oled_setRange (uint8_t cmd, uint8_t start, uint8_t end) {
@@ -46,29 +51,60 @@ void oled_Hscroll_Conf () {
 
     oled_sendCMD (0x96) ;  // Horizontal Scroll setup
     PINA_HIGH (DC) ;       // Send below data bytes
+    PINA_LOW (CS) ;
     SPI_Tx ((uint8_t *) (&hs) , sizeof (hs)) ;
+    PINA_HIGH (CS) ;
 }
 
 void oled_init () {
 
    SPI_Setup () ;
    blinkLED (6, 5) ;
-   PINA_TYPE(DC, OUT)   ; // Oled Data/Command (DC) control Pin
+
+   // These are inputs to the OLED device coming from STM32
+   // Assign STM32 pins 
+   PINA_TYPE(DC, OUT)   ; // Oled Data/Command (DC) Pin
+   PINA_TYPE(CS, OUT)   ; // Chip Select  Pin
+   PINA_TYPE(RS, OUT)   ; // Reset  Pin
+   DELAY ;
+
+   // Toggle Reset Pin to begin
+   PINA_HIGH (RS) ; PINA_HIGH (RS) ;  DELAY ;
+   PINA_LOW (RS) ; delay (5) ; PINA_HIGH (RS) ; DELAY ;
    
   // Unlock Commmands
-    oled_sendCMD (0xFD) ; oled_sendDAT (0x12) ;
-    oled_sendCMD (0xFD) ; oled_sendDAT (0x12) ;
+   oled_sendCMD (0xFD) ; oled_sendDAT (0x12) ;  
+   oled_sendCMD (0xFD) ; oled_sendDAT (0xB1) ; 
+   DELAY ;
 
-    oled_sendCMD (DISP_OFF) ;  // wierdly shows GDDRAM contents 
-    oled_sendCMD (SLEEP_OFF) ; // Turns on Displaying
+   oled_sendCMD (DISP_OFF) ; 
 
-   // Set Display Clock Div (factor 2)
-   //   A complicated data struct
-    oled_sendCMD (0xB3) ; oled_sendDAT (0xF1) ; 
+   // Set Display Clock Divisor (factor= 2^n)
+   // n range is 0 to 15 .... four bits ... 
+   // The msb of the data should correspond to base fosc ....
+   // Data sheet Page 35 ... shows for default fosc MSB =0b1101=0xD
+   oled_sendCMD (0xB3) ; oled_sendDAT (0xD1) ;  // half of default fosc
+   DELAY ;
 
    // Set Mux Ratio
-    oled_sendCMD (0xCA) ; oled_sendDAT (127) ;
+   oled_sendCMD (0xCA) ; oled_sendDAT (128) ;
+   DELAY ;
 
+  /*  Set Scanning Parameters
+   *  Data Byte 
+   *  D[0] = 0   0: Horizonal  Address Inc  
+      D[1] = 0   Column address 0 Mapped to  SEG 0
+      D[2] = 0   Normal Color Sequence (not swapped)
+      D[3] = 0   Reserved
+      D[4] = 0   Scan from COM0 to COM[MUX - 1]
+      D[5] = 0   Disable COM split (Odd/Even)
+      D[6:7] = 0b00 or 0b01    65k Color Depth
+   *  Will yield   data = 0 
+   *
+   */ 
+    oled_sendCMD (0xA0) ;
+    oled_sendDAT (0x00) ;
+    
    // Display Area setup
    oled_setRange (SET_ROW_RANGE, 0, 127) ;
    oled_setRange (SET_COL_RANGE, 0, 127) ;
@@ -81,8 +117,8 @@ void oled_init () {
 
  // Sets various display rersponse and contrast params
 
-  oled_sendCMD(0xB5); // set GPIO
-  oled_sendDAT(0x00);
+  oled_sendCMD(0xB5); // GPIO0 high, GPIO1 disabled
+  oled_sendDAT(0x11); // Without GPIO0  display won't work
 
   oled_sendCMD(0xAB); // func Select
   oled_sendDAT(0x01);
@@ -106,29 +142,20 @@ void oled_init () {
   oled_sendDAT(0xB5);
   oled_sendDAT(0x55);
 
-  oled_sendCMD(0xB6); // set PreCharge Level
+  oled_sendCMD(0xB6); // set PreCharge2 Level
+  oled_sendDAT(0x01);
 
-  /*  Set Scanning Parameters
-   *  Data Byte 
-   *  D[0] = 0   0: Horizonal  Address Inc  
-      D[1] = 0   Column address 0 Mapped to  SEG 0
-      D[2] = 0   Normal Color Sequence (not swapped)
-      D[3] = 0   Reserved
-      D[4] = 0   Scan from COM0 to COM[MUX - 1]
-      D[5] = 0   Disable COM split (Odd/Even)
-      D[6:7] = 0b00 or 0b01    65k Color Depth
-   *  Will yield   data = 0 
-   *
-   */ 
-    oled_sendCMD (0xA0) ;
-    oled_sendDAT (0x00) ;
+   oled_sendCMD (DISP_NORMAL) ;  // shows GDDRAM contents 
+   oled_sendCMD (DISP_ON) ;
 }
 
 void oled_update () {
   // Updates the display, writing the contents of DRAM
   oled_sendCMD (RAM_WRITE_ENABLE) ;
   PINA_HIGH (DC) ;       // Send below data bytes
+  PINA_LOW (CS) ;
   SPI_Tx (&(DRAM.bytes[0]), sizeof (DRAM.bytes))  ;
+  PINA_HIGH (CS) ;
 }
 
 void oled_draw (uint8_t x, uint8_t y, uint16_t color) {
