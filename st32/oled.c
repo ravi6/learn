@@ -7,7 +7,7 @@
 */
 
 #include "oled.h"
-#define  DELAY ( blinkLED (1, 20) ) 
+#define  DELAY ( blinkLED (1, 500) ) 
 
 // Display Memory allocation
 union u_DRAM
@@ -18,16 +18,16 @@ union u_DRAM
 
 void oled_sendCMD (uint8_t cmd) { /* Good for single byte CMD */
     PINA_LOW (DC) ;    // cmd mode
-    PINA_LOW (CS) ;
+    PINA_LOW (CS) ; delay (5) ;
     SPI_Tx (&cmd, 1) ;
-    PINA_HIGH (CS) ;
+    PINA_HIGH (CS) ; delay (5) ;
 }
 
 void oled_sendDAT (uint8_t data) {
     PINA_HIGH (DC) ;  // data mode
-    PINA_LOW (CS) ;
+    PINA_LOW (CS) ; delay (5) ;
     SPI_Tx (&data , 1) ;
-    PINA_HIGH (CS) ;
+    PINA_HIGH (CS) ; delay (5) ;
 } 
 
 void oled_setRange (uint8_t cmd, uint8_t start, uint8_t end) {
@@ -59,7 +59,7 @@ void oled_Hscroll_Conf () {
 void oled_init () {
 
    SPI_Setup () ;
-   blinkLED (6, 5) ;
+   blinkLED (6, 500) ;
 
    // These are inputs to the OLED device coming from STM32
    // Assign STM32 pins 
@@ -69,25 +69,28 @@ void oled_init () {
    DELAY ;
 
    // Toggle Reset Pin to begin
-   PINA_HIGH (RS) ; PINA_HIGH (RS) ;  DELAY ;
-   PINA_LOW (RS) ; delay (5) ; PINA_HIGH (RS) ; DELAY ;
+    PINA_HIGH (RS) ; PINA_HIGH (RS) ;  DELAY ;
+    PINA_LOW (RS) ; delay (5) ; PINA_HIGH (RS) ; DELAY ;
    
   // Unlock Commmands
    oled_sendCMD (0xFD) ; oled_sendDAT (0x12) ;  
+   DELAY ;
    oled_sendCMD (0xFD) ; oled_sendDAT (0xB1) ; 
    DELAY ;
 
-   oled_sendCMD (DISP_OFF) ; 
+   oled_sendCMD (DISP_OFF) ;  // Sleeping Mode
 
-   // Set Display Clock Divisor (factor= 2^n)
-   // n range is 0 to 15 .... four bits ... 
-   // The msb of the data should correspond to base fosc ....
+   // Display clock speed should match SPI speed 
+   // Display clock speed is set with B3 command
+   // First four bits (MSByte) gives 16 levels of base frequency
+   // (fosc) .. and from timing diagram it is (1/20ns) = 50MHz
    // Data sheet Page 35 ... shows for default fosc MSB =0b1101=0xD
-   oled_sendCMD (0xB3) ; oled_sendDAT (0xD1) ;  // half of default fosc
+   //
+   oled_sendCMD (0xB3) ; oled_sendDAT (0xD0) ;  // Display Clock 
    DELAY ;
 
    // Set Mux Ratio
-   oled_sendCMD (0xCA) ; oled_sendDAT (128) ;
+   oled_sendCMD (0xCA) ; oled_sendDAT (32) ;
    DELAY ;
 
   /*  Set Scanning Parameters
@@ -102,7 +105,7 @@ void oled_init () {
    *  Will yield   data = 0 
    *
    */ 
-    oled_sendCMD (0xA0) ;
+    oled_sendCMD (0xA0) ;  // Set Scanning Params
     oled_sendDAT (0x00) ;
     
    // Display Area setup
@@ -121,7 +124,9 @@ void oled_init () {
   oled_sendDAT(0x11); // Without GPIO0  display won't work
 
   oled_sendCMD(0xAB); // func Select
-  oled_sendDAT(0x01);
+  oled_sendDAT(0x00); // Select internal Vdd
+
+  oled_sendCMD (DISP_NORMAL) ;  // shows GDDRAM contents 
 
   oled_sendCMD(0xB1); // set PreCharge
   oled_sendDAT(0x32);
@@ -135,7 +140,7 @@ void oled_init () {
   oled_sendDAT(0x8A);  // Color C: Red
 
   oled_sendCMD(0xC7);  // Contrast Master
-  oled_sendDAT(0x0F);
+  oled_sendDAT(0x0F);  // highest
 
   oled_sendCMD(0xB4);  // set VSL
   oled_sendDAT(0xA0);
@@ -145,8 +150,7 @@ void oled_init () {
   oled_sendCMD(0xB6); // set PreCharge2 Level
   oled_sendDAT(0x01);
 
-   oled_sendCMD (DISP_NORMAL) ;  // shows GDDRAM contents 
-   oled_sendCMD (DISP_ON) ;
+  oled_sendCMD (DISP_ON) ;
 }
 
 void oled_update () {
@@ -163,9 +167,9 @@ void oled_draw (uint8_t x, uint8_t y, uint16_t color) {
   // with zero at bottom left, but pixels are stored 
   // from top left corner (hopefully rowwise)
 
-    y = (ROWS - 1) - y ;  // Since row0 is at the top
+     x = (ROWS - 1) - x ;  // Since row0 is at the top
     // Assuming RowWise storage
-    DRAM.words [x * ROWS + y  ] = color ;
+    DRAM.words [y * ROWS + x  ] = color ;
 }
 
 uint16_t oled_rgb (uint8_t r, uint8_t g, uint8_t b) {

@@ -11,6 +11,7 @@ int main (void) {
    color = RED ;
    i = 1 ;
 
+   while (1) {
      oled_draw (i, i, color) ;
      if ( color == RED ) {
         color = BLUE ; i = 2 ; 
@@ -18,7 +19,7 @@ int main (void) {
         color = RED ; i = 1 ; 
      } 
      oled_update () ;
-   while (1) {
+     delay (200) ;
    } // infinite loop
 
    return (1) ;

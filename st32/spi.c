@@ -7,8 +7,9 @@
 #include <string.h>
 
 void delay (unsigned int time) {
+  // Time in MilliSeconds (Caliberated on STM32F303X8B)
     for (unsigned int i = 0; i < time; i++)
-        for (volatile unsigned int j = 0; j < 2000; j++);
+        for (volatile unsigned int j = 0; j < 575 ; j++);
 }
 
 void SPI_Setup () {
@@ -48,7 +49,7 @@ void SPI_Setup () {
     SET(SPI->CR1, MSTR)  ;  // Set Me as as the Master
     SET(SPI->CR1, SSM)   ;  // Software Slave Mangement Enabled
     SET(SPI->CR1, SSI)   ;  // Internal Slect Slave on
-    SET(SPI->CR1, LSBFIRST) ;  // LSB first then MSB
+    CLR(SPI->CR1, LSBFIRST) ;  // MSB first then LSB
     CLR(SPI->CR1, RXONLY)  ;  // Full Duplex Mode 
     SET(SPI->CR1, BIDIOE)  ;  // Output Enabled (Trasmit Only)
     CLR(SPI->CR1, BIDIMODE)  ;  // Two Line Bidirectional
@@ -93,11 +94,11 @@ void SPI_Rx (uint8_t *data, int size) { //Receive Data
     }
 } // end SPI_Rx
 
-void blinkLED (int n, int rate) { 
+void blinkLED (int n, int ms) { 
     PINA_TYPE(LED, OUT)  ; // PA8 -- (LED Indicator ... may change later)
     for (int i=0 ; i < n ; i++) {
-        PINA_LOW(LED)  ; delay (500/rate) ;
-	PINA_HIGH(LED) ; delay (500/rate) ;
+        PINA_LOW(LED)  ; delay (ms) ;
+	PINA_HIGH(LED) ; delay (ms) ;
     }
 } // end Blink
 
