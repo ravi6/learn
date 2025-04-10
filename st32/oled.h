@@ -16,9 +16,10 @@ enum {GPIO_HIZ = 0, GPIO_LOW = 2, GPIO_HIGH = 3} ;
 enum {HORIZ, VERT} ;
 enum {TEST, NORMAL, SLOW, SLOWEST} ;
 
-#define ROWS 32
-#define COLS 32
+#define ROWS 128
+#define COLS 128
 
+/*
 #define BLUE		0x00F8
 #define RED		0x1F00
 #define GREEN		0xE007
@@ -27,6 +28,7 @@ enum {TEST, NORMAL, SLOW, SLOWEST} ;
 #define AQUA		0xE0FF
 #define BLACK		0x0000
 #define WHITE		0xFFFF
+*/
 
 struct HScroll {
     uint8_t offset ; /* A --> 0 no scroll, 
@@ -46,6 +48,6 @@ void oled_Hscroll_Conf () ;
 void oled_init () ;
 void oled_update () ;
 void oled_draw (uint8_t x, uint8_t y, uint16_t color);
-uint16_t oled_rgb (uint8_t r, uint8_t g, uint8_t b);
+uint16_t oled_rgb (uint16_t r, uint16_t g, uint16_t b);
 
 #endif

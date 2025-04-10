@@ -10,11 +10,13 @@
 #define  DELAY ( blinkLED (1, 500) ) 
 
 // Display Memory allocation
+/*
 union u_DRAM
 {
       uint8_t bytes [2 * ROWS * COLS] ;
       uint16_t words [ROWS * COLS] ;
 } DRAM   ;
+*/
 
 void oled_sendCMD (uint8_t cmd) { /* Good for single byte CMD */
     PINA_LOW (DC) ;    // cmd mode
@@ -69,29 +71,31 @@ void oled_init () {
    DELAY ;
 
    // Toggle Reset Pin to begin
-    PINA_HIGH (RS) ; PINA_HIGH (RS) ;  DELAY ;
-    PINA_LOW (RS) ; delay (5) ; PINA_HIGH (RS) ; DELAY ;
+    PINA_HIGH (RS) ; PINA_HIGH (RS) ;  delay (5)  ;  
+    PINA_LOW (RS) ; delay (5) ; PINA_HIGH (RS) ;
+    delay (5) ;
    
   // Unlock Commmands
    oled_sendCMD (0xFD) ; oled_sendDAT (0x12) ;  
-   DELAY ;
+    delay (5) ;
    oled_sendCMD (0xFD) ; oled_sendDAT (0xB1) ; 
-   DELAY ;
+    delay (5) ;
 
    oled_sendCMD (DISP_OFF) ;  // Sleeping Mode
+    delay (5) ;
 
    // Display clock speed should match SPI speed 
    // Display clock speed is set with B3 command
    // First four bits (MSByte) gives 16 levels of base frequency
    // (fosc) .. and from timing diagram it is (1/20ns) = 50MHz
-   // Data sheet Page 35 ... shows for default fosc MSB =0b1101=0xD
-   //
-   oled_sendCMD (0xB3) ; oled_sendDAT (0xD0) ;  // Display Clock 
-   DELAY ;
+   // But according to CHATGPT .. this does not represent
+   // base frequency of SSD1351. It is 100MHz
+   // When high byte is (11) ... then base Freq. = (11/16) * 100 =
+   oled_sendCMD (0xB3) ; oled_sendDAT (0xA5) ;  // Display Clock
+   delay (5) ;
 
    // Set Mux Ratio
-   oled_sendCMD (0xCA) ; oled_sendDAT (32) ;
-   DELAY ;
+   oled_sendCMD (0xCA) ; oled_sendDAT (ROWS) ;
 
   /*  Set Scanning Parameters
    *  Data Byte 
@@ -101,38 +105,18 @@ void oled_init () {
       D[3] = 0   Reserved
       D[4] = 0   Scan from COM0 to COM[MUX - 1]
       D[5] = 0   Disable COM split (Odd/Even)
-      D[6:7] = 0b00 or 0b01    65k Color Depth
-   *  Will yield   data = 0 
+      D[7:6] = 0b00 256 color,  0b01    65k Color Depth
+   *  Will yield   data = 0x40  for 65k
    *
    */ 
     oled_sendCMD (0xA0) ;  // Set Scanning Params
-    oled_sendDAT (0x00) ;
-    
-   // Display Area setup
-   oled_setRange (SET_ROW_RANGE, 0, 127) ;
-   oled_setRange (SET_COL_RANGE, 0, 127) ;
-
-  // Set Start Line
-    oled_sendCMD (0xA1) ; oled_sendDAT (0) ;
-
-  // Set Display Offset
-    oled_sendCMD (0xA2) ; oled_sendDAT (0) ;
+    oled_sendDAT (0x40) ;  // Mapping, Color Order etc.
+			   // 65k Colors
 
  // Sets various display rersponse and contrast params
 
-  oled_sendCMD(0xB5); // GPIO0 high, GPIO1 disabled
-  oled_sendDAT(0x11); // Without GPIO0  display won't work
-
   oled_sendCMD(0xAB); // func Select
-  oled_sendDAT(0x00); // Select internal Vdd
-
-  oled_sendCMD (DISP_NORMAL) ;  // shows GDDRAM contents 
-
-  oled_sendCMD(0xB1); // set PreCharge
-  oled_sendDAT(0x32);
-
-  oled_sendCMD(0xBE); // set VCOMH
-  oled_sendDAT(0x05);
+  oled_sendDAT(0x01); // Select internal Vdd
 
   oled_sendCMD(0xC1);  // Set Contrast
   oled_sendDAT(0x8A);  // Color A: Blue
@@ -142,41 +126,81 @@ void oled_init () {
   oled_sendCMD(0xC7);  // Contrast Master
   oled_sendDAT(0x0F);  // highest
 
-  oled_sendCMD(0xB4);  // set VSL
-  oled_sendDAT(0xA0);
-  oled_sendDAT(0xB5);
-  oled_sendDAT(0x55);
+  oled_sendCMD(0xB1); // set PreCharge
+  oled_sendDAT(0x32); // Phase 2 Period = 3DCLK, Phase 1 Period = 2DCLK
+
+  oled_sendCMD(0xBB); // set PreCharge Voltage
+  oled_sendDAT(0x17); // Default value (0.2 + 0.4 * 32 / (0x17) ) * Vcc
+
+  oled_sendCMD(0xB4);  // set VSL (Segment Low)
+  oled_sendDAT(0xA0);  // set to external (GND)
+  oled_sendDAT(0xB5);  // This is second Byte (can't change)
+  oled_sendDAT(0x55);  // This is third byte (can't change)
+
+  oled_sendCMD(0xB5);  // GPIO Setting Leaving at reset value
+  oled_sendDAT(0x0F);  // D[3:0] 1111
 
   oled_sendCMD(0xB6); // set PreCharge2 Level
-  oled_sendDAT(0x01);
+  oled_sendDAT(0x03); // set to 3 DCLK
 
-  oled_sendCMD (DISP_ON) ;
+  oled_sendCMD(0xBE); // set High Voltage Level of Common Pin VCOMH
+  oled_sendDAT(0x05); // Default Value
+
+  oled_sendCMD (DISP_NORMAL) ;  // shows GDDRAM contents 
+				//
+   // Display Area setup
+   oled_setRange (SET_ROW_RANGE, 0, ROWS) ;
+   oled_setRange (SET_COL_RANGE, 0, COLS) ;
+
+  // Set Start Line
+    oled_sendCMD (0xA1) ; oled_sendDAT (0) ;
+
+  // Set Display Offset
+    oled_sendCMD (0xA2) ; oled_sendDAT (0) ;
+
+    oled_sendCMD (DISP_ON) ;
+    delay (500) ;
+
 }
 
+/*
 void oled_update () {
   // Updates the display, writing the contents of DRAM
   oled_sendCMD (RAM_WRITE_ENABLE) ;
   PINA_HIGH (DC) ;       // Send below data bytes
   PINA_LOW (CS) ;
+  delay(10) ;
   SPI_Tx (&(DRAM.bytes[0]), sizeof (DRAM.bytes))  ;
   PINA_HIGH (CS) ;
 }
+*/
 
 void oled_draw (uint8_t x, uint8_t y, uint16_t color) {
   // view x,y as normal graph paper coordinates
   // with zero at bottom left, but pixels are stored 
   // from top left corner (hopefully rowwise)
 
-     x = (ROWS - 1) - x ;  // Since row0 is at the top
+    //  x = (ROWS - 1) - x ;  // Since row0 is at the top
     // Assuming RowWise storage
-    DRAM.words [y * ROWS + x  ] = color ;
+    // DRAM.words [y * ROWS + x  ] = color ;
+   
+  oled_setRange (SET_ROW_RANGE, x, x+40) ;
+  oled_setRange (SET_COL_RANGE, y, y+40) ;
+  oled_sendCMD (RAM_WRITE_ENABLE) ;
+  PINA_HIGH (DC) ;       // Send below data bytes
+  PINA_LOW (CS) ;
+  delay(10) ;
+  
+  for (int i = 0 ; i < 1500 ; i++) 
+       SPI_Tx ((uint8_t *) (&color), sizeof (color))  ;
+  PINA_HIGH (CS) ;
 }
 
-uint16_t oled_rgb (uint8_t r, uint8_t g, uint8_t b) {
+uint16_t oled_rgb (uint16_t r, uint16_t g, uint16_t b) {
   uint16_t color ;
-  r = r & 0x1F ;   // truncate to 5bits 
-  g = r & 0x3F ;   // truncate to 6bits 
-  b = r & 0x1F ;   // truncate to 5bits 
+  r = r & 0x001F ;   // truncate to 5bits 
+  g = r & 0x003F ;   // truncate to 6bits 
+  b = r & 0x001F ;   // truncate to 5bits 
   color = color | r ;
   color = color | (g << 5) ;
   color = color | (b << 11) ;

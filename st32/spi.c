@@ -28,7 +28,7 @@ void SPI_Setup () {
     ALT_FUNA(SCLK, AF5) ;    // PA5  (*A4)
     ALT_FUNA(MISO, AF5) ;    // PA6  (*A5)
     ALT_FUNA(MOSI, AF5) ;    // PA7  (*A6)
-    CLRSET(GPIOA->OSPEEDR, 0b11 << MISO, 0b00) ;  // MISO low speed
+    CLRSET(GPIOA->OSPEEDR, 0b11 << MOSI, 0b00) ;  // MISO low speed
     CLRSET(GPIOA->OSPEEDR, 0b11 << SCLK, 0b00) ;  // SCLK low speed
 						   
   // Set Alternate mode (for SPI interface )
@@ -40,6 +40,7 @@ void SPI_Setup () {
   // * symbols correspond to markings on the PCB
 
     SPI_CLKON   ;
+    //SPI_RESET  ;
     PINA_TYPE(SCLK, AF)  ; // PA5 -- SCLK Send to OLED pin (*A4) 
     PINA_TYPE(MISO, AF)  ; // PA6 -- MISO From OLED (*A5)
     PINA_TYPE(MOSI, AF)  ; // PA7 -- MOSI to OLED  (*A6)
@@ -60,7 +61,6 @@ void SPI_Setup () {
     SET(SPI->CR2, FRXTH) ;  // FIFO threshold 16bits for RXNE event
 
     SPI_ENABLE ;
-//  SPI_RESET  ;
 
 } // end SPI Setup
 
