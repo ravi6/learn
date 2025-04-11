@@ -1,0 +1,101 @@
+cmd: No such file or directory.
+Breakpoint 1 at 0x800086e: file main.c, line 98.
+Note: automatically using hardware breakpoints for read-only addresses.
+Breakpoint 2 at 0x8000876: file main.c, line 100.
+
+Breakpoint 1, main () at main.c:98
+98	     dummy = 0 ;
+99	     SPI_setup () ;
+Dummy = 0SPI: 40013000,  RCC: 40021000,  GPIOA: 48000000 
+GPIOA:  MODER: a801a800, AFRL: 65400000 
+AHBENR: 20014SPI: SR: 22, CR1: 40b8, CR2: 1700 
+RCC: CR: 5c83, CFGR: 0, CIR: 0 
+RCC: APB1ENR: 0,   APB2ENR: 1000 
+SPI State:  0    Clock: 1   Busy:  0
+GPIOA Clock State: 1 
+
+Breakpoint 2, main () at main.c:100
+100	     dummy = 1  ;
+Dummy = 0SPI: 40013000,  RCC: 40021000,  GPIOA: 48000000 
+GPIOA:  MODER: a801a800, AFRL: 65400000 
+AHBENR: 20014SPI: SR: 22, CR1: 40b8, CR2: 1700 
+RCC: CR: 5c83, CFGR: 0, CIR: 0 
+RCC: APB1ENR: 0,   APB2ENR: 1000 
+SPI State:  0    Clock: 1   Busy:  0
+GPIOA Clock : 1 
+quit
+Breakpoint 1 at 0x8000862: file main.c, line 98.
+Note: automatically using hardware breakpoints for read-only addresses.
+Breakpoint 2 at 0x800086a: file main.c, line 100.
+
+Breakpoint 1, main () at main.c:98
+98	     dummy = 0 ;
+99	     SPI_setup () ;
+Dummy = 0SPI: 40013000,  RCC: 40021000,  GPIOA: 48000000 
+GPIOA:  MODER: a801a800, AFRL: 65400000 
+AHBENR: 20014SPI: SR: 22, CR1: 40b8, CR2: 1700 
+RCC: CR: 5c83, CFGR: 0, CIR: 0 
+RCC: APB1ENR: 0,   APB2ENR: 1000 
+SPI State:  0    Clock: 1   Busy:  0
+GPIOA Clock State: 1 
+
+Breakpoint 2, main () at main.c:100
+100	     dummy = 1  ;
+Dummy = 0SPI: 40013000,  RCC: 40021000,  GPIOA: 48000000 
+GPIOA:  MODER: a801a800, AFRL: 65400000 
+AHBENR: 20014SPI: SR: 22, CR1: 40b8, CR2: 1700 
+RCC: CR: 5c83, CFGR: 0, CIR: 0 
+RCC: APB1ENR: 0,   APB2ENR: 1000 
+SPI State:  0    Clock: 1   Busy:  0
+GPIOA Clock : 1 
+quit
+Breakpoint 1 at 0x8000862: file main.c, line 98.
+Note: automatically using hardware breakpoints for read-only addresses.
+Breakpoint 2 at 0x800086a: file main.c, line 100.
+
+Breakpoint 1, main () at main.c:98
+98	     dummy = 0 ;
+99	     SPI_setup () ;
+Dummy = 0SPI: 40013000,  RCC: 40021000,  GPIOA: 48000000 
+GPIOA:  MODER: a801a800, AFRL: 65400000 
+AHBENR: 20014SPI: SR: 22, CR1: 40b8, CR2: 1700 
+RCC: CR: 5c83, CFGR: 0, CIR: 0 
+RCC: APB1ENR: 0,   APB2ENR: 1000 
+SPI State:  0    Clock: 1   Busy:  0
+GPIOA Clock State: 1 
+
+Breakpoint 2, main () at main.c:100
+100	     dummy = 1  ;
+Dummy = 0SPI: 40013000,  RCC: 40021000,  GPIOA: 48000000 
+GPIOA:  MODER: a801a800, AFRL: 65400000 
+AHBENR: 20014SPI: SR: 2, CR1: 40bc, CR2: 1700 
+RCC: CR: 5c83, CFGR: 0, CIR: 0 
+RCC: APB1ENR: 0,   APB2ENR: 1000 
+SPI State:  0    Clock: 1   Busy:  0
+GPIOA Clock : 1 
+quit
+Breakpoint 1 at 0x8000886: file main.c, line 107.
+Note: automatically using hardware breakpoints for read-only addresses.
+Breakpoint 2 at 0x800088e: file main.c, line 109.
+
+Breakpoint 1, main () at main.c:107
+107	     dummy = 0 ;
+108	     SPI_setup () ;
+Dummy = 0SPI: 40013000,  RCC: 40021000,  GPIOA: 48000000 
+GPIOA:  MODER: a800a800, AFRL: 55500000 
+AHBENR: 20014SPI: SR: 2, CR1: 43fc, CR2: 1700 
+RCC: CR: 5c83, CFGR: 0, CIR: 0 
+RCC: APB1ENR: 0,   APB2ENR: 1000 
+SPI State:  1    Clock: 1   Busy:  0
+GPIOA Clock State: 1 
+
+Breakpoint 2, main () at main.c:109
+109	     dummy = 1  ;
+Dummy = 0SPI: 40013000,  RCC: 40021000,  GPIOA: 48000000 
+GPIOA:  MODER: a800a800, AFRL: 55500000 
+AHBENR: 20014SPI: SR: 2, CR1: 43fc, CR2: 1700 
+RCC: CR: 5c83, CFGR: 0, CIR: 0 
+RCC: APB1ENR: 0,   APB2ENR: 1000 
+SPI State:  1    Clock: 1   Busy:  0
+GPIOA Clock : 1 
+quit

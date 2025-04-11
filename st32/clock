@@ -1,0 +1,47 @@
+#define CS_PIN 10
+
+void setup() {
+  // Initialize SPI with 5 MHz clock speed
+  SPI.begin();
+  SPI.beginTransaction(SPISettings(5000000, MSBFIRST, SPI_MODE0));  // 5 MHz SPI
+  
+  // Set Chip Select Pin
+  pinMode(CS_PIN, OUTPUT);  
+  digitalWrite(CS_PIN, HIGH); // Disable chip initially
+  
+  // Initialize the SSD1351 display
+  initializeDisplay();
+}
+
+void initializeDisplay() {
+  sendCommand(0xAE); // Turn off display initially
+  delay(100);
+
+  // Example initialization commands
+  sendCommand(0xA0); // Set display mode
+  sendData(0x74);    // Data value (example)
+  
+  sendCommand(0xB3); // Front Clock Divider Command
+  sendData(0x91);    // Data for divider (adjust this based on your needs)
+
+  sendCommand(0xAF); // Turn on display
+  
+  delay(100);
+}
+
+void sendCommand(uint8_t cmd) {
+  digitalWrite(CS_PIN, LOW);  // Enable chip
+  SPI.transfer(cmd);           // Send the command
+  digitalWrite(CS_PIN, HIGH);  // Disable chip
+}
+
+void sendData(uint8_t data) {
+  digitalWrite(CS_PIN, LOW);  // Enable chip
+  SPI.transfer(data);         // Send the data byte
+  digitalWrite(CS_PIN, HIGH); // Disable chip
+}
+
+void loop() {
+  // You can add code here to display images, text, etc.
+}
+

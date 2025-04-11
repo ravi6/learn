@@ -14,7 +14,7 @@ typedef union color_u {
   uint16_t data  ;
 } color ; 
 
-int main() {
+int junk() {
   color c ;
   c.comp.r = 0b10001 ; 
   c.comp.g = 0b101010 ;
@@ -31,4 +31,37 @@ int main() {
   printf("Z: %b\n", z) ;
 
   return (0) ;
+}
+
+uint16_t oled_rgb (uint16_t r, uint16_t g, uint16_t b) {
+  uint16_t color ;
+  color = 0 ;
+  r = r & 0x001F ;   // truncate to 5bits 
+  g = g & 0x003F ;   // truncate to 6bits 
+  b = b & 0x001F ;   // truncate to 5bits 
+  printf ("bbbbb %x   %x \n", b, b << 11  ) ;
+  printf ("ggggg %x   %x \n", g, g << 5  ) ;
+  printf ("rrrrr %x   %x \n", r ) ;
+  color = color | b << 11 ;
+  color = color | (g << 5) ;
+  color = color | r  ;
+  printf ("%16b \n", color);
+  return (color) ;
+}
+int main () {
+#define RED		0x1F00
+#define GREEN		0xE007
+#define BLUE		0x00F8
+uint16_t ccc ;
+//ccc = oled_rgb ((uint16_t) 0b00011111, (uint16_t)0b00101010, (uint16_t)0b0011011) ;
+//ccc = oled_rgb ((uint16_t) 0b00011111, (uint16_t)0b000, (uint16_t)0b00) ;
+uint8_t ndiv, mfreq, data ;
+
+for (uint8_t i = 0 ; i < 10 ; i++) {
+   for (uint8_t j = 0 ; j < 16 ; j++) {
+      data = i | ( (j & 0x0F) << 4 );
+      printf("divisor = %d ffact = %d  data= %b  data= %x \n", i, j, data, data) ;
+  }
+}
+
 }
