@@ -41,7 +41,7 @@ uint16_t oled_rgb (uint16_t r, uint16_t g, uint16_t b) {
   b = b & 0x001F ;   // truncate to 5bits 
   printf ("bbbbb %x   %x \n", b, b << 11  ) ;
   printf ("ggggg %x   %x \n", g, g << 5  ) ;
-  printf ("rrrrr %x   %x \n", r ) ;
+  printf ("rrrrr %x   %x \n", r, r ) ;
   color = color | b << 11 ;
   color = color | (g << 5) ;
   color = color | r  ;
@@ -60,7 +60,8 @@ uint8_t ndiv, mfreq, data ;
 for (uint8_t i = 0 ; i < 10 ; i++) {
    for (uint8_t j = 0 ; j < 16 ; j++) {
       data = i | ( (j & 0x0F) << 4 );
-      printf("divisor = %d ffact = %d  data= %b  data= %x \n", i, j, data, data) ;
+      printf("divisor = %d ffact = %d data= %x, freq (MHz) = %g \n",
+              i, j, data, 100.0*j/16) ;
   }
 }
 

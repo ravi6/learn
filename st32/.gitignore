@@ -4,3 +4,4 @@ keep
 *.elf
 *.bin
 zzz
+armgdb

@@ -38,7 +38,6 @@ void oled_setRange (uint8_t cmd, uint8_t start, uint8_t end) {
     oled_sendDAT (end) ;
 }
 
-
 void oled_Hscroll (uint8_t cmd) {
     oled_sendCMD (cmd) ;
 }
@@ -71,15 +70,18 @@ void oled_init () {
    DELAY ;
 
    // Toggle Reset Pin to begin
-    PINA_HIGH (RS) ; PINA_HIGH (RS) ;  delay (5)  ;  
-    PINA_LOW (RS) ; delay (5) ; PINA_HIGH (RS) ;
-    delay (5) ;
+    PINA_HIGH (RS) ;  delay (25)  ;  
+    PINA_LOW (RS) ; delay (15) ; PINA_HIGH (RS) ;
+    delay (25) ;
    
   // Unlock Commmands
    oled_sendCMD (0xFD) ; oled_sendDAT (0x12) ;  
     delay (5) ;
    oled_sendCMD (0xFD) ; oled_sendDAT (0xB1) ; 
     delay (5) ;
+
+  oled_sendCMD(0xB5);  // GPIO Setting 
+  oled_sendDAT(0x01);  // D[3:0] 0001  (Disable GPIO1, GPIO Input
 
    oled_sendCMD (DISP_OFF) ;  // Sleeping Mode
     delay (5) ;
@@ -91,7 +93,7 @@ void oled_init () {
    // But according to CHATGPT .. this does not represent
    // base frequency of SSD1351. It is 100MHz
    // When high byte is (11) ... then base Freq. = (11/16) * 100 =
-   oled_sendCMD (0xB3) ; oled_sendDAT (0xA5) ;  // Display Clock
+   oled_sendCMD (0xB3) ; oled_sendDAT (0xF1) ;  // Display Clock
    delay (5) ;
 
    // Set Mux Ratio
@@ -137,8 +139,6 @@ void oled_init () {
   oled_sendDAT(0xB5);  // This is second Byte (can't change)
   oled_sendDAT(0x55);  // This is third byte (can't change)
 
-  oled_sendCMD(0xB5);  // GPIO Setting Leaving at reset value
-  oled_sendDAT(0x0F);  // D[3:0] 1111
 
   oled_sendCMD(0xB6); // set PreCharge2 Level
   oled_sendDAT(0x03); // set to 3 DCLK
