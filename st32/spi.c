@@ -40,11 +40,13 @@ void SPI_Setup () {
   // * symbols correspond to markings on the PCB
 
     SPI_CLKON   ;
-    //SPI_RESET  ;
+    SPI_RESET  ;
     PINA_TYPE(SCLK, AF)  ; // PA5 -- SCLK Send to OLED pin (*A4) 
     PINA_TYPE(MISO, AF)  ; // PA6 -- MISO From OLED (*A5)
     PINA_TYPE(MOSI, AF)  ; // PA7 -- MOSI to OLED  (*A6)
-    SPI_Mode (3) ;   // Clock Polarity  and Phase
+
+    CLR(SPI->CR1, CPOL)  ;  // Clock Low
+    CLR(SPI->CR1, CPHA)  ;  // Sample On Clock Rise
     SET(SPI->CR1, MSTR)  ;  // Set Me as as the Master
     SET(SPI->CR1, SSM)   ;  // Software Slave Mangement Enabled
     SET(SPI->CR1, SSI)   ;  // Internal Slect Slave on
@@ -99,26 +101,3 @@ void blinkLED (int n, int ms) {
 	PINA_HIGH(LED) ; delay (ms) ;
     }
 } // end Blink
-
-void SPI_Mode (uint8_t mode) {
-   switch (mode) {
-     case 0:
-        CLR(SPI->CR1, CPOL)  ;  // Clock Low
-        CLR(SPI->CR1, CPHA)  ;  // Sample Rise
-       break;
-     case 1:
-        CLR(SPI->CR1, CPOL)  ;  // Clock Low
-        CLR(SPI->CR1, CPHA)  ;  // Sample Fall
-       break;
-     case 2:
-        CLR(SPI->CR1, CPOL)  ;  // Clock High
-        CLR(SPI->CR1, CPHA)  ;  // Sample Fall
-       break; 
-     case 3:
-        SET(SPI->CR1, CPOL)  ;  // Clock High
-        SET(SPI->CR1, CPHA)  ;  // Sample Rise
-       break; 
-    }
-}
-// Board Marker   GPIO CODE 
-//   D9            PA8

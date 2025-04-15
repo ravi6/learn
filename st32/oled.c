@@ -20,16 +20,16 @@ union u_DRAM
 
 void oled_sendCMD (uint8_t cmd) { /* Good for single byte CMD */
     PINA_LOW (DC) ;    // cmd mode
-    PINA_LOW (CS) ; delay (5) ;
+    PINA_LOW (CS) ; delay (500) ;
     SPI_Tx (&cmd, 1) ;
-    PINA_HIGH (CS) ; delay (5) ;
+    PINA_HIGH (CS) ; delay (500) ;
 }
 
 void oled_sendDAT (uint8_t data) {
     PINA_HIGH (DC) ;  // data mode
-    PINA_LOW (CS) ; delay (5) ;
+    PINA_LOW (CS) ; delay (500) ;
     SPI_Tx (&data , 1) ;
-    PINA_HIGH (CS) ; delay (5) ;
+    PINA_HIGH (CS) ; delay (500) ;
 } 
 
 void oled_setRange (uint8_t cmd, uint8_t start, uint8_t end) {
@@ -70,21 +70,22 @@ void oled_init () {
    DELAY ;
 
    // Toggle Reset Pin to begin
-    PINA_HIGH (RS) ;  delay (25)  ;  
-    PINA_LOW (RS) ; delay (15) ; PINA_HIGH (RS) ;
-    delay (25) ;
+    PINA_HIGH (RS) ;  delay (500)  ;  
+    PINA_LOW (RS) ; delay (500) ; PINA_HIGH (RS) ;
+    delay (500) ;
    
   // Unlock Commmands
    oled_sendCMD (0xFD) ; oled_sendDAT (0x12) ;  
-    delay (5) ;
+    delay (500) ;
    oled_sendCMD (0xFD) ; oled_sendDAT (0xB1) ; 
-    delay (5) ;
+    delay (500) ;
 
   oled_sendCMD(0xB5);  // GPIO Setting 
-  oled_sendDAT(0x01);  // D[3:0] 0001  (Disable GPIO1, GPIO Input
+  oled_sendDAT(0x0A);  // D[3:0] 1010  (set both GPIOs to output LOW)
+  delay (500) ;
 
    oled_sendCMD (DISP_OFF) ;  // Sleeping Mode
-    delay (5) ;
+    delay (500) ;
 
    // Display clock speed should match SPI speed 
    // Display clock speed is set with B3 command
@@ -94,7 +95,7 @@ void oled_init () {
    // base frequency of SSD1351. It is 100MHz
    // When high byte is (11) ... then base Freq. = (11/16) * 100 =
    oled_sendCMD (0xB3) ; oled_sendDAT (0xF1) ;  // Display Clock
-   delay (5) ;
+   delay (500) ;
 
    // Set Mux Ratio
    oled_sendCMD (0xCA) ; oled_sendDAT (ROWS) ;
@@ -110,7 +111,7 @@ void oled_init () {
       D[7:6] = 0b00 256 color,  0b01    65k Color Depth
    *  Will yield   data = 0x40  for 65k
    *
-   */ 
+   */
     oled_sendCMD (0xA0) ;  // Set Scanning Params
     oled_sendDAT (0x40) ;  // Mapping, Color Order etc.
 			   // 65k Colors
@@ -121,15 +122,15 @@ void oled_init () {
   oled_sendDAT(0x01); // Select internal Vdd
 
   oled_sendCMD(0xC1);  // Set Contrast
-  oled_sendDAT(0x8A);  // Color A: Blue
-  oled_sendDAT(0x51);  // Color B: Green
-  oled_sendDAT(0x8A);  // Color C: Red
+  oled_sendDAT(0xE8);  // Color A: Blue
+  oled_sendDAT(0xA0);  // Color B: Green
+  oled_sendDAT(0xC8);  // Color C: Red
 
   oled_sendCMD(0xC7);  // Contrast Master
   oled_sendDAT(0x0F);  // highest
 
   oled_sendCMD(0xB1); // set PreCharge
-  oled_sendDAT(0x32); // Phase 2 Period = 3DCLK, Phase 1 Period = 2DCLK
+  oled_sendDAT(0x62); // Phase 2 Period = 6DCLK, Phase 1 Period = 5DCLK
 
   oled_sendCMD(0xBB); // set PreCharge Voltage
   oled_sendDAT(0x17); // Default value (0.2 + 0.4 * 32 / (0x17) ) * Vcc
@@ -141,7 +142,7 @@ void oled_init () {
 
 
   oled_sendCMD(0xB6); // set PreCharge2 Level
-  oled_sendDAT(0x03); // set to 3 DCLK
+  oled_sendDAT(0x08); // set to 8 DCLK
 
   oled_sendCMD(0xBE); // set High Voltage Level of Common Pin VCOMH
   oled_sendDAT(0x05); // Default Value
@@ -158,8 +159,13 @@ void oled_init () {
   // Set Display Offset
     oled_sendCMD (0xA2) ; oled_sendDAT (0) ;
 
-    oled_sendCMD (DISP_ON) ;
-    delay (500) ;
+  // We need GPIO0 to go High for it controls OLED VCC
+  //
+  oled_sendCMD(0xB5);  // GPIO Setting 
+  oled_sendDAT(0x0F);  // D[3:0] 1111  (set both GPIOs to output HIGH)
+  delay (500) ;
+  oled_sendCMD (DISP_ON) ;
+  delay (500) ;
 
 }
 
@@ -206,3 +212,4 @@ uint16_t oled_rgb (uint16_t r, uint16_t g, uint16_t b) {
   color = color | (b << 11) ;
   return (color) ;
 }
+
