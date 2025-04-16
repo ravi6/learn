@@ -20,16 +20,16 @@ union u_DRAM
 
 void oled_sendCMD (uint8_t cmd) { /* Good for single byte CMD */
     PINA_LOW (DC) ;    // cmd mode
-    PINA_LOW (CS) ; delay (500) ;
-    SPI_Tx (&cmd, 1) ;
-    PINA_HIGH (CS) ; delay (500) ;
+    PINA_LOW (CS) ; delay (50) ;
+    SPI_Tx (&cmd, 1) ; delay (50) ;
+    PINA_HIGH (CS) ;
 }
 
 void oled_sendDAT (uint8_t data) {
     PINA_HIGH (DC) ;  // data mode
-    PINA_LOW (CS) ; delay (500) ;
-    SPI_Tx (&data , 1) ;
-    PINA_HIGH (CS) ; delay (500) ;
+    PINA_LOW (CS) ; delay (50) ;
+    SPI_Tx (&data , 1) ;  delay (50) ;
+    PINA_HIGH (CS) ; 
 } 
 
 void oled_setRange (uint8_t cmd, uint8_t start, uint8_t end) {
@@ -70,22 +70,22 @@ void oled_init () {
    DELAY ;
 
    // Toggle Reset Pin to begin
-    PINA_HIGH (RS) ;  delay (500)  ;  
-    PINA_LOW (RS) ; delay (500) ; PINA_HIGH (RS) ;
-    delay (500) ;
+    PINA_HIGH (RS) ;  delay (100)  ;  
+    PINA_LOW (RS) ; delay (100) ; PINA_HIGH (RS) ;
+    delay (100) ;
    
   // Unlock Commmands
    oled_sendCMD (0xFD) ; oled_sendDAT (0x12) ;  
-    delay (500) ;
+    delay (100) ;
    oled_sendCMD (0xFD) ; oled_sendDAT (0xB1) ; 
-    delay (500) ;
+    delay (100) ;
 
   oled_sendCMD(0xB5);  // GPIO Setting 
   oled_sendDAT(0x0A);  // D[3:0] 1010  (set both GPIOs to output LOW)
-  delay (500) ;
+  delay (50) ;
 
    oled_sendCMD (DISP_OFF) ;  // Sleeping Mode
-    delay (500) ;
+    delay (50) ;
 
    // Display clock speed should match SPI speed 
    // Display clock speed is set with B3 command
@@ -95,7 +95,7 @@ void oled_init () {
    // base frequency of SSD1351. It is 100MHz
    // When high byte is (11) ... then base Freq. = (11/16) * 100 =
    oled_sendCMD (0xB3) ; oled_sendDAT (0xF1) ;  // Display Clock
-   delay (500) ;
+   delay (50) ;
 
    // Set Mux Ratio
    oled_sendCMD (0xCA) ; oled_sendDAT (ROWS) ;
@@ -113,8 +113,8 @@ void oled_init () {
    *
    */
     oled_sendCMD (0xA0) ;  // Set Scanning Params
-    oled_sendDAT (0x40) ;  // Mapping, Color Order etc.
-			   // 65k Colors
+    oled_sendDAT (0x70) ;  // Mapping, Color Order etc.
+			   // 65k Colors (16bit packed RGB (5-6-5)
 
  // Sets various display rersponse and contrast params
 
