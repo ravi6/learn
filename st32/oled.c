@@ -18,6 +18,7 @@ union u_DRAM
 } DRAM   ;
 */
 
+//=====================================================
 void oled_sendCMD (uint8_t cmd) { /* Good for single byte CMD */
     PINA_LOW (DC) ;    // cmd mode
     PINA_LOW (CS) ; delay (50) ;
@@ -25,6 +26,7 @@ void oled_sendCMD (uint8_t cmd) { /* Good for single byte CMD */
     PINA_HIGH (CS) ;
 }
 
+//=====================================================
 void oled_sendDAT (uint8_t data) {
     PINA_HIGH (DC) ;  // data mode
     PINA_LOW (CS) ; delay (50) ;
@@ -32,16 +34,19 @@ void oled_sendDAT (uint8_t data) {
     PINA_HIGH (CS) ; 
 } 
 
+//=====================================================
 void oled_setRange (uint8_t cmd, uint8_t start, uint8_t end) {
     oled_sendCMD (cmd) ;
     oled_sendDAT (start) ;
     oled_sendDAT (end) ;
 }
 
+//=====================================================
 void oled_Hscroll (uint8_t cmd) {
     oled_sendCMD (cmd) ;
 }
 
+//=====================================================
 void oled_Hscroll_Conf () {
     struct HScroll  hs ;
     hs.offset = 0 ;
@@ -57,6 +62,7 @@ void oled_Hscroll_Conf () {
     PINA_HIGH (CS) ;
 }
 
+//=====================================================
 void oled_init () {
 
    SPI_Setup () ;
@@ -67,6 +73,14 @@ void oled_init () {
    PINA_TYPE(DC, OUT)   ; // Oled Data/Command (DC) Pin
    PINA_TYPE(CS, OUT)   ; // Chip Select  Pin
    PINA_TYPE(RS, OUT)   ; // Reset  Pin
+   // All high speed
+    CLRSET(GPIOA->OSPEEDR, 0b11 << DC, 0b11) ;  
+    CLRSET(GPIOA->OSPEEDR, 0b11 << CS, 0b11) ;  
+    CLRSET(GPIOA->OSPEEDR, 0b11 << RS, 0b11) ;  
+   // No Pull
+    CLRSET(GPIOA->PUPDR, 0b11 << DC, 0b00) ;
+    CLRSET(GPIOA->PUPDR, 0b11 << CS, 0b00) ;
+    CLRSET(GPIOA->PUPDR, 0b11 << RS, 0b00) ;
    DELAY ;
 
    // Toggle Reset Pin to begin
@@ -94,7 +108,7 @@ void oled_init () {
    // But according to CHATGPT .. this does not represent
    // base frequency of SSD1351. It is 100MHz
    // When high byte is (11) ... then base Freq. = (11/16) * 100 =
-   oled_sendCMD (0xB3) ; oled_sendDAT (0xF1) ;  // Display Clock
+   oled_sendCMD (0xB3) ; oled_sendDAT (0xD1) ;  // Display Clock
    delay (50) ;
 
    // Set Mux Ratio
@@ -113,7 +127,7 @@ void oled_init () {
    *
    */
     oled_sendCMD (0xA0) ;  // Set Scanning Params
-    oled_sendDAT (0x70) ;  // Mapping, Color Order etc.
+    oled_sendDAT (0x40) ;  // Mapping, Color Order etc.
 			   // 65k Colors (16bit packed RGB (5-6-5)
 
  // Sets various display rersponse and contrast params
@@ -164,6 +178,8 @@ void oled_init () {
   oled_sendCMD(0xB5);  // GPIO Setting 
   oled_sendDAT(0x0F);  // D[3:0] 1111  (set both GPIOs to output HIGH)
   delay (500) ;
+  
+  blinkLED (6, 100) ;
   oled_sendCMD (DISP_ON) ;
   delay (500) ;
 
@@ -181,7 +197,8 @@ void oled_update () {
 }
 */
 
-void oled_draw (uint8_t x, uint8_t y, uint16_t color) {
+//=====================================================
+void oled_draw (uint8_t x, uint8_t y, color color) {
   // view x,y as normal graph paper coordinates
   // with zero at bottom left, but pixels are stored 
   // from top left corner (hopefully rowwise)
@@ -190,26 +207,33 @@ void oled_draw (uint8_t x, uint8_t y, uint16_t color) {
     // Assuming RowWise storage
     // DRAM.words [y * ROWS + x  ] = color ;
    
-  oled_setRange (SET_ROW_RANGE, x, x+40) ;
-  oled_setRange (SET_COL_RANGE, y, y+40) ;
+  oled_setRange (SET_ROW_RANGE, x, x+47) ;
+  oled_setRange (SET_COL_RANGE, y, y+47) ;
   oled_sendCMD (RAM_WRITE_ENABLE) ;
   PINA_HIGH (DC) ;       // Send below data bytes
   PINA_LOW (CS) ;
   delay(10) ;
-  
-  for (int i = 0 ; i < 1500 ; i++) 
-       SPI_Tx ((uint8_t *) (&color), sizeof (color))  ;
-  PINA_HIGH (CS) ;
+
+  for (int i = 0 ; i < 1500 ; i++) { 
+       SPI_Tx (&color.msb , 1)  ;  // MSB of color
+       SPI_Tx (&color.lsb, 1) ; // LSB of color
+   }
+       PINA_HIGH (CS) ;
 }
 
-uint16_t oled_rgb (uint16_t r, uint16_t g, uint16_t b) {
-  uint16_t color ;
-  r = r & 0x001F ;   // truncate to 5bits 
-  g = r & 0x003F ;   // truncate to 6bits 
-  b = r & 0x001F ;   // truncate to 5bits 
-  color = color | r ;
-  color = color | (g << 5) ;
-  color = color | (b << 11) ;
+//=====================================================
+color  oled_rgb (uint8_t r, uint8_t g, uint8_t b) {
+  // Returns 16 bit color
+  uint16_t  colorD ;
+  color  color ; 
+  r = r & 0x1F ;   // truncate to 5bits 
+  g = r & 0x3F ;   // truncate to 6bits 
+  b = r & 0x1F ;   // truncate to 5bits 
+  colorD = colorD | (uint16_t) r ;
+  colorD = colorD | ((uint16_t) g << 5) ;
+  colorD = colorD | ((uint16_t) b << 11) ;
+  color.msb = (uint8_t) (colorD >> 8) ; 
+  color.lsb = (uint8_t) (colorD & 0x00FF) ; 
   return (color) ;
 }
 
