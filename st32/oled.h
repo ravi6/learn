@@ -16,6 +16,11 @@ enum {GPIO_HIZ = 0, GPIO_LOW = 2, GPIO_HIGH = 3} ;
 enum {HORIZ, VERT} ;
 enum {TEST, NORMAL, SLOW, SLOWEST} ;
 
+typedef struct color_s {
+  uint8_t  lsb ;
+  uint8_t  msb ;
+} color ; 
+
 #define ROWS 128
 #define COLS 128
 
@@ -47,7 +52,7 @@ void oled_Hscroll (uint8_t cmd) ;
 void oled_Hscroll_Conf () ;
 void oled_init () ;
 void oled_update () ;
-void oled_draw (uint8_t x, uint8_t y, uint16_t color);
-uint16_t oled_rgb (uint16_t r, uint16_t g, uint16_t b);
+void oled_draw (uint8_t x, uint8_t y, color color);
+color  oled_rgb (uint8_t r, uint8_t g, uint8_t b);
 
 #endif
