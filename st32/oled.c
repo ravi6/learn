@@ -21,22 +21,16 @@ union u_DRAM
 //=====================================================
 void oled_sendCMD (uint8_t cmd) { /* Good for single byte CMD */
     PINA_LOW (DC) ;    // cmd mode
-    delay (5) ;
     PINA_LOW (CS) ; 
-    delay (5) ;
     SPI_Tx (&cmd, 1) ; 
-    delay (5) ;
     PINA_HIGH (CS) ;
 }
 
 //=====================================================
 void oled_sendDAT (uint8_t data) {
     PINA_HIGH (DC) ;  // data mode
-    delay (5) ;
     PINA_LOW (CS) ; 
-    delay (5) ;
     SPI_Tx (&data , 1) ;  
-    delay (5) ;
     PINA_HIGH (CS) ; 
 } 
 
@@ -110,7 +104,6 @@ void oled_init () {
 
   oled_sendCMD (DISP_OFF) ;  // Sleeping Mode
 
-
    // Display clock speed should match SPI speed 
    // Display clock speed is set with B3 command
    // First four bits (MSByte) gives 16 levels of base frequency
@@ -162,7 +155,6 @@ void oled_init () {
   oled_sendDAT(0xB5);  // This is second Byte (can't change)
   oled_sendDAT(0x55);  // This is third byte (can't change)
 
-
   oled_sendCMD(0xB6); // set PreCharge2 Level
   oled_sendDAT(0x08); // set to 8 DCLK (default)
 
@@ -180,28 +172,13 @@ void oled_init () {
     oled_sendCMD (0xA2) ; oled_sendDAT (0) ;
 
   // We need GPIO0 to go High for it controls OLED VCC
-  //
   oled_sendCMD(0xB5);  // GPIO Setting 
   oled_sendDAT(0x0F);  // D[3:0] 1111  (set both GPIOs to output HIGH)
   delay (100) ;
   
-  blinkLED (6, 100) ;
   oled_sendCMD (DISP_NORMAL) ;  // shows GDDRAM contents 
   oled_sendCMD (DISP_ON) ;
-  delay (100) ;
 }
-
-/*
-void oled_update () {
-  // Updates the display, writing the contents of DRAM
-  oled_sendCMD (RAM_WRITE_ENABLE) ;
-  PINA_HIGH (DC) ;       // Send below data bytes
-  PINA_LOW (CS) ;
-  delay(10) ;
-  SPI_Tx (&(DRAM.bytes[0]), sizeof (DRAM.bytes))  ;
-  PINA_HIGH (CS) ;
-}
-*/
 
 //=====================================================
 void oled_draw (uint8_t x, uint8_t y, color color) {
@@ -213,13 +190,13 @@ void oled_draw (uint8_t x, uint8_t y, color color) {
     // Assuming RowWise storage
     // DRAM.words [y * ROWS + x  ] = color ;
    
-  oled_setRange (SET_ROW_RANGE, x, x+127) ;
-  oled_setRange (SET_COL_RANGE, y, y+127) ;
+  oled_setRange (SET_ROW_RANGE, x, x+25) ;
+  oled_setRange (SET_COL_RANGE, y, y+25) ;
   oled_sendCMD (RAM_WRITE_ENABLE) ;
   PINA_HIGH (DC) ;       // Send below data bytes
   PINA_LOW (CS) ;
 
-  for (int i = 0 ; i < 125*125 ; i++) { 
+  for (int i = 0 ; i < 25*25 ; i++) { 
        SPI_Tx (&color.msb , 1)  ;  // MSB of color
        SPI_Tx (&color.lsb, 1) ; // LSB of color
    }

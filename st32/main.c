@@ -5,7 +5,7 @@
 
 int main (void) {
    color color ;
-   color = oled_rgb (31, 0, 0) ;
+   color = oled_rgb (00,32, 0) ;
    oled_init () ;
    oled_draw (0, 0, color) ;
 
