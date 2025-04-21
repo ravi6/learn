@@ -79,10 +79,12 @@ void oled_init () {
    PINA_TYPE(DC, OUT)   ; // Oled Data/Command (DC) Pin
    PINA_TYPE(CS, OUT)   ; // Chip Select  Pin
    PINA_TYPE(RS, OUT)   ; // Reset  Pin
+   
    // All high speed
     CLRSET(GPIOA->OSPEEDR, 0b11 << DC, 0b11) ;  
     CLRSET(GPIOA->OSPEEDR, 0b11 << CS, 0b11) ;  
     CLRSET(GPIOA->OSPEEDR, 0b11 << RS, 0b11) ;  
+   
    // No Pull
     CLRSET(GPIOA->PUPDR, 0b11 << DC, 0b00) ;
     CLRSET(GPIOA->PUPDR, 0b11 << CS, 0b00) ;
@@ -93,23 +95,23 @@ void oled_init () {
    PINA_HIGH (CS) ;
    PINA_HIGH (RS) ;
 
-
-   // Toggle Reset Pin to begin
+ // Toggle Reset Pin to begin
     PINA_HIGH (RS) ;  delay (100)  ;  
     PINA_LOW (RS) ; delay (100) ; PINA_HIGH (RS) ;
     delay (100) ;
    
+
   // Unlock Commmands
    oled_sendCMD (0xFD) ; oled_sendDAT (0x12) ;  
    oled_sendCMD (0xFD) ; oled_sendDAT (0xB1) ; 
 
+if (0) { //block it off
   oled_sendCMD(0xB5);  // GPIO Setting 
   oled_sendDAT(0x0A);  // D[3:0] 1111  (set both GPIOs to output High)
   delay (500) ; // we need this for GPIO0 to respond large 560K pull down resistor
 
    oled_sendCMD (DISP_OFF) ;  // Sleeping Mode
 
-if (0) { //block it off
 
    // Display clock speed should match SPI speed 
    // Display clock speed is set with B3 command
@@ -216,14 +218,14 @@ void oled_draw (uint8_t x, uint8_t y, color color) {
     // Assuming RowWise storage
     // DRAM.words [y * ROWS + x  ] = color ;
    
-  oled_setRange (SET_ROW_RANGE, x, x+47) ;
-  oled_setRange (SET_COL_RANGE, y, y+47) ;
+  oled_setRange (SET_ROW_RANGE, x, x+127) ;
+  oled_setRange (SET_COL_RANGE, y, y+127) ;
   oled_sendCMD (RAM_WRITE_ENABLE) ;
   PINA_HIGH (DC) ;       // Send below data bytes
   PINA_LOW (CS) ;
   delay(10) ;
 
-  for (int i = 0 ; i < 1500 ; i++) { 
+  for (int i = 0 ; i < 125*125 ; i++) { 
        SPI_Tx (&color.msb , 1)  ;  // MSB of color
        SPI_Tx (&color.lsb, 1) ; // LSB of color
    }

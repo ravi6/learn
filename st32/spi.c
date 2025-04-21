@@ -64,7 +64,7 @@ void SPI_Setup () {
     //
     //fsck = 8MHz
     //CLRSET(SPI->CR1, 0b111 << BR,  x << BR); // Set Baudrate (fsck/ 2^(x+1)))
-    CLRSET(SPI->CR1, 0b111 << BR,  2  << BR); 
+    CLRSET(SPI->CR1, 0b111 << BR,  7  << BR); 
 
     CLRSET(SPI->CR2, 0b1111 << DS, 0b0111 << DS) ;  // 8bit Data Size for transfer
     SET(SPI->CR2, FRXTH) ;  // FIFO threshold 16bits for RXNE event
@@ -73,25 +73,21 @@ void SPI_Setup () {
 
 } // end SPI Setup
 
-void SPI_Tx (uint8_t *data, int size) { // Transmit Data
-  int i = 0;
-  while (i < size) {// wait for TX buffer to be empty
-     while ( !(TX_EMPTY) ) { };  
-     SPI->DR = data [i];  // write to the Data Register
-     i++;
+void SPI_Tx(uint8_t *data, int size) {
+  for (int i = 0; i < size; i++) {
+    // Wait until TXE (Transmit buffer empty)
+    while (!(TX_EMPTY));
+
+    // Write byte to SPI data register
+    SPI->DR = data[i];
+
+    // Wait until TXE (Transmit buffer empty)
+    while (!(TX_EMPTY));
+    
+    // Optionally: wait until BSY (Busy) is cleared
+    while (SPI_BUSY);
   }
-
-  /* In discont. comms., there is a 2 APB clock 
-   * period delay between the writes to data 
-   * register and BSY bit setting. 
-   * So wait until Tx buffer is empty and SPI not busy */
-
-  while ( !(TX_EMPTY) ) { } ; // wait for TX buffer to be empty
-  while ( SPI_BUSY ) { } ; // wait for SPI to be ready
-  // Clear the Overrun flag by reading DR and SR
-  uint8_t temp = SPI->DR ;  
-  temp = SPI->SR ;
-} // end SPI Transmit
+}
 
 void SPI_Rx (uint8_t *data, int size) { //Receive Data
   while (size) {
