@@ -95,23 +95,20 @@ void oled_init () {
    PINA_HIGH (CS) ;
    PINA_HIGH (RS) ;
 
-if (0) { //block it off
- 
  // Toggle Reset Pin to begin
     PINA_HIGH (RS) ;  delay (100)  ;  
     PINA_LOW (RS) ; delay (100) ; PINA_HIGH (RS) ;
     delay (100) ;
-   
 
   // Unlock Commmands
    oled_sendCMD (0xFD) ; oled_sendDAT (0x12) ;  
    oled_sendCMD (0xFD) ; oled_sendDAT (0xB1) ; 
 
   oled_sendCMD(0xB5);  // GPIO Setting 
-  oled_sendDAT(0x0A);  // D[3:0] 1111  (set both GPIOs to output High)
-  delay (500) ; // we need this for GPIO0 to respond large 560K pull down resistor
+  oled_sendDAT(0x0F);  // D[3:0] 1111  (set both GPIOs to output High)
+  delay (100) ; // we need this for GPIO0 to respond large 560K pull down resistor
 
-   oled_sendCMD (DISP_OFF) ;  // Sleeping Mode
+  oled_sendCMD (DISP_OFF) ;  // Sleeping Mode
 
 
    // Display clock speed should match SPI speed 
@@ -121,8 +118,9 @@ if (0) { //block it off
    // But according to CHATGPT .. this does not represent
    // base frequency of SSD1351. It is 100MHz
    // When high byte is (11) ... then base Freq. = (11/16) * 100 =
-   oled_sendCMD (0xB3) ; oled_sendDAT (0xF6) ;  // Display Clock
+   oled_sendCMD (0xB3) ; oled_sendDAT (0xD1) ;  // Display Clock
 
+if (0) {
    // Set Mux Ratio
    oled_sendCMD (0xCA) ; oled_sendDAT (ROWS) ;
 
@@ -141,7 +139,6 @@ if (0) { //block it off
     oled_sendCMD (0xA0) ;  // Set Scanning Params
     oled_sendDAT (0x40) ;  // Mapping, Color Order etc.
 			   // 65k Colors (16bit packed RGB (5-6-5)
-
  // Sets various display rersponse and contrast params
 
   oled_sendCMD(0xAB); // func Select
@@ -153,7 +150,7 @@ if (0) { //block it off
   oled_sendDAT(0x8A);  // Color C: Red
 
   oled_sendCMD(0xC7);  // Contrast Master
-  oled_sendDAT(0x08);  // highest
+  oled_sendDAT(0x0F);  // highest
 
   oled_sendCMD(0xB1); // set PreCharge
   oled_sendDAT(0x62); // Phase 2 Period = 6DCLK, Phase 1 Period = 5DCLK
@@ -187,13 +184,12 @@ if (0) { //block it off
   //
   oled_sendCMD(0xB5);  // GPIO Setting 
   oled_sendDAT(0x0F);  // D[3:0] 1111  (set both GPIOs to output HIGH)
-  delay (500) ;
+  delay (100) ;
   
   blinkLED (6, 100) ;
   oled_sendCMD (DISP_NORMAL) ;  // shows GDDRAM contents 
   oled_sendCMD (DISP_ON) ;
-  delay (500) ;
-
+  delay (100) ;
 }
 }
 
@@ -224,7 +220,6 @@ void oled_draw (uint8_t x, uint8_t y, color color) {
   oled_sendCMD (RAM_WRITE_ENABLE) ;
   PINA_HIGH (DC) ;       // Send below data bytes
   PINA_LOW (CS) ;
-  delay(10) ;
 
   for (int i = 0 ; i < 125*125 ; i++) { 
        SPI_Tx (&color.msb , 1)  ;  // MSB of color
@@ -239,9 +234,9 @@ color  oled_rgb (uint8_t r, uint8_t g, uint8_t b) {
   uint16_t  colorD ;
   color  color ; 
   r = r & 0x1F ;   // truncate to 5bits 
-  g = r & 0x3F ;   // truncate to 6bits 
-  b = r & 0x1F ;   // truncate to 5bits 
-  colorD = colorD | (uint16_t) r ;
+  g = g & 0x3F ;   // truncate to 6bits 
+  b = b & 0x1F ;   // truncate to 5bits 
+  colorD =  (uint16_t) r ;
   colorD = colorD | ((uint16_t) g << 5) ;
   colorD = colorD | ((uint16_t) b << 11) ;
   color.msb = (uint8_t) (colorD >> 8) ; 

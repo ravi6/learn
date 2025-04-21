@@ -9,9 +9,11 @@ int main (void) {
    oled_init () ;
 //   oled_draw (0, 0, color) ;
 
-  oled_sendCMD(0xAA);  // GPIO Setting 
   while (1) {
-    delay (10) ;
+    oled_sendCMD (DISP_OFF) ;  // Sleeping Mode
+    delay (1500) ;
+    oled_sendCMD (DISP_ON) ;  // Sleeping Mode
+    delay (1500) ;
    } // infinite loop
    return (1) ;
 } // end main
