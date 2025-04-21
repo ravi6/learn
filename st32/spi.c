@@ -65,7 +65,7 @@ void SPI_Setup () {
     //
     //fsck = 8MHz
     //CLRSET(SPI->CR1, 0b111 << BR,  x << BR); // Set Baudrate (fsck/ 2^(x+1)))
-    CLRSET(SPI->CR1, 0b111 << BR,  7  << BR); 
+    CLRSET(SPI->CR1, 0b111 << BR,  2  << BR); 
 
     CLRSET(SPI->CR2, 0b1111 << DS, 0b0111 << DS) ;  // 8bit Data Size for transfer
     SET(SPI->CR2, FRXTH) ;  // FIFO threshold 16bits for RXNE event
