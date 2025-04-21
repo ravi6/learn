@@ -120,9 +120,8 @@ void oled_init () {
    // When high byte is (11) ... then base Freq. = (11/16) * 100 =
    oled_sendCMD (0xB3) ; oled_sendDAT (0xD1) ;  // Display Clock
 
-if (0) {
    // Set Mux Ratio
-   oled_sendCMD (0xCA) ; oled_sendDAT (ROWS) ;
+   oled_sendCMD (0xCA) ; oled_sendDAT (ROWS-1) ;
 
   /*  Set Scanning Parameters
    *  Data Byte 
@@ -190,7 +189,6 @@ if (0) {
   oled_sendCMD (DISP_NORMAL) ;  // shows GDDRAM contents 
   oled_sendCMD (DISP_ON) ;
   delay (100) ;
-}
 }
 
 /*
