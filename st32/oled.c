@@ -95,6 +95,8 @@ void oled_init () {
    PINA_HIGH (CS) ;
    PINA_HIGH (RS) ;
 
+if (0) { //block it off
+ 
  // Toggle Reset Pin to begin
     PINA_HIGH (RS) ;  delay (100)  ;  
     PINA_LOW (RS) ; delay (100) ; PINA_HIGH (RS) ;
@@ -105,7 +107,6 @@ void oled_init () {
    oled_sendCMD (0xFD) ; oled_sendDAT (0x12) ;  
    oled_sendCMD (0xFD) ; oled_sendDAT (0xB1) ; 
 
-if (0) { //block it off
   oled_sendCMD(0xB5);  // GPIO Setting 
   oled_sendDAT(0x0A);  // D[3:0] 1111  (set both GPIOs to output High)
   delay (500) ; // we need this for GPIO0 to respond large 560K pull down resistor
@@ -181,7 +182,6 @@ if (0) { //block it off
 
   // Set Display Offset
     oled_sendCMD (0xA2) ; oled_sendDAT (0) ;
-}
 
   // We need GPIO0 to go High for it controls OLED VCC
   //
@@ -194,6 +194,7 @@ if (0) { //block it off
   oled_sendCMD (DISP_ON) ;
   delay (500) ;
 
+}
 }
 
 /*

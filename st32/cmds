@@ -1,9 +1,9 @@
-break 107
-break 109
-run
-step
+#break 107
+#break 109
+#run
+#step
 
-printf "Dummy = %d", dummy
+#printf "Dummy = %d", dummy
 printf "SPI: %x,  RCC: %x,  GPIOA: %x \n", SPI, RCC, GPIOA
 printf "GPIOA:  MODER: %x, AFRL: %x \n", GPIOA->MODER, GPIOA->AFRL
 printf "AHBENR: %x", RCC->AHBENR 
@@ -15,9 +15,9 @@ printf "RCC: APB1ENR: %x,   APB2ENR: %x \n", RCC->APB1ENR, RCC->APB2ENR
 printf "SPI State:  %d    Clock: %d   Busy:  %d\n", SPI_STATE, SPI_CLKSTATE, SPI_BUSY
 printf "GPIOA Clock State: %d \n",  GPIOA_CLKSTATE
 
-continue
+#continue
 
-printf "Dummy = %d", dummy
+#printf "Dummy = %d", dummy
 printf "SPI: %x,  RCC: %x,  GPIOA: %x \n", SPI, RCC, GPIOA
 printf "GPIOA:  MODER: %x, AFRL: %x \n", GPIOA->MODER, GPIOA->AFRL
 printf "AHBENR: %x", RCC->AHBENR 

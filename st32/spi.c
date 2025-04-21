@@ -46,7 +46,8 @@ void SPI_Setup () {
   // * symbols correspond to markings on the PCB
 
     SPI_CLKON   ;
-    SPI_RESET  ;
+  //  SPI_RESET  ;
+    SPI_DISABLE ;
     PINA_TYPE(SCLK, AF)  ; // PA5 -- SCLK Send to OLED pin (*A4) 
     PINA_TYPE(MISO, AF)  ; // PA6 -- MISO From OLED (*A5)
     PINA_TYPE(MOSI, AF)  ; // PA7 -- MOSI to OLED  (*A6)
@@ -73,21 +74,24 @@ void SPI_Setup () {
 
 } // end SPI Setup
 
-void SPI_Tx(uint8_t *data, int size) {
-  for (int i = 0; i < size; i++) {
-    // Wait until TXE (Transmit buffer empty)
-    while (!(TX_EMPTY));
 
-    // Write byte to SPI data register
-    SPI->DR = data[i];
 
-    // Wait until TXE (Transmit buffer empty)
-    while (!(TX_EMPTY));
-    
-    // Optionally: wait until BSY (Busy) is cleared
-    while (SPI_BUSY);
+void SPI_Tx (uint8_t *data, int size) { // Transmit Data
+
+  for (int i=0 ; i < size ; i++) { 
+
+     while ( !(TX_EMPTY) ) { } ; // wait for TX buffer to be empty
+     // This casting might seem strange ... but is required (thx. to ChatGPT)
+     // Got rid of the extra clocks that could appear beacuse that register write
+     // needs to be told that we are using 8bit data
+     *((volatile uint8_t*)&SPI->DR) = data [i];  // write to the Data Register
+     while ( SPI_BUSY ) { } ; // wait for SPI to be ready
+
+     // Clear the Overrun flag by reading DR and SR
+     volatile uint8_t temp = SPI->DR ;  // read DR to clear RXNE
+     (void) temp ;
   }
-}
+} // end SPI Transmit
 
 void SPI_Rx (uint8_t *data, int size) { //Receive Data
   while (size) {
