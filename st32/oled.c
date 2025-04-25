@@ -180,25 +180,22 @@ void oled_init () {
   oled_sendCMD (DISP_ON) ;
 }
 
-//=====================================================
-void oled_draw (uint8_t x, uint8_t y, color color) {
-  // view x,y as normal graph paper coordinates
-  // with zero at bottom left, but pixels are stored 
-  // from top left corner (hopefully rowwise)
-
-    //  x = (ROWS - 1) - x ;  // Since row0 is at the top
-    // Assuming RowWise storage
-    // DRAM.words [y * ROWS + x  ] = color ;
+//=========================================================
+void oled_draw (blob blob) {
+  // Draw a blob of bitmap on to oled.
    
-  oled_setRange (SET_ROW_RANGE, x, x+25) ;
-  oled_setRange (SET_COL_RANGE, y, y+25) ;
+  oled_setRange (SET_ROW_RANGE, blob.x, blob.x + blob.w) ;
+  oled_setRange (SET_COL_RANGE, blob.y, blob.y + blob.h) ;
   oled_sendCMD (RAM_WRITE_ENABLE) ;
   PINA_HIGH (DC) ;       // Send below data bytes
   PINA_LOW (CS) ;
 
-  for (int i = 0 ; i < 25*25 ; i++) { 
-       SPI_Tx (&color.msb , 1)  ;  // MSB of color
-       SPI_Tx (&color.lsb, 1) ; // LSB of color
+  color color ;
+  for (int i = 0 ; i < blob.w * blob.h ; i++) { 
+       if (blob.fill)  color = blob.pix [0] ;
+       else  color = blob.pix [i] ;
+       SPI_Tx (&color.bytes.msb , 1)  ;  // MSB of color
+       SPI_Tx (&color.bytes.lsb, 1) ; // LSB of color
    }
        PINA_HIGH (CS) ;
 }
@@ -214,8 +211,29 @@ color  oled_rgb (uint8_t r, uint8_t g, uint8_t b) {
   colorD =  (uint16_t) r ;
   colorD = colorD | ((uint16_t) g << 5) ;
   colorD = colorD | ((uint16_t) b << 11) ;
-  color.msb = (uint8_t) (colorD >> 8) ; 
-  color.lsb = (uint8_t) (colorD & 0x00FF) ; 
+  color.bytes.msb = (uint8_t) (colorD >> 8) ; 
+  color.bytes.lsb = (uint8_t) (colorD & 0x00FF) ; 
   return (color) ;
 }
+
+//==================================================================
+void oled_char (char c, uint8_t x, uint8_t y, color cfg, color cbg ) {
+ // note: chars with codes from 32 to 127 are valid 
+
+  color pix [fontA.w * fontA.h] ; // pixels in each char
+   
+  // We draw pixels row wise of the char
+  uint8_t idx = (uint8_t) c - ' ' ;   // fonts offset removed
+  uint8_t k = 0 ;
+  for (uint8_t row = 0 ; row < fontA.h ; row ++) {
+    for (uint8_t col = 0 ; col < fontA.w ; col ++) {
+       if (ISSET (fontA.glyph [idx + col], row)) pix [k] = cfg ;
+       else pix [k] = cbg ;
+    }
+  }   
+  blob blob ;
+  blob.x = x ; blob.y = y ; blob.w = fontA.w ; blob.h = fontA.h ;
+  blob.pix = &pix[0] ; 
+  oled_draw (blob) ;
+} // end drawChar 
 

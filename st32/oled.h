@@ -5,6 +5,7 @@
  */
 
 #include "spi.h"
+#include "font.h"
 
 enum {RAM_WRITE_ENABLE = 0x5C, RAM_READ_ENABLE} ;
 enum {DISP_BLACK = 0xA4, DISP_WHITE, DISP_NORMAL, DISP_INVERT} ;
@@ -16,15 +17,28 @@ enum {GPIO_HIZ = 0, GPIO_LOW = 2, GPIO_HIGH = 3} ;
 enum {HORIZ, VERT} ;
 enum {TEST, NORMAL, SLOW, SLOWEST} ;
 
-typedef struct color_s {
-  uint8_t  lsb ;
-  uint8_t  msb ;
+// A neat way to deal with color
+typedef union color_u {
+  struct cData {
+      uint8_t lsb ;
+      uint8_t msb ;
+  } bytes ;
+  uint16_t data ;
 } color ; 
+
+
+typedef struct blob_s { // A blob of pixels to draw at x,y
+  uint8_t x ;   
+  uint8_t y ;
+  uint8_t w ;
+  uint8_t h ;
+  color* pix ;
+  uint8_t fill ; // use this flag to just fill with a color
+} blob ;
 
 #define ROWS 128
 #define COLS 128
 
-/*
 #define BLUE		0x00F8
 #define RED		0x1F00
 #define GREEN		0xE007
@@ -33,7 +47,6 @@ typedef struct color_s {
 #define AQUA		0xE0FF
 #define BLACK		0x0000
 #define WHITE		0xFFFF
-*/
 
 struct HScroll {
     uint8_t offset ; /* A --> 0 no scroll, 
@@ -52,7 +65,8 @@ void oled_Hscroll (uint8_t cmd) ;
 void oled_Hscroll_Conf () ;
 void oled_init () ;
 void oled_update () ;
-void oled_draw (uint8_t x, uint8_t y, color color);
+void oled_draw (blob blob);
+void oled_char (char c, uint8_t x, uint8_t y, color cfg, color cbg ) ;
 color  oled_rgb (uint8_t r, uint8_t g, uint8_t b);
 
 #endif

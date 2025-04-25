@@ -7,7 +7,11 @@ int main (void) {
    color color ;
    color = oled_rgb (00,32, 0) ;
    oled_init () ;
-   oled_draw (0, 0, color) ;
+   blob blob ;
+   blob.x = 10 ; blob.y = 10 ;
+   blob.w = 45 ; blob.h = 100 ;
+   blob.fill = true ;
+   oled_draw (blob) ;
 
   while (1) {
     oled_sendCMD (DISP_OFF) ;  // Sleeping Mode

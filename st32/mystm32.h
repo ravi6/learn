@@ -66,8 +66,8 @@ typedef enum
 } IRQn_Type;
 
 #include <stdio.h>
-#include "core_cm4.h"            /* Cortex-M4 processor and core peripherals */
-#include "system_stm32f3xx.h"    /* STM32F3xx System Header */
+#include "device/core_cm4.h"            /* Cortex-M4 processor and core peripherals */
+#include "device/system_stm32f3xx.h"    /* STM32F3xx System Header */
 #include <stdint.h>
 
 #define SET(reg, n) ((reg) |=  (1<<(n)))
