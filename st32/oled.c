@@ -3,21 +3,87 @@
 /*
  *   SSD1331 oled display (128x128) color
  *   Display form FreeTronics
- *
 */
 
 #include "oled.h"
-#define  DELAY ( blinkLED (1, 500) ) 
 
-// Display Memory allocation
-/*
-union u_DRAM
-{
-      uint8_t bytes [2 * ROWS * COLS] ;
-      uint16_t words [ROWS * COLS] ;
-} DRAM   ;
-*/
+//=========================================================
+void oled_draw (blob b) {
+  // Draw a blob of bitmap on to oled.
+   
+  oled_setRange (SET_ROW_RANGE, b.x, b.x + b.w - 1) ;
+  oled_setRange (SET_COL_RANGE, b.y, b.y + b.h - 1) ;
+  oled_sendCMD (RAM_WRITE_ENABLE) ;
+  PINA_HIGH (DC) ;       // Send below data bytes
+  PINA_LOW (CS) ;
+  SPI_Tx (b.pix, b.w * b.h * 2) ; 
+  PINA_HIGH (CS) ;
+}
 
+//=====================================================
+void oled_clear (uint16_t  color) { 
+// fill entire screen with a color
+// One line at a time (due to memory limits)
+  blob b ;
+ 
+  uint8_t nL   ;  // Lines drawn per batch
+
+  nL = 1 ;
+  uint16_t  pix [128 * 16 * nL] ;
+  for (int i = 0 ; i <  128 * 16 *  nL ; i++) pix [i] = color ;
+
+  b.w = 128 ; b.h = nL ;
+  for (uint8_t i = 0 ; i < 128 / nL ; i ++) {
+       b.x = 0 ; b.y = i*nL ;
+       b.pix = (uint8_t *) (&pix) ;    
+       oled_draw (b) ;
+  } 
+}
+
+//==================================================================
+void oled_char (char c, uint8_t x, uint8_t y, uint16_t cfg, uint16_t cbg ) {
+ // note: chars with codes from 32 to 127 are valid 
+
+  uint16_t  pix [fontA.w * fontA.h] ; // pixels in each char
+   
+  // We draw pixels row wise of the char
+  uint8_t idx = (uint8_t) c - ' ' ;   // fonts offset removed
+  uint8_t k = 0 ;
+  for (uint8_t row = 0 ; row < fontA.h ; row ++) {
+    for (uint8_t col = 0 ; col < fontA.w ; col ++) {
+       if (ISSET (fontA.glyph [idx + col], row)) pix [k] = cfg ;
+       else pix [k] = cbg ;
+    }
+  }   
+  blob blob ;
+  blob.x = x ; blob.y = y ; blob.w = fontA.w ; blob.h = fontA.h ;
+  blob.pix = (uint8_t*) (&pix[0]) ; 
+  oled_draw (blob) ;
+} // end drawChar 
+
+//=====================================================
+void oled_setGPIO () {
+   // These are inputs to the OLED device coming from STM32
+   // Assign STM32 pins 
+   PINA_TYPE(DC, OUT)   ; // Oled Data/Command (DC) Pin
+   PINA_TYPE(CS, OUT)   ; // Chip Select  Pin
+   PINA_TYPE(RS, OUT)   ; // Reset  Pin
+   
+   // All high speed
+    CLRSET(GPIOA->OSPEEDR, 0b11 << DC, 0b11) ;  
+    CLRSET(GPIOA->OSPEEDR, 0b11 << CS, 0b11) ;  
+    CLRSET(GPIOA->OSPEEDR, 0b11 << RS, 0b11) ;  
+   
+   // No Pull
+    CLRSET(GPIOA->PUPDR, 0b11 << DC, 0b00) ;
+    CLRSET(GPIOA->PUPDR, 0b11 << CS, 0b00) ;
+    CLRSET(GPIOA->PUPDR, 0b11 << RS, 0b00) ;
+    
+ // Initial states of output pin
+   PINA_HIGH (DC) ;
+   PINA_HIGH (CS) ;
+   PINA_HIGH (RS) ;
+}
 //=====================================================
 void oled_sendCMD (uint8_t cmd) { /* Good for single byte CMD */
     PINA_LOW (DC) ;    // cmd mode
@@ -66,28 +132,8 @@ void oled_Hscroll_Conf () {
 void oled_init () {
 
    SPI_Setup () ;
-   blinkLED (6, 500) ;
-
-   // These are inputs to the OLED device coming from STM32
-   // Assign STM32 pins 
-   PINA_TYPE(DC, OUT)   ; // Oled Data/Command (DC) Pin
-   PINA_TYPE(CS, OUT)   ; // Chip Select  Pin
-   PINA_TYPE(RS, OUT)   ; // Reset  Pin
-   
-   // All high speed
-    CLRSET(GPIOA->OSPEEDR, 0b11 << DC, 0b11) ;  
-    CLRSET(GPIOA->OSPEEDR, 0b11 << CS, 0b11) ;  
-    CLRSET(GPIOA->OSPEEDR, 0b11 << RS, 0b11) ;  
-   
-   // No Pull
-    CLRSET(GPIOA->PUPDR, 0b11 << DC, 0b00) ;
-    CLRSET(GPIOA->PUPDR, 0b11 << CS, 0b00) ;
-    CLRSET(GPIOA->PUPDR, 0b11 << RS, 0b00) ;
-    
- // Initial states of output pin
-   PINA_HIGH (DC) ;
-   PINA_HIGH (CS) ;
-   PINA_HIGH (RS) ;
+   oled_setGPIO () ;
+   blinkLED (3, 500) ;
 
  // Toggle Reset Pin to begin
     PINA_HIGH (RS) ;  delay (100)  ;  
@@ -162,8 +208,8 @@ void oled_init () {
   oled_sendDAT(0x05); // Default Value
 
    // Display Area setup
-   oled_setRange (SET_ROW_RANGE, 0, ROWS) ;
-   oled_setRange (SET_COL_RANGE, 0, COLS) ;
+   oled_setRange (SET_ROW_RANGE, 0, ROWS-1) ;
+   oled_setRange (SET_COL_RANGE, 0, COLS-1) ;
 
   // Set Start Line
     oled_sendCMD (0xA1) ; oled_sendDAT (0) ;
@@ -180,60 +226,17 @@ void oled_init () {
   oled_sendCMD (DISP_ON) ;
 }
 
-//=========================================================
-void oled_draw (blob blob) {
-  // Draw a blob of bitmap on to oled.
-   
-  oled_setRange (SET_ROW_RANGE, blob.x, blob.x + blob.w) ;
-  oled_setRange (SET_COL_RANGE, blob.y, blob.y + blob.h) ;
-  oled_sendCMD (RAM_WRITE_ENABLE) ;
-  PINA_HIGH (DC) ;       // Send below data bytes
-  PINA_LOW (CS) ;
-
-  color color ;
-  for (int i = 0 ; i < blob.w * blob.h ; i++) { 
-       if (blob.fill)  color = blob.pix [0] ;
-       else  color = blob.pix [i] ;
-       SPI_Tx (&color.bytes.msb , 1)  ;  // MSB of color
-       SPI_Tx (&color.bytes.lsb, 1) ; // LSB of color
-   }
-       PINA_HIGH (CS) ;
-}
-
 //=====================================================
-color  oled_rgb (uint8_t r, uint8_t g, uint8_t b) {
-  // Returns 16 bit color
+uint16_t  oled_rgb (uint8_t r, uint8_t g, uint8_t b) {
+  // Return a pointer to color (two bytes)
   uint16_t  colorD ;
-  color  color ; 
   r = r & 0x1F ;   // truncate to 5bits 
   g = g & 0x3F ;   // truncate to 6bits 
   b = b & 0x1F ;   // truncate to 5bits 
   colorD =  (uint16_t) r ;
   colorD = colorD | ((uint16_t) g << 5) ;
   colorD = colorD | ((uint16_t) b << 11) ;
-  color.bytes.msb = (uint8_t) (colorD >> 8) ; 
-  color.bytes.lsb = (uint8_t) (colorD & 0x00FF) ; 
-  return (color) ;
+  colorD = (colorD >> 8) | (colorD << 8) ;
+  return (colorD) ;
 }
-
-//==================================================================
-void oled_char (char c, uint8_t x, uint8_t y, color cfg, color cbg ) {
- // note: chars with codes from 32 to 127 are valid 
-
-  color pix [fontA.w * fontA.h] ; // pixels in each char
-   
-  // We draw pixels row wise of the char
-  uint8_t idx = (uint8_t) c - ' ' ;   // fonts offset removed
-  uint8_t k = 0 ;
-  for (uint8_t row = 0 ; row < fontA.h ; row ++) {
-    for (uint8_t col = 0 ; col < fontA.w ; col ++) {
-       if (ISSET (fontA.glyph [idx + col], row)) pix [k] = cfg ;
-       else pix [k] = cbg ;
-    }
-  }   
-  blob blob ;
-  blob.x = x ; blob.y = y ; blob.w = fontA.w ; blob.h = fontA.h ;
-  blob.pix = &pix[0] ; 
-  oled_draw (blob) ;
-} // end drawChar 
 

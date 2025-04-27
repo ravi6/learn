@@ -4,20 +4,19 @@
 #include "oled.h"
 
 int main (void) {
-   color color ;
-   color = oled_rgb (00,32, 0) ;
+   uint16_t color ;
+
    oled_init () ;
-   blob blob ;
-   blob.x = 10 ; blob.y = 10 ;
-   blob.w = 45 ; blob.h = 100 ;
-   blob.fill = true ;
-   oled_draw (blob) ;
+   oled_sendCMD (DISP_ON) ; 
+
+   oled_sendCMD (DISP_ON) ; 
 
   while (1) {
-    oled_sendCMD (DISP_OFF) ;  // Sleeping Mode
-    delay (500) ;
-    oled_sendCMD (DISP_ON) ;  // Sleeping Mode
-    delay (500) ;
+   color = RED ;
+   oled_clear (color) ;
+   delay (500) ;
+   color = GREEN ;
+   oled_clear (color) ;
    } // infinite loop
    return (1) ;
 } // end main

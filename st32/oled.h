@@ -17,24 +17,13 @@ enum {GPIO_HIZ = 0, GPIO_LOW = 2, GPIO_HIGH = 3} ;
 enum {HORIZ, VERT} ;
 enum {TEST, NORMAL, SLOW, SLOWEST} ;
 
-// A neat way to deal with color
-typedef union color_u {
-  struct cData {
-      uint8_t lsb ;
-      uint8_t msb ;
-  } bytes ;
-  uint16_t data ;
-} color ; 
-
-
-typedef struct blob_s { // A blob of pixels to draw at x,y
+struct blob { // A blob of pixels to draw at x,y
   uint8_t x ;   
   uint8_t y ;
   uint8_t w ;
   uint8_t h ;
-  color* pix ;
-  uint8_t fill ; // use this flag to just fill with a color
-} blob ;
+  uint8_t* pix ;  // pointer to pixel data (2 bytes per pixel)
+}  ;
 
 #define ROWS 128
 #define COLS 128
@@ -66,7 +55,9 @@ void oled_Hscroll_Conf () ;
 void oled_init () ;
 void oled_update () ;
 void oled_draw (blob blob);
-void oled_char (char c, uint8_t x, uint8_t y, color cfg, color cbg ) ;
-color  oled_rgb (uint8_t r, uint8_t g, uint8_t b);
+void oled_char (char c, uint8_t x, uint8_t y, uint16_t cfg, uint16_t cbg ) ;
+uint16_t  oled_rgb (uint8_t r, uint8_t g, uint8_t b);
+void oled_clear (uint16_t color) ;
+void oled_setGPIO () ;
 
 #endif
