@@ -5,18 +5,16 @@
 
 int main (void) {
    uint16_t color ;
+   char  msg[]  = "RAMA" ;
+   char * cp = &msg[0] ;
 
    oled_init () ;
+   color = BLACK ;
+   oled_clear (color) ;
+   oled_string (cp, 0, 64,  WHITE, BLACK);
    oled_sendCMD (DISP_ON) ; 
-
-   oled_sendCMD (DISP_ON) ; 
-
   while (1) {
-   color = RED ;
-   oled_clear (color) ;
-   delay (500) ;
-   color = GREEN ;
-   oled_clear (color) ;
+    delay (500) ;
    } // infinite loop
    return (1) ;
 } // end main

@@ -15,6 +15,7 @@ CFLAGS += -ffreestanding
 CPPFLAGS += -specs=nosys.specs # Flags - Overall Options
 CPPFLAGS += -Wall              # Flags - Warning Options
 CPPFLAGS += -Wextra
+CPPFLAGS += -Wno-register
 CPPFLAGS += -g
 CPPFLAGS += -ffunction-sections # Flags - Optimization Options
 CPPFLAGS += -fdata-sections

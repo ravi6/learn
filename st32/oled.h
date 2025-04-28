@@ -47,6 +47,7 @@ struct HScroll {
 } ;
 
 
+void oled_setGPIO () ;
 void oled_sendCMD (uint8_t cmd)  ;
 void oled_sendDAT (uint8_t cmd)  ;
 void oled_setRange (uint8_t cmd, uint8_t start, uint8_t end) ;
@@ -55,9 +56,9 @@ void oled_Hscroll_Conf () ;
 void oled_init () ;
 void oled_update () ;
 void oled_draw (blob blob);
-void oled_char (char c, uint8_t x, uint8_t y, uint16_t cfg, uint16_t cbg ) ;
-uint16_t  oled_rgb (uint8_t r, uint8_t g, uint8_t b);
 void oled_clear (uint16_t color) ;
-void oled_setGPIO () ;
+uint16_t  oled_rgb (uint8_t r, uint8_t g, uint8_t b);
+void oled_char (char c, uint8_t x, uint8_t y, uint16_t cfg, uint16_t cbg ) ;
+void oled_string (char* msg, uint8_t x, uint8_t y, uint16_t cfg, uint16_t cbg) ;
 
 #endif

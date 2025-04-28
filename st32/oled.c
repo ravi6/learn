@@ -6,13 +6,14 @@
 */
 
 #include "oled.h"
+#include "string.h"
 
 //=========================================================
 void oled_draw (blob b) {
   // Draw a blob of bitmap on to oled.
    
-  oled_setRange (SET_ROW_RANGE, b.x, b.x + b.w - 1) ;
-  oled_setRange (SET_COL_RANGE, b.y, b.y + b.h - 1) ;
+  oled_setRange (SET_COL_RANGE, b.x, b.x + b.w - 1) ;
+  oled_setRange (SET_ROW_RANGE, b.y, b.y + b.h - 1) ;
   oled_sendCMD (RAM_WRITE_ENABLE) ;
   PINA_HIGH (DC) ;       // Send below data bytes
   PINA_LOW (CS) ;
@@ -47,12 +48,13 @@ void oled_char (char c, uint8_t x, uint8_t y, uint16_t cfg, uint16_t cbg ) {
   uint16_t  pix [fontA.w * fontA.h] ; // pixels in each char
    
   // We draw pixels row wise of the char
-  uint8_t idx = (uint8_t) c - ' ' ;   // fonts offset removed
-  uint8_t k = 0 ;
-  for (uint8_t row = 0 ; row < fontA.h ; row ++) {
-    for (uint8_t col = 0 ; col < fontA.w ; col ++) {
-       if (ISSET (fontA.glyph [idx + col], row)) pix [k] = cfg ;
+  int idx =  ((uint8_t) c - ' ')  ;   // fonts offset removed
+  int k = 0 ;
+  for (int row = fontA.h - 1 ; row >= 0 ; row --) {
+    for (int col = 0 ; col < fontA.w  ; col ++) {
+       if (ISSET (fontA.glyph [idx * fontA.w  + col], row )) pix [k] = cfg ;
        else pix [k] = cbg ;
+       k = k + 1 ;
     }
   }   
   blob blob ;
@@ -61,6 +63,13 @@ void oled_char (char c, uint8_t x, uint8_t y, uint16_t cfg, uint16_t cbg ) {
   oled_draw (blob) ;
 } // end drawChar 
 
+//=====================================================
+void oled_string (char* msg , uint8_t x, uint8_t y, uint16_t cfg, uint16_t cbg) {
+    int nc = (int) (strlen (msg)) ;
+    for (int i = 0 ; i < nc ; i++) {
+        oled_char (msg[i], x + i * fontA.w, y , cfg, cbg) ;
+    }
+}
 //=====================================================
 void oled_setGPIO () {
    // These are inputs to the OLED device coming from STM32
