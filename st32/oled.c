@@ -9,8 +9,8 @@
 #include "string.h"
 
 //=========================================================
-void oled_draw (blob b) {
-  // Draw a blob of bitmap on to oled.
+void oled_draw (blob b) 
+{ // Draw a blob of bitmap on to oled.
    
   oled_setRange (SET_COL_RANGE, b.x, b.x + b.w - 1) ;
   oled_setRange (SET_ROW_RANGE, b.y, b.y + b.h - 1) ;
@@ -22,11 +22,10 @@ void oled_draw (blob b) {
 }
 
 //=====================================================
-void oled_clear (uint16_t  color) { 
-// fill entire screen with a color
-// One line at a time (due to memory limits)
+void oled_clear (uint16_t  color) 
+{ // fill entire screen with a color
+  // One line at a time (due to memory limits)
   blob b ;
- 
   uint8_t nL   ;  // Lines drawn per batch
 
   nL = 1 ;
@@ -42,36 +41,40 @@ void oled_clear (uint16_t  color) {
 }
 
 //==================================================================
-void oled_char (char c, uint8_t x, uint8_t y, uint16_t cfg, uint16_t cbg ) {
- // note: chars with codes from 32 to 127 are valid 
+void oled_char (char c, uint8_t x, uint8_t y, uint16_t cfg, uint16_t cbg ) 
+{ // note: chars with codes from 32 to 127 are valid 
 
   uint16_t  pix [fontA.w * fontA.h] ; // pixels in each char
-   
+  uint16_t color ;
+ 
   // We draw pixels row wise of the char
   int idx =  ((uint8_t) c - ' ')  ;   // fonts offset removed
   int k = 0 ;
   for (int row = fontA.h - 1 ; row >= 0 ; row --) {
     for (int col = 0 ; col < fontA.w  ; col ++) {
-       if (ISSET (fontA.glyph [idx * fontA.w  + col], row )) pix [k] = cfg ;
-       else pix [k] = cbg ;
+       if (ISSET (fontA.glyph [idx * fontA.w  + col], row )) color = cfg ;
+       else color = cbg ;
+       pix [k] = color ;
        k = k + 1 ;
-    }
-  }   
-  blob blob ;
-  blob.x = x ; blob.y = y ; blob.w = fontA.w ; blob.h = fontA.h ;
-  blob.pix = (uint8_t*) (&pix[0]) ; 
-  oled_draw (blob) ;
+  }}
+     
+  blob b ;
+  b.x = x ; b.y = y ; b.w = fontA.w  ; b.h = fontA.h ;
+  b.pix = (uint8_t*) (&pix[0]) ; 
+  oled_draw (b) ;
 } // end drawChar 
 
 //=====================================================
-void oled_string (char* msg , uint8_t x, uint8_t y, uint16_t cfg, uint16_t cbg) {
+void oled_string (char* msg , uint8_t x, uint8_t y, uint16_t cfg, uint16_t cbg)
+{
     int nc = (int) (strlen (msg)) ;
     for (int i = 0 ; i < nc ; i++) {
         oled_char (msg[i], x + i * fontA.w, y , cfg, cbg) ;
     }
 }
 //=====================================================
-void oled_setGPIO () {
+void oled_setGPIO () 
+{
    // These are inputs to the OLED device coming from STM32
    // Assign STM32 pins 
    PINA_TYPE(DC, OUT)   ; // Oled Data/Command (DC) Pin
@@ -94,7 +97,8 @@ void oled_setGPIO () {
    PINA_HIGH (RS) ;
 }
 //=====================================================
-void oled_sendCMD (uint8_t cmd) { /* Good for single byte CMD */
+void oled_sendCMD (uint8_t cmd) 
+{ /* Good for single byte CMD */
     PINA_LOW (DC) ;    // cmd mode
     PINA_LOW (CS) ; 
     SPI_Tx (&cmd, 1) ; 
@@ -102,7 +106,8 @@ void oled_sendCMD (uint8_t cmd) { /* Good for single byte CMD */
 }
 
 //=====================================================
-void oled_sendDAT (uint8_t data) {
+void oled_sendDAT (uint8_t data) 
+{
     PINA_HIGH (DC) ;  // data mode
     PINA_LOW (CS) ; 
     SPI_Tx (&data , 1) ;  
@@ -110,7 +115,8 @@ void oled_sendDAT (uint8_t data) {
 } 
 
 //=====================================================
-void oled_setRange (uint8_t cmd, uint8_t start, uint8_t end) {
+void oled_setRange (uint8_t cmd, uint8_t start, uint8_t end) 
+{
     oled_sendCMD (cmd) ;
     oled_sendDAT (start) ;
     oled_sendDAT (end) ;
@@ -122,7 +128,8 @@ void oled_Hscroll (uint8_t cmd) {
 }
 
 //=====================================================
-void oled_Hscroll_Conf () {
+void oled_Hscroll_Conf () 
+{
     struct HScroll  hs ;
     hs.offset = 0 ;
     hs.stRow = 0  ;
@@ -138,8 +145,8 @@ void oled_Hscroll_Conf () {
 }
 
 //=====================================================
-void oled_init () {
-
+void oled_init () 
+{
    SPI_Setup () ;
    oled_setGPIO () ;
    blinkLED (3, 500) ;
@@ -236,7 +243,8 @@ void oled_init () {
 }
 
 //=====================================================
-uint16_t  oled_rgb (uint8_t r, uint8_t g, uint8_t b) {
+uint16_t  oled_rgb (uint8_t r, uint8_t g, uint8_t b) 
+{
   // Return a pointer to color (two bytes)
   uint16_t  colorD ;
   r = r & 0x1F ;   // truncate to 5bits 
@@ -248,4 +256,3 @@ uint16_t  oled_rgb (uint8_t r, uint8_t g, uint8_t b) {
   colorD = (colorD >> 8) | (colorD << 8) ;
   return (colorD) ;
 }
-
