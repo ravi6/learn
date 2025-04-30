@@ -17,7 +17,7 @@ void oled_draw (blob b)
   oled_sendCMD (RAM_WRITE_ENABLE) ;
   PINA_HIGH (DC) ;       // Send below data bytes
   PINA_LOW (CS) ;
-  SPI_Tx (b.pix, b.w * b.h * 2) ; 
+  SPI_Tx (b.pix, b.w * b.h * 2 ) ; 
   PINA_HIGH (CS) ;
 }
 
@@ -29,11 +29,11 @@ void oled_clear (uint16_t  color)
   uint8_t nL   ;  // Lines drawn per batch
 
   nL = 1 ;
-  uint16_t  pix [128 * 16 * nL] ;
-  for (int i = 0 ; i <  128 * 16 *  nL ; i++) pix [i] = color ;
+  uint16_t  pix [COLS * nL] ;
+  for (int i = 0 ; i <  COLS * nL ; i++) pix [i] = color ;
 
-  b.w = 128 ; b.h = nL ;
-  for (uint8_t i = 0 ; i < 128 / nL ; i ++) {
+  b.w = COLS ; b.h = nL ;
+  for (uint8_t i = 0 ; i < ROWS / nL ; i ++) {
        b.x = 0 ; b.y = i*nL ;
        b.pix = (uint8_t *) (&pix) ;    
        oled_draw (b) ;
@@ -173,10 +173,16 @@ void oled_init ()
    // But according to CHATGPT .. this does not represent
    // base frequency of SSD1351. It is 100MHz
    // When high byte is (11) ... then base Freq. = (11/16) * 100 =
-   oled_sendCMD (0xB3) ; oled_sendDAT (0xD1) ;  // Display Clock
+   oled_sendCMD (0xB3) ; oled_sendDAT (0xF1) ;  // Display Clock
+
+  // Set Start Line
+    oled_sendCMD (0xA1) ; oled_sendDAT (0) ;
+
+  // Set Display Offset
+    oled_sendCMD (0xA2) ; oled_sendDAT (0) ;
 
    // Set Mux Ratio
-   oled_sendCMD (0xCA) ; oled_sendDAT (ROWS-1) ;
+   oled_sendCMD (0xCA) ; oled_sendDAT (ROWS - 1) ;
 
   /*  Set Scanning Parameters
    *  Data Byte 
@@ -226,12 +232,6 @@ void oled_init ()
    // Display Area setup
    oled_setRange (SET_ROW_RANGE, 0, ROWS-1) ;
    oled_setRange (SET_COL_RANGE, 0, COLS-1) ;
-
-  // Set Start Line
-    oled_sendCMD (0xA1) ; oled_sendDAT (0) ;
-
-  // Set Display Offset
-    oled_sendCMD (0xA2) ; oled_sendDAT (0) ;
 
   // We need GPIO0 to go High for it controls OLED VCC
   oled_sendCMD(0xB5);  // GPIO Setting 
