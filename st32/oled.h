@@ -25,8 +25,8 @@ struct blob { // A blob of pixels to draw at x,y
   uint8_t* pix ;  // pointer to pixel data (2 bytes per pixel)
 }  ;
 
-#define ROWS 64
-#define COLS 64
+#define ROWS 128
+#define COLS 128
 
 #define BLUE		0x00F8
 #define RED		0x1F00

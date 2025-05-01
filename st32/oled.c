@@ -173,20 +173,20 @@ void oled_init ()
    // But according to CHATGPT .. this does not represent
    // base frequency of SSD1351. It is 100MHz
    // When high byte is (11) ... then base Freq. = (11/16) * 100 =
-   oled_sendCMD (0xB3) ; oled_sendDAT (0xF1) ;  // Display Clock
+    oled_sendCMD (0xB3) ; oled_sendDAT (0xF1) ;  // Display Clock
 
   // Set Start Line
-    oled_sendCMD (0xA1) ; oled_sendDAT (0) ;
+     oled_sendCMD (0xA1) ; oled_sendDAT (0) ;
 
   // Set Display Offset
-    oled_sendCMD (0xA2) ; oled_sendDAT (0) ;
+     oled_sendCMD (0xA2) ; oled_sendDAT (0) ;
 
    // Set Mux Ratio
-   oled_sendCMD (0xCA) ; oled_sendDAT (ROWS - 1) ;
+    oled_sendCMD (0xCA) ; oled_sendDAT (ROWS-1) ;
 
   /*  Set Scanning Parameters
    *  Data Byte 
-   *  D[0] = 0   0: Horizonal  Address Inc  
+   *  D[0] = 1   (For row wise writes ( 0: Horizonal 1: Vertical inc )
       D[1] = 0   Column address 0 Mapped to  SEG 0
       D[2] = 0   Normal Color Sequence (not swapped)
       D[3] = 0   Reserved
@@ -195,10 +195,12 @@ void oled_init ()
       D[7:6] = 0b00 256 color,  0b01    65k Color Depth
    *  Will yield   data = 0x40  for 65k
    *
-   */
+   *    This is causing trouble for me. Tried 41 either of them
+   *     Give halved  y resolution, commenting out this cmd works
     oled_sendCMD (0xA0) ;  // Set Scanning Params
     oled_sendDAT (0x40) ;  // Mapping, Color Order etc.
 			   // 65k Colors (16bit packed RGB (5-6-5)
+   */
  // Sets various display rersponse and contrast params
 
   oled_sendCMD(0xAB); // func Select
