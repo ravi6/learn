@@ -16,10 +16,10 @@ int main (void) {
   
   while (1) {
    for (int j = 0 ; j < 64 ; j ++) {
-      oled_string (cp, 0,  30 +  1 ,  WHITE, BLACK);
-      delay (100) ;
-     // oled_string (cp, 30,  30 +  1 ,  BLACK, BLACK);
-      //delay (100) ;
+      oled_string (cp, 30,  30 +  j ,  BLUE, BLACK);
+      delay (2000) ;
+      oled_string (cp, 30,  30 +  j ,  BLACK, BLACK);
+      delay (2000) ;
    }
       delay (100) ;
    } // infinite loop
