@@ -60,5 +60,6 @@ void oled_clear (uint16_t color) ;
 uint16_t  oled_rgb (uint8_t r, uint8_t g, uint8_t b);
 void oled_char (char c, uint8_t x, uint8_t y, uint16_t cfg, uint16_t cbg ) ;
 void oled_string (char* msg, uint8_t x, uint8_t y, uint16_t cfg, uint16_t cbg) ;
+void rotate (blob  b);
 
 #endif

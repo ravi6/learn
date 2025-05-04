@@ -49,20 +49,47 @@ void oled_char (char c, uint8_t x, uint8_t y, uint16_t cfg, uint16_t cbg )
  
   // We draw pixels row wise of the char
   int idx =  ((uint8_t) c - ' ')  ;   // fonts offset removed
-  int k = 0 ;
-  for (int row = fontA.h - 1 ; row >= 0 ; row --) {
-    for (int col = 0 ; col < fontA.w  ; col ++) {
-       if (ISSET (fontA.glyph [idx * fontA.w  + col], row )) color = cfg ;
-       else color = cbg ;
-       pix [k] = color ;
-       k = k + 1 ;
-  }}
-     
+
+  // Font glyph is row wise
+  int k, offset, rowBytes ;
+  rowBytes = fontA.h / 8 ;
+  k = 0 ;
+  
+  for (int j = 0 ; j < rowBytes ; j ++) {
+    for (int m = 7 ; m >= 0 ; m --) { 
+      for (int row = 0 ; row < fontA.w ; row ++) {
+          offset = (idx * fontA.w + row) * rowBytes  + j ;
+          if (ISSET (fontA.glyph [offset],  m)) color = cfg ; 
+          else color = cbg; 
+          pix [k] = color ;
+          k = k + 1 ;
+       }}}
+
   blob b ;
   b.x = x ; b.y = y ; b.w = fontA.w  ; b.h = fontA.h ;
   b.pix = (uint8_t*) (&pix[0]) ; 
   oled_draw (b) ;
 } // end drawChar 
+
+void rotate (blob  b) {
+     // Rotate a blob ... need more work
+     uint8_t x[b.w][b.h] ;
+    
+     int k = 0 ;
+     for (int i = 0 ; i < b.h  ; i++) {
+        for (int j = 0 ; j < b.w  ; j++) {
+            x[j][i] = b.pix [k] ;
+            k = k + 1 ;
+     }}
+
+     k = 0 ;
+     for (int i = 0 ; i < b.h  ; i++) {
+     for (int j = 0 ; j < b.w  ; j++) {
+            b.pix [k]  = x [i][j];
+            k = k + 1 ;
+     }}
+     k = b.w ; b.w = b.h ; b.h = k ;
+}
 
 //=====================================================
 void oled_string (char* msg , uint8_t x, uint8_t y, uint16_t cfg, uint16_t cbg)
