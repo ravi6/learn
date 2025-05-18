@@ -34,7 +34,8 @@ CXXFLAGS += -fno-rtti
 CXXFLAGS += -fno-exceptions
 CXXFLAGS += -fno-unwind-tables
 
-OBJ =  main.o  oled.o spi.o 
+#OBJ =  main.o  oled.o spi.o 
+OBJ =  lcd.o 
 
 all: app.bin
 

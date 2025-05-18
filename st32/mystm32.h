@@ -97,7 +97,7 @@ typedef struct
 #define GPIOB ((GPIO_Type *) 0x48000400)
 #define SPI   ((SPI_Type *) 0x40013000)
 
-enum {IN, OUT, AF, AI} ; // GPIO MODER modes
+enum {IN, OUT, AF, AN} ; // GPIO MODER modes
 enum {CLKA=17, CLKB, CLKC, CLKD} ; // GPIO clocks
 
 // GPIO Pins
@@ -140,6 +140,14 @@ enum {AF0, AF1, AF2, AF3, AF4, AF5, AF6, AF7,
 #define GPIOA_CLKOFF  (CLR(RCC->AHBENR,  (CLKA)))   
 #define GPIOA_CLKSTATE (ISSET(RCC->AHBENR, (CLKA)))
 #define PINA_TYPE(n, mode) (CLRSET(GPIOA->MODER, 3 << 2*(n), (mode) << 2*(n)))  
+
+// Digital to Analogue
+#define DAC1_CLKON (RCC->APB1ENR | = ( 1 << 29) )
+#define DAC_CR         (*(volatile uint32_t*)0x40007400)
+#define DAC1_EN1 ( DAC_CR | = (1 << 0) )
+#define DAC_DHR12R1    (*(volatile uint32_t*)0x40007408)  // 12-bit right-aligned data holding register
+#define DAC1_CH1_WRITE(x)  ( DAC_DHR12R1 = x ) // x <= 0xFFF
+
 // Assign Alternate Functions to GPIOA pins (0 to 7 only)
 #define ALT_FUNA(p, a)  (CLRSET(GPIOA->AFRL, 0xF << 4*(p), (a) << 4*(p)))  
 
