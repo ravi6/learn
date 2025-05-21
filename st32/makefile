@@ -5,8 +5,8 @@ SYS = device/system_stm32f3xx
 CC = arm-none-eabi-g++ -g3  -I device/
 AS = arm-none-eabi-as
 BIN = arm-none-eabi-objcopy
-#STL = st-flash --connect-under-reset
-STL = st-flash 
+STL = st-flash --connect-under-reset
+#STL = st-flash 
 
 
 # Flags - C Language Options
@@ -35,7 +35,7 @@ CXXFLAGS += -fno-exceptions
 CXXFLAGS += -fno-unwind-tables
 
 #OBJ =  main.o  oled.o spi.o 
-OBJ =  lcd.o 
+OBJ =  lcd.o
 
 all: app.bin
 

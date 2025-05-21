@@ -32,7 +32,8 @@ int main(void) {
 
     // Set PWM mode 1 on CH1 (output high until counter matches CCR1, then low)
     TIM2->CCMR1 &= ~TIM_CCMR1_OC1M;
-    TIM2->CCMR1 |= (6 << TIM_CCMR1_OC1M_Pos);  // OC1M = 110 (PWM mode 1)
+    // Channel 1 is active while  TIMx_CNT < TIMx_CCR1 else inactive
+    TIM2->CCMR1 |= (6 << 4);  // OC1M = 110 (PWM mode 1)
     TIM2->CCMR1 |= TIM_CCMR1_OC1PE;            // Output preload enable
 
     // Enable output on channel 1
