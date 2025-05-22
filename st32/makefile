@@ -2,7 +2,7 @@
 # Adapted from above
 DEV = device/stm32f303x8
 SYS = device/system_stm32f3xx
-CC = arm-none-eabi-g++ -g3  -I device/
+CC = arm-none-eabi-gcc -g3  -I device/
 AS = arm-none-eabi-as
 BIN = arm-none-eabi-objcopy
 STL = st-flash --connect-under-reset
