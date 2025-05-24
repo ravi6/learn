@@ -2,8 +2,8 @@
 // Assumes default system clock = 8 MHz from HSI
 #define TIM2PSC 7    // 8000 / 8 =  1000kHz
 #define TIM2ARR 119  //  1000 / 120 (8.3kHz -> freq) 
-#define TIM3PSC 132  //  8300 / 133 = 63 kHz
-#define TIM3ARR 999  // 63 / 1000  kHz = (63 Hz -> freq)
+#define TIM3PSC 829  //  8300 / 830 = 10 kHz
+#define TIM3ARR 99  // 10 / 100  kHz = (100 Hz -> freq)
 #define LED 4     // PB4 as LED indicator
 #define NUM_PHASES   4
 
@@ -67,18 +67,19 @@ void TIM3_IRQHandler(void) {
    // This is achieved with duty cycle that is proportional to voltage ratio
     if (TIM3->SR & TIM_SR_UIF) {
         TIM3->SR &= ~TIM_SR_UIF;
+        phase = (phase + 1) % NUM_PHASES;
         TIM2->CCR1 = comsTable[phase][0]; // COM0
         TIM2->CCR2 = comsTable[phase][1]; // COM1
         TIM2->CCR3 = comsTable[phase][2]; // COM2
         TIM2->CCR4 = comsTable[phase][3]; // COM3
 
-        uint8_t segState = 0b1010 ;  // for now static, assume COM0 is paired with it 
+        uint8_t segState = 0b0001 ;  // for now static, assume COM0 is paired with it 
         if ( (1 << phase) & segState ) {    // SEG Pin Output 
           TIM16->CCR1 = TIM2ARR - comsTable[phase][0] ; // Complement Duty to turn ON
           GPIOB->ODR ^= (1 << LED);  // Toggle PBx
         }   
-        else TIM16->CCR1 = comsTable[phase][0] ; // Follow Common to turn OFF
-        phase = (phase + 1) % NUM_PHASES;
+        else 
+        TIM16->CCR1 = comsTable[phase][0] ; // Follow Common to turn OFF
     } 
 }
 
