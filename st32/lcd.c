@@ -8,6 +8,7 @@
 #define NUM_PHASES   4
 #define PWM_MODE1 6
 #define PWM_MODE2 7
+#define MIN(a, b) (((a) < (b)) ? ( a) : (b))
 
 
 void setupLED(void) ;
@@ -18,18 +19,18 @@ void init_TIM3_IRQ(void) ;
 void TIM3_IRQHandler(void) ;
 
 volatile uint8_t phase = 0;
+volatile uint8_t invert = 0;  // Com Table Inversion flag
 
 // Duty cycles for to PWM Count (Period)
 const uint16_t pwmDuty[4] = {0, TIM2CNT/3, 2*(TIM2CNT/3), TIM2CNT} ;
 
 // Each row = phase; each column = COMx duty
 const uint16_t comsTable[NUM_PHASES][4] = {
-    { pwmDuty[1], pwmDuty[2], pwmDuty[3], pwmDuty[1] },
-    { pwmDuty[2], pwmDuty[3], pwmDuty[1], pwmDuty[2] },
-    { pwmDuty[3], pwmDuty[1], pwmDuty[2], pwmDuty[3]},
-    { pwmDuty[1], pwmDuty[2], pwmDuty[3], pwmDuty[1] }
+    { pwmDuty[3], pwmDuty[2], pwmDuty[1], pwmDuty[2] },
+    { pwmDuty[2], pwmDuty[3], pwmDuty[2], pwmDuty[1] },
+    { pwmDuty[1], pwmDuty[2], pwmDuty[3], pwmDuty[2]},
+    { pwmDuty[2], pwmDuty[1], pwmDuty[2], pwmDuty[3] }
 };
-
 
 void init_TIM2_PWM(void) {
     RCC->AHBENR  |= RCC_AHBENR_GPIOAEN;
@@ -77,15 +78,22 @@ void TIM3_IRQHandler(void) {
         TIM2->CCR3 = comsTable[phase][2]; // COM2
         TIM2->CCR4 = comsTable[phase][3]; // COM3
 
-        uint8_t segState = 0b1010 ;  // for now static, assume COM0 is paired with it 
+        uint8_t segState = 0b0000 ;  // for now static, assume COM0 is paired with it 
+        uint16_t comTabValue ;
+        if (! invert)  
+            comTabValue  =   comsTable[phase][0] ;
+        else 
+            comTabValue  =  pwmDuty[4] -  comsTable[phase][0] ;
+     
         if ( (1 << phase) & segState ) {    // SEG Pin Output 
-          TIM16->CCR1 = TIM2CNT - comsTable[phase][0] ; // Complement Duty to turn ON
+          TIM16->CCR1 = pwmDuty[4] - comTabValue ; // oppose comValue
           GPIOB->ODR = (1 << LED);  // LED ON
         }   
         else {  
-        TIM16->CCR1 = comsTable[phase][0] ; // Follow Common to turn OFF
-        GPIOB->ODR = (0 << LED);  // LED OFF
+          TIM16->CCR1 =  comTabValue; // follow com value 
+          GPIOB->ODR = (0 << LED);  // LED OFF
         }
+        if (phase == 0) invert = !invert ; // we flip coms at every segment update
         phase = (phase + 1) % NUM_PHASES;
     } 
 }
@@ -115,7 +123,7 @@ void setupLED() {
 
     GPIOB->OTYPER &= ~(1 << LED);         // Push-pull
     GPIOB->OSPEEDR |= (1 << (LED * 2));   // Medium speed
-    GPIOB->PUPDR &= ~(3 << (LED * 2));    // No pull-up/down
+    GPIOB->PUPDR   &= ~(3 << (LED * 2));    // No pull-up/down
     GPIOB->ODR |= (1 << LED);             // PBx = 1 (LED ON, if active high)
 }
 
