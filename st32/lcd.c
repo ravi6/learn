@@ -67,19 +67,21 @@ void TIM3_IRQHandler(void) {
    // This is achieved with duty cycle that is proportional to voltage ratio
     if (TIM3->SR & TIM_SR_UIF) {
         TIM3->SR &= ~TIM_SR_UIF;
-        phase = (phase + 1) % NUM_PHASES;
         TIM2->CCR1 = comsTable[phase][0]; // COM0
         TIM2->CCR2 = comsTable[phase][1]; // COM1
         TIM2->CCR3 = comsTable[phase][2]; // COM2
         TIM2->CCR4 = comsTable[phase][3]; // COM3
 
-        uint8_t segState = 0b0001 ;  // for now static, assume COM0 is paired with it 
+        uint8_t segState = 0b1010 ;  // for now static, assume COM0 is paired with it 
         if ( (1 << phase) & segState ) {    // SEG Pin Output 
           TIM16->CCR1 = TIM2ARR - comsTable[phase][0] ; // Complement Duty to turn ON
-          GPIOB->ODR ^= (1 << LED);  // Toggle PBx
+          GPIOB->ODR = (1 << LED);  // LED ON
         }   
-        else 
+        else {  
         TIM16->CCR1 = comsTable[phase][0] ; // Follow Common to turn OFF
+        GPIOB->ODR = (0 << LED);  // LED OFF
+        }
+        phase = (phase + 1) % NUM_PHASES;
     } 
 }
 

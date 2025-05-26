@@ -13,7 +13,7 @@ int main (void) {
    color = BLACK ;
    oled_clear (color) ;
    oled_sendCMD (DISP_ON) ; 
-  
+   printf("Hello\n");  
   while (1) {
    for (int j = 0 ; j < 64 ; j ++) {
       oled_string (cp, 30,  30 +  j ,  BLUE, BLACK);
