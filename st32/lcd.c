@@ -1,11 +1,14 @@
 #include "stm32f303x8.h"
 // Assumes default system clock = 8 MHz from HSI
-#define TIM2PSC 7    // 8000 / 8 =  1000kHz
-#define TIM2ARR 119  //  1000 / 120 (8.3kHz -> freq) 
-#define TIM3PSC 829  //  8300 / 830 = 10 kHz
-#define TIM3ARR 99  // 10 / 100  kHz = (100 Hz -> freq)
+#define TIM2SCL 8    // 8000 / 8 =  1000kHz
+#define TIM2CNT 120  //  1000 / 120 (8.3kHz -> freq) 
+#define TIM3SCL 830  //  8300 / 830 = 10 kHz
+#define TIM3CNT 100  // 10 / 100  kHz = (100 Hz -> freq)
 #define LED 4     // PB4 as LED indicator
 #define NUM_PHASES   4
+#define PWM_MODE1 6
+#define PWM_MODE2 7
+
 
 void setupLED(void) ;
 void blink (int n) ;
@@ -16,15 +19,15 @@ void TIM3_IRQHandler(void) ;
 
 volatile uint8_t phase = 0;
 
-// Duty cycles for 0%, 33%, 66%, %100 scaled to PWM_PERIOD
-const uint16_t pwmDuty[4] = {0, 40, 80, 120} ;
+// Duty cycles for to PWM Count (Period)
+const uint16_t pwmDuty[4] = {0, TIM2CNT/3, 2*(TIM2CNT/3), TIM2CNT} ;
 
 // Each row = phase; each column = COMx duty
 const uint16_t comsTable[NUM_PHASES][4] = {
-    { pwmDuty[0], pwmDuty[1], pwmDuty[2], pwmDuty[3] },
-    { pwmDuty[3], pwmDuty[0], pwmDuty[1], pwmDuty[2] },
-    { pwmDuty[2], pwmDuty[3], pwmDuty[0], pwmDuty[1] },
-    { pwmDuty[1], pwmDuty[2], pwmDuty[3], pwmDuty[0] }
+    { pwmDuty[1], pwmDuty[2], pwmDuty[3], pwmDuty[1] },
+    { pwmDuty[2], pwmDuty[3], pwmDuty[1], pwmDuty[2] },
+    { pwmDuty[3], pwmDuty[1], pwmDuty[2], pwmDuty[3]},
+    { pwmDuty[1], pwmDuty[2], pwmDuty[3], pwmDuty[1] }
 };
 
 
@@ -46,15 +49,17 @@ void init_TIM2_PWM(void) {
       GPIOA->PUPDR &= ~(0x3 << (i * 2));     // No pull-up/down
     }
 
-    TIM2->PSC = TIM2PSC ;
-    TIM2->ARR = TIM2ARR ;
+    TIM2->PSC = TIM2SCL - 1 ;
+    TIM2->ARR = TIM2CNT - 1 ;
 
     // Channel_x  is active while  TIMx_CNT < TIMx_CCR1 else inactive
     // Channel_x  output preload enable (TIMx_OC1PE)
-    TIM2->CCMR1 = (6 << 4) | (1 << 3) |  // CH1 PWM mode 1 + preload 
-                  (6 << 12) | (1 << 11); // CH2 PWM mode 1 + preload
-    TIM2->CCMR2 = (6 << 4) | (1 << 3) |  // CH3 PWM mode 1 + preload
-                  (6 << 12) | (1 << 11); // CH4 PWM mode 1 + preload
+    // PWM_MODE2   center aligned pwm  (Pulse count is at the middle of the pulse)
+    // Improves alighnment
+    TIM2->CCMR1 = (PWM_MODE2 << 4) | (1 << 3) |  // CH1 PWM mode 2 + preload 
+                  (PWM_MODE2 << 12) | (1 << 11); // CH2 PWM mode 2 + preload
+    TIM2->CCMR2 = (PWM_MODE2 << 4) | (1 << 3) |  // CH3 PWM mode 2 + preload
+                  (PWM_MODE2 << 12) | (1 << 11); // CH4 PWM mode 2 + preload
 
     TIM2->CCER |= TIM_CCER_CC1E | TIM_CCER_CC2E | TIM_CCER_CC3E | TIM_CCER_CC4E;
     TIM2->CR1  |= TIM_CR1_ARPE;
@@ -74,7 +79,7 @@ void TIM3_IRQHandler(void) {
 
         uint8_t segState = 0b1010 ;  // for now static, assume COM0 is paired with it 
         if ( (1 << phase) & segState ) {    // SEG Pin Output 
-          TIM16->CCR1 = TIM2ARR - comsTable[phase][0] ; // Complement Duty to turn ON
+          TIM16->CCR1 = TIM2CNT - comsTable[phase][0] ; // Complement Duty to turn ON
           GPIOB->ODR = (1 << LED);  // LED ON
         }   
         else {  
@@ -89,8 +94,8 @@ void init_TIM3_IRQ(void) {
     RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
     (void)RCC->APB1ENR ;  // wait for above to completeyy
 
-    TIM3->PSC = TIM3PSC ;
-    TIM3->ARR = TIM3ARR ;
+    TIM3->PSC = TIM3SCL - 1 ;
+    TIM3->ARR = TIM3CNT - 1 ;
 
     // Fire TIM3_IRQHandler every time Counter Overflow
     TIM3->EGR = TIM_EGR_UG ;    // Force update Event for reload register ARR
@@ -143,12 +148,12 @@ void init_TIM16_PWM(void) {
       GPIOA->PUPDR &= ~(0x3 << (i * 2));     // No pull-up/down
 
     // Using same frequency settings as TIM2 that control Commons
-    TIM16->PSC = TIM2PSC ;
-    TIM16->ARR = TIM2ARR ;
+    TIM16->PSC = TIM2SCL - 1 ;
+    TIM16->ARR = TIM2CNT - 1 ;
 
     // Channel_x  is active while  TIMx_CNT < TIMx_CCR1 else inactive
     // Channel_x  output preload enable (TIMx_OC1PE)
-    TIM16->CCMR1 = (6 << 4) | (1 << 3) ;  // CH1 PWM mode 1 + preload 
+    TIM16->CCMR1 = (PWM_MODE2 << 4) | (1 << 3) ;  // CH1 PWM mode 2 + preload 
     TIM16->CCER |= TIM_CCER_CC1E ;
     TIM16->CR1  |= TIM_CR1_ARPE;
     TIM16->EGR   = TIM_EGR_UG;
@@ -163,6 +168,7 @@ int main(void) {
 
   init_TIM2_PWM() ; // used for common pins signals (4 off)
   init_TIM16_PWM() ; // used for single SEG pin
+
   init_TIM3_IRQ() ;
 
    if (!(TIM2->CR1 & TIM_CR1_CEN))  // Timer is not  running!
