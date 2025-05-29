@@ -73,20 +73,27 @@ void TIM3_IRQHandler(void) {
    // This is achieved with duty cycle that is proportional to voltage ratio
     if (TIM3->SR & TIM_SR_UIF) {
         TIM3->SR &= ~TIM_SR_UIF;
-        TIM2->CCR1 = comsTable[phase][0]; // COM0
-        TIM2->CCR2 = comsTable[phase][1]; // COM1
-        TIM2->CCR3 = comsTable[phase][2]; // COM2
-        TIM2->CCR4 = comsTable[phase][3]; // COM3
+        if (!invert) {
+	  TIM2->CCR1 = comsTable[phase][0]; // COM0
+	  TIM2->CCR2 = comsTable[phase][1]; // COM1
+	  TIM2->CCR3 = comsTable[phase][2]; // COM2
+	  TIM2->CCR4 = comsTable[phase][3]; // COM3
+        } else { // inverted signal
+	  TIM2->CCR1 = pwmDuty[3] - comsTable[phase][0]; // COM0
+	  TIM2->CCR2 = pwmDuty[3] - comsTable[phase][1]; // COM1
+	  TIM2->CCR3 = pwmDuty[3] - comsTable[phase][2]; // COM2
+	  TIM2->CCR4 = pwmDuty[3] - comsTable[phase][3]; // COM3
+        }
 
-        uint8_t segState = 0b0000 ;  // for now static, assume COM0 is paired with it 
+        uint8_t segState = 0b1110 ;  // for now static, assume COM0 is paired with it 
         uint16_t comTabValue ;
         if (! invert)  
             comTabValue  =   comsTable[phase][0] ;
         else 
-            comTabValue  =  pwmDuty[4] -  comsTable[phase][0] ;
+            comTabValue  =  pwmDuty[3] -  comsTable[phase][0] ;
      
         if ( (1 << phase) & segState ) {    // SEG Pin Output 
-          TIM16->CCR1 = pwmDuty[4] - comTabValue ; // oppose comValue
+          TIM16->CCR1 = pwmDuty[3] - comTabValue ; // oppose comValue
           GPIOB->ODR = (1 << LED);  // LED ON
         }   
         else {  
