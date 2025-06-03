@@ -1,9 +1,9 @@
 #include "stm32f303x8.h"
 // Assumes default system clock = 8 MHz from HSI
-#define TIM2SCL 8    // 8000 / 8 =  1000kHz
-#define TIM2CNT 120  //  1000 / 120 (8.3kHz -> freq) 
-#define TIM3SCL 830  //  8300 / 830 = 10 kHz
-#define TIM3CNT 100  // 10 / 100  kHz = (100 Hz -> freq)
+#define TIM2SCL 2 
+#define TIM2CNT 256  //  8000/(2 * 256) =  (15.6kHz -> freq) 
+#define TIM3SCL 200 
+#define TIM3CNT 800 // 8000/(200*800)  kHz = (50 Hz -> freq)
 #define LED 4     // PB4 as LED indicator
 #define NUM_PHASES   4
 #define PWM_MODE1 6
@@ -21,15 +21,15 @@ void TIM3_IRQHandler(void) ;
 volatile uint8_t phase = 0;
 volatile uint8_t invert = 0;  // Com Table Inversion flag
 
-// Duty cycles for to PWM Count (Period)
-const uint16_t pwmDuty[4] = {0, TIM2CNT/3, 2*(TIM2CNT/3), TIM2CNT} ;
+// Duty cycles for to PWM Count (Period)  (1/3 bias)
+const uint16_t pwmDuty[4] = {(TIM2CNT-1)/3,  (TIM2CNT-1)/2 , 2*((TIM2CNT-1)/3), (TIM2CNT-1)} ;
 
 // Each row = phase; each column = COMx duty
 const uint16_t comsTable[NUM_PHASES][4] = {
-    { pwmDuty[3], pwmDuty[2], pwmDuty[1], pwmDuty[2] },
-    { pwmDuty[2], pwmDuty[3], pwmDuty[2], pwmDuty[1] },
-    { pwmDuty[1], pwmDuty[2], pwmDuty[3], pwmDuty[2]},
-    { pwmDuty[2], pwmDuty[1], pwmDuty[2], pwmDuty[3] }
+    { pwmDuty[0], pwmDuty[1], pwmDuty[2], pwmDuty[1] },
+    { pwmDuty[1], pwmDuty[2], pwmDuty[1], pwmDuty[0] },
+    { pwmDuty[2], pwmDuty[1], pwmDuty[0], pwmDuty[1]},
+    { pwmDuty[1], pwmDuty[0], pwmDuty[1], pwmDuty[2] }
 };
 
 void init_TIM2_PWM(void) {
@@ -71,37 +71,37 @@ void init_TIM2_PWM(void) {
 void TIM3_IRQHandler(void) {
    // Drive all com Lines setting voltage according to Mux phase
    // This is achieved with duty cycle that is proportional to voltage ratio
+
     if (TIM3->SR & TIM_SR_UIF) {
         TIM3->SR &= ~TIM_SR_UIF;
-        if (!invert) {
-	  TIM2->CCR1 = comsTable[phase][0]; // COM0
-	  TIM2->CCR2 = comsTable[phase][1]; // COM1
-	  TIM2->CCR3 = comsTable[phase][2]; // COM2
-	  TIM2->CCR4 = comsTable[phase][3]; // COM3
-        } else { // inverted signal
-	  TIM2->CCR1 = pwmDuty[3] - comsTable[phase][0]; // COM0
-	  TIM2->CCR2 = pwmDuty[3] - comsTable[phase][1]; // COM1
-	  TIM2->CCR3 = pwmDuty[3] - comsTable[phase][2]; // COM2
-	  TIM2->CCR4 = pwmDuty[3] - comsTable[phase][3]; // COM3
-        }
 
-        uint8_t segState = 0b1110 ;  // for now static, assume COM0 is paired with it 
-        uint16_t comTabValue ;
-        if (! invert)  
-            comTabValue  =   comsTable[phase][0] ;
-        else 
-            comTabValue  =  pwmDuty[3] -  comsTable[phase][0] ;
-     
-        if ( (1 << phase) & segState ) {    // SEG Pin Output 
-          TIM16->CCR1 = pwmDuty[3] - comTabValue ; // oppose comValue
-          GPIOB->ODR = (1 << LED);  // LED ON
-        }   
-        else {  
-          TIM16->CCR1 =  comTabValue; // follow com value 
-          GPIOB->ODR = (0 << LED);  // LED OFF
-        }
-        if (phase == 0) invert = !invert ; // we flip coms at every segment update
+        uint8_t segState = 0b1001 ; //LSB to MSB give Seg On State in each phase
+        uint16_t comDuty ;
+
+            //  Note: Each phase switche to new com
+            // Invert com duty appropriate to the phase if needed
+            // Note each muxed subsegment is connected to different com line 
+            // with index in sync with phase index. 
+            
+	      if (invert)  comDuty = pwmDuty[3] - comsTable[phase][phase] ; 
+	      else comDuty = comsTable[phase][phase] ;
+
+              switch (phase) {
+	 	case 0: TIM2->CCR1 = comDuty; break;  // COM0 active
+	        case 1: TIM2->CCR2 = comDuty; break;  // COM1 active
+	        case 2: TIM2->CCR3 = comDuty; break;  // COM2 active
+	        case 3: TIM2->CCR4 = comDuty; break;  // COM3 active
+              }
+
+	      if ( (1 << phase) & segState ) {    // SEG Pin Output 
+		TIM16->CCR1 = pwmDuty[3] - comDuty ; // oppose comValue
+	      }   
+	      else {  
+		TIM16->CCR1 = comDuty; // follow com value 
+	      }
+
         phase = (phase + 1) % NUM_PHASES;
+        if (phase == 0) invert = !invert ; // we flip coms at every segment update
     } 
 }
 
