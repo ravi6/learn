@@ -21,17 +21,25 @@ void TIM3_IRQHandler(void) ;
 volatile uint8_t phase = 0;
 volatile uint8_t invert = 0;  // Com Table Inversion flag
 
-// Duty cycles for to PWM Count (Period)  (1/3 bias)
+/* Duty cycles for to PWM Count (Period)  (1/3 bias)
 const uint16_t pwmDuty[4] = {(TIM2CNT-1)/3,  (TIM2CNT-1)/2 , 2*((TIM2CNT-1)/3), (TIM2CNT-1)} ;
 
 // Each row = phase; each column = COMx duty
 const uint16_t comsTable[NUM_PHASES][4] = {
     { pwmDuty[0], pwmDuty[1], pwmDuty[2], pwmDuty[1] },
     { pwmDuty[1], pwmDuty[2], pwmDuty[1], pwmDuty[0] },
-    { pwmDuty[2], pwmDuty[1], pwmDuty[0], pwmDuty[1]},
+    { pwmDuty[2], pwmDuty[1], pwmDuty[0], pwmDuty[1] },
     { pwmDuty[1], pwmDuty[0], pwmDuty[1], pwmDuty[2] }
 };
+*/
 
+const uint16_t pwmDuty[4] = {0, (TIM2CNT-1)/3, 2*((TIM2CNT-1)/3), (TIM2CNT-1)} ;
+const uint16_t comsTable[NUM_PHASES][4] = {
+    { pwmDuty[0], pwmDuty[1], pwmDuty[2], pwmDuty[1] },
+    { pwmDuty[1], pwmDuty[2], pwmDuty[1], pwmDuty[0] },
+    { pwmDuty[2], pwmDuty[1], pwmDuty[0], pwmDuty[1] },
+    { pwmDuty[1], pwmDuty[0], pwmDuty[1], pwmDuty[2] }
+};
 void init_TIM2_PWM(void) {
     RCC->AHBENR  |= RCC_AHBENR_GPIOAEN;
     (void)RCC->AHBENR ;  // wait for above to completeyy
@@ -75,35 +83,40 @@ void TIM3_IRQHandler(void) {
     if (TIM3->SR & TIM_SR_UIF) {
         TIM3->SR &= ~TIM_SR_UIF;
 
-        uint8_t segState = 0b1001 ; //LSB to MSB give Seg On State in each phase
+        uint8_t segState = 0b0001 ; //LSB to MSB give Seg On State in each phase
         uint16_t comDuty ;
 
-            //  Note: Each phase switche to new com
-            // Invert com duty appropriate to the phase if needed
-            // Note each muxed subsegment is connected to different com line 
-            // with index in sync with phase index. 
-            
+           // Drive all COM lines for this phase
+           for (uint8_t com = 0 ; com < 4 ; com++) { 
+	      if (invert)  comDuty = pwmDuty[3] - comsTable[phase][com] ; 
+	      else comDuty = comsTable[phase][com] ;
+             
+              switch (com) {  // set CCR value corresponding to COM
+	 	case 0: TIM2->CCR1 = comDuty; break;  // COM0 
+	        case 1: TIM2->CCR2 = comDuty; break;  // COM1
+	        case 2: TIM2->CCR3 = comDuty; break;  // COM2
+	        case 3: TIM2->CCR4 = comDuty; break;  // COM3 
+              }
+            }
+
+            // Drive Segment Line that is connected to the active COM in this
+            // phase. Note active COM index is same as phase
 	      if (invert)  comDuty = pwmDuty[3] - comsTable[phase][phase] ; 
 	      else comDuty = comsTable[phase][phase] ;
 
-              switch (phase) {
-	 	case 0: TIM2->CCR1 = comDuty; break;  // COM0 active
-	        case 1: TIM2->CCR2 = comDuty; break;  // COM1 active
-	        case 2: TIM2->CCR3 = comDuty; break;  // COM2 active
-	        case 3: TIM2->CCR4 = comDuty; break;  // COM3 active
-              }
-
 	      if ( (1 << phase) & segState ) {    // SEG Pin Output 
 		TIM16->CCR1 = pwmDuty[3] - comDuty ; // oppose comValue
+                GPIOB->ODR = (1 << LED);  // LED ON
 	      }   
 	      else {  
 		TIM16->CCR1 = comDuty; // follow com value 
+                GPIOB->ODR = (0 << LED);  // LED Off
 	      }
 
         phase = (phase + 1) % NUM_PHASES;
         if (phase == 0) invert = !invert ; // we flip coms at every segment update
     } 
-}
+} // End of TIM3_IRQ Handle
 
 void init_TIM3_IRQ(void) {
     RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
