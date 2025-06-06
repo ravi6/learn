@@ -1,0 +1,30 @@
+Single COM activation per phase results
+====================================
+SEGSTATE  P9   P10   P11  P12  P13  P14  P15  P16
+================================================
+0000      D    DP    D   DP   D   DP   D    
+0001      D    DP    D   DP   D   DP   D    
+0010      G    B     G   B    G   B    G   B
+0100      D    DP    D   DP   D   DP   D  
+1000     GD    BDP  GD  BDP  GD  BDP  GD   B
+1111     GD    BDP  GD  BDP  GD  BDP  GD   B
+
+0110      G    B    G   B     G   B   G   B
+0011      G    B    G   B     G   B   G   B
+1100     GD    BDP  GD  BDP  GD  BDP  GD   B
+
+=============================================
+
+DVM in Diode Mode Tests
+           C0 to C4    
+P9        DEFG  
+P10       ABC.
+P11       DEFG
+P12       ABC.
+P13       DEFG
+P14       ABC.
+P15       DEFG
+P16       ABC.
+
+Total number of ther symbols = 8
+  (bat, lb, gm, lbounce, -, :, Tare, ml)
