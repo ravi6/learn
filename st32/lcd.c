@@ -1,25 +1,72 @@
 #include "stm32f303x8.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+
+//
 // Assumes default system clock = 8 MHz from HSI
 #define TIM2PSC 1
 #define TIM2ARR 255  //  8000/(2 * 256) =  (15.6kHz -> freq) 
-#define TIM3PSC 199 
+#define TIM3PSC 99 
 #define TIM3ARR 799 // 8000/(200*800)  kHz = (50 Hz -> freq)
-#define LED 4     // PB4 as LED indicator
+#define LED 4     // PB0 as LED indicator
 #define NUM_PHASES   4
 #define PWM_MODE1 6
 #define PWM_MODE2 7
 #define MIN(a, b) (((a) < (b)) ? ( a) : (b))
 
+// Digit Display related stuff
+#define NUM_DIGITS 4
+#define NSEGPINS 8
+#define NCOMS 4
+
+
+// Logical segment indices
+enum {SEG_A, SEG_B, SEG_C, SEG_D,
+      SEG_E, SEG_F, SEG_G, SEG_P}  ;
+
+// Example LCD Digit Mapper for SEG+COM paired segment layout
+// Assumptions:
+// - 4 digits
+// - Each digit is driven by 2 SEG lines
+// - SEG lines: P9-P16 (i.e., SEG[0] to SEG[7])
+// - COM lines: COM0 to COM3
+// - Segment pairs per digit: [F,G,E,D] and [A,B,C,DP]
+// - segState is updated per phase (COM)
+
+
+// Phase-to-segment mapping for each SEG line
+// Format: seg_map[seg_line][phase] = logical segment ID (SEG_A ... SEG_G, SEG_P, or 0xFF if unused)
+const uint8_t seg_map[NSEGPINS][NCOMS] = {
+    // COM0  COM1  COM2  COM3
+    {SEG_D, SEG_G, SEG_D, SEG_G}, // SEG[0] - F/G/E/D (reuse pattern)
+    {SEG_P, SEG_B, SEG_P, SEG_B}, // SEG[1] - A/B/C/DP (reuse pattern)
+    {SEG_D, SEG_G, SEG_D, SEG_G}, // SEG[2]
+    {SEG_P, SEG_B, SEG_P, SEG_B}, // SEG[3]
+    {SEG_D, SEG_G, SEG_D, SEG_G}, // SEG[4]
+    {SEG_P, SEG_B, SEG_P, SEG_B}, // SEG[5]
+    {SEG_D, SEG_G, SEG_D, SEG_G}, // SEG[6]
+    {SEG_B, SEG_P, SEG_B, SEG_P}, // SEG[7]
+};
+
+// Digit encoding using logical segments (A-G, DP)
+const uint8_t digEncode[10] = {0x3F, 0x06, 0x5B, 0x4F, 0x66, 
+                               0x6D, 0x7D, 0x07, 0x7F, 0x6F} ;
+// Output buffer for current SEG phase state
+uint8_t segStates[NSEGPINS] = {0}; // Will be applied in the interrupt
+
 void setupLED(void) ;
+void delay (unsigned int time) ;
 void blink (int n) ;
 void init_TIM2_PWM(void) ;
 void init_TIM16_PWM(void);
 void init_TIM3_IRQ(void) ;
 void TIM3_IRQHandler(void) ;
+void clrSegStates(void) ;
+void updateDigit(uint8_t digPos, uint8_t digVal) ;
 
 volatile uint8_t phase = 0;
 volatile uint8_t invert = 0;  // Com Table Inversion flag
-volatile uint8_t segState = 0b1000 ; //LSB to MSB give Seg On State in each phase
 
 //Duty cycles for to PWM Count (Period)  (slightly more than 1/3 bias)
 // Ideally [1/3, 1/2, 2/3, 1/2] .... typical 1/3 bias
@@ -36,47 +83,50 @@ const uint16_t comsTable[NUM_PHASES][4] = {
     { pwmDuty[2], pwmDuty[3], pwmDuty[0], pwmDuty[1] },
     { pwmDuty[3], pwmDuty[0], pwmDuty[1], pwmDuty[2] }
 };
+
 void TIM3_IRQHandler(void) {
    // Drive all com Lines setting voltage according to Mux phase
-   // This is achieved with duty cycle that is proportional to voltage ratio
+   // This is achieved with duty cycle that 
+   // is proportional to voltage ratio
 
+  //Useful to cycle through all channels
+  volatile uint32_t* TIM2_CCRx[4] = {
+      &TIM2->CCR1, &TIM2->CCR2,
+      &TIM2->CCR3, &TIM2->CCR4
+  };
     if (TIM3->SR & TIM_SR_UIF) {
-        TIM3->SR &= ~TIM_SR_UIF;
+       TIM3->SR &= ~TIM_SR_UIF;
 
+       uint8_t  com ;    // Active Com 
+       uint16_t comDuty;
 
-        uint16_t comDuty ;
+       com = phase ;   // Driving one Com per phase
 
-           // Drive all COM lines for this phase
-           for (uint8_t com = 0 ; com < 4 ; com++) { 
-	      if (invert)  comDuty = pwmDuty[3] - comsTable[phase][com] ; 
-	      else comDuty = comsTable[phase][com] ;
+       if (invert)
+         comDuty = pwmDuty[3] - comsTable[phase][com];
+       else
+         comDuty = comsTable[phase][com];
              
-              switch (com) {  // set CCR value corresponding to COM
-	 	case 0: TIM2->CCR1 = comDuty; break;  // COM0 
-	        case 1: TIM2->CCR2 = comDuty; break;  // COM1
-	        case 2: TIM2->CCR3 = comDuty; break;  // COM2
-	        case 3: TIM2->CCR4 = comDuty; break;  // COM3 
-              }
-            }
+       *TIM2_CCRx [com] = comDuty ;   // set CCR of actuve COM
 
-            // Drive Segment Line that is connected to the active COM in this
-            // phase. Note active COM index is same as phase
-              uint16_t Cduty ;
-	      if (invert)  Cduty = pwmDuty[3] - comsTable[phase][phase] ; 
-	      else Cduty = comsTable[phase][phase] ;
+       // Drive Segment Line connected to Active com 
+       uint16_t Cduty ;
+       
+       Cduty = comDuty ;
+       //for (int i = 0 ; i < 8 ; i ++) 
+	   if ( (1 << phase) & segStates[1] ) {    // SEG Pin Output 
+	       TIM16->CCR1 = pwmDuty[3] - Cduty ; // oppose comValue
+	     //  GPIOB->ODR = (1 << LED);  // LED ON
+	    }   
+	    else {  
+	       TIM16->CCR1 = Cduty; // follow com value 
+	    //   GPIOB->ODR = (0 << LED);  // LED Off
+	    }
 
-	      if ( (1 << phase) & segState ) {    // SEG Pin Output 
-		TIM16->CCR1 = pwmDuty[3] - Cduty ; // oppose comValue
-                GPIOB->ODR = (1 << LED);  // LED ON
-	      }   
-	      else {  
-		TIM16->CCR1 = Cduty; // follow com value 
-                GPIOB->ODR = (0 << LED);  // LED Off
-	      }
-
-        phase = (phase + 1) % NUM_PHASES;
-        if (phase == 0) invert = !invert ; // we flip coms at every segment update
-    } 
+	    phase = (phase + 1) % NUM_PHASES;
+	    if (phase == 0) invert = !invert ; // we flip coms at every segment update
+         
+    } // end of TIM3 Flag test 
 } // End of TIM3_IRQ Handle
 
 void init_TIM2_PWM(void) {
@@ -137,6 +187,7 @@ void setupLED() {
 
     GPIOB->MODER &= ~(3 << (LED * 2));    // Clear MODERx bits
     GPIOB->MODER |=  (1 << (LED * 2));    // Set MODERx = 0b01 (output mode)
+    GPIOB->AFR[0] &= ~(0xF << (LED * 4)) ; // CLR AFRL bits  (insurence)
 
     GPIOB->OTYPER &= ~(1 << LED);         // Push-pull
     GPIOB->OSPEEDR |= (1 << (LED * 2));   // Medium speed
@@ -146,14 +197,14 @@ void setupLED() {
 
 void delay (unsigned int time) {
   // Time in MilliSeconds (Caliberated on STM32F303X8B)
-    for (unsigned int i = 0; i < time; i++)
+    for (volatile unsigned int i = 0; i < time; i++)
         for (volatile unsigned int j = 0; j < 575 ; j++);
 }
 
 void blink (int count) {
-    for (int i = 0; i < count ; i++)  {
-        GPIOB->ODR ^= (3 << LED);  // Toggle PAx
-        delay (500) ;
+    for (int i = 0; i < 2*count ; i++)  {
+        GPIOB->ODR ^= (3 << LED);  // Toggle PBx
+        delay (1000) ;
     }
 }
 
@@ -192,25 +243,63 @@ void init_TIM16_PWM(void) {
     TIM16->BDTR |= TIM_BDTR_MOE ;   //Master output Enable
     TIM16->CR1  |= TIM_CR1_CEN;
 }
+
+// Update SEG states for a given digit and its value
+void updateDigit(uint8_t digPos, uint8_t digVal) {
+    uint8_t enc = digEncode[digVal];  // digValue 0 to 9
+
+    for (uint8_t phase = 0; phase < NCOMS; ++phase) {
+        uint8_t sL = seg_map[digPos*2][phase];
+        uint8_t sR = seg_map[digPos*2 + 1][phase];
+
+       // Load segState bits for the digit we want
+        segStates[digPos*2] |= ((enc >> sL) & 1) << phase;
+        segStates[digPos*2+1] |= ((enc >> sR) & 1) << phase;
+    }
+} // end Update Digit
+
+// Clear segment states
+void clrSegStates(void) {
+    for (int i = 0; i < NSEGPINS; ++i)
+        segStates[i] = 0;
+}
+
 int main(void) {
 
   setupLED() ; // Debug indicator
   GPIOB->ODR = (0 << LED);  // LED off
-
   init_TIM2_PWM() ; // used for common pins signals (4 off)
   init_TIM16_PWM() ; // used for single SEG pin
 
   init_TIM3_IRQ() ;
 
    if (!(TIM2->CR1 & TIM_CR1_CEN))  // Timer is not  running!
-        blink(3) ;
+        blink(2) ;
    if (!(TIM16->CR1 & TIM_CR1_CEN))  // Timer is not  running!
-        blink(100) ;
+        blink(3) ;
    if (!(TIM3->CR1 & TIM_CR1_CEN))  //  Timer not running
-        blink(10) ;
-
+        blink(5) ;
+    clrSegStates() ;
+    for (volatile uint8_t i=0 ; i < 10 ; i++) {
+    blink(6) ;
+    updateDigit(0, i) ;
+    delay (1500) ;
+    } 
+// Not yet connected
+    updateDigit(1, 1) ;
+    updateDigit(2, 1) ;
+    updateDigit(3, 1) ;
     while (1) {
        __WFI();  // Sleep until interrupt
     }
 }
 
+char * toBin (uint8_t k) {
+   char *s ;
+   s = (char *) malloc (8) ;
+   for (int i=0 ; i<8 ; i++) {
+      if (k & (1 << i)) s[7-i] = '1' ;
+      else s[7-i] = '0' ;
+   } 
+   return (s);
+}
