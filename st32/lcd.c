@@ -3,7 +3,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-//
+// LCD Driving with 4Mux and 1/3 bias
+//    Four Common Lines .. 
 // Assumes default system clock = 8 MHz from HSI
 #define TIM2PSC 1
 #define TIM2ARR 255  //  8000/(2 * 256) =  (15.6kHz -> freq) 
@@ -71,7 +72,8 @@ volatile uint8_t invert = 0;  // Com Table Inversion flag
 //Duty cycles for to PWM Count (Period)  (slightly more than 1/3 bias)
 // Ideally [1/3, 1/2, 2/3, 1/2] .... typical 1/3 bias
 // But my LCD wants higher RMS ... 
-// This pattern has symmetry ie.  COM - (inv)COM =  [-1/3, 0, 1/3, 0]
+// The above pattern has symmetry around mean (0.5)
+// ie. Subtract 0.5 we get   [-1/3, 0, 1/3, 0]
 // In my case I scale this by 1.4 to get higher RMS
 //
 const float sf = 1.4 ;
@@ -107,24 +109,22 @@ void TIM3_IRQHandler(void) {
        else
          comDuty = comsTable[phase][com];
              
-       *TIM2_CCRx [com] = comDuty ;   // set CCR of actuve COM
+        switch (com) {  // set CCR value corresponding to COM
+           case 0: TIM2->CCR1 = comDuty; break;  // COM0 
+           case 1: TIM2->CCR2 = comDuty; break;  // COM1
+           case 2: TIM2->CCR3 = comDuty; break;  // COM2
+           case 3: TIM2->CCR4 = comDuty; break;  // COM3 
+        }
 
        // Drive Segment Line connected to Active com 
-       uint16_t Cduty ;
-       
-       Cduty = comDuty ;
-       //for (int i = 0 ; i < 8 ; i ++) 
-	   if ( (1 << phase) & segStates[1] ) {    // SEG Pin Output 
+       // For now we are testing just one segline
+         if ( (1 << phase) & segStates[0] )     // SEG Pin Output 
 	       TIM16->CCR1 = pwmDuty[3] - Cduty ; // oppose comValue
-	     //  GPIOB->ODR = (1 << LED);  // LED ON
-	    }   
-	    else {  
-	       TIM16->CCR1 = Cduty; // follow com value 
-	    //   GPIOB->ODR = (0 << LED);  // LED Off
-	    }
-
-	    phase = (phase + 1) % NUM_PHASES;
-	    if (phase == 0) invert = !invert ; // we flip coms at every segment update
+	 else   
+	    TIM16->CCR1 = Cduty; // follow com value 
+       }
+         phase = (phase + 1) % NUM_PHASES;
+         if (phase == 0) invert = !invert ; //LCD AC generation
          
     } // end of TIM3 Flag test 
 } // End of TIM3_IRQ Handle
