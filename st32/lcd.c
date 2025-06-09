@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+
 // LCD Driving with 4Mux and 1/3 bias
 //    Four Common Lines .. 
 // Assumes default system clock = 8 MHz from HSI
@@ -20,7 +21,10 @@
 #define NUM_DIGITS 4
 #define NSEGPINS 8
 #define NCOMS 4
+#define MAPCOM(i)  ( comMap[i] )
 
+volatile uint8_t segState = 0b0010 ;
+const uint8_t comMap[4] = {3,2,1,0} ;
 
 // Logical segment indices
 enum {SEG_A, SEG_B, SEG_C, SEG_D,
@@ -80,10 +84,10 @@ const float sf = 1.4 ;
 const uint16_t pwmDuty[4] = {TIM2ARR*(sf * 1/3), TIM2ARR*(sf * 1/2),
                              TIM2ARR*(sf * 2/3), TIM2ARR} ;
 const uint16_t comsTable[NUM_PHASES][4] = {
-    { pwmDuty[0], pwmDuty[1], pwmDuty[2], pwmDuty[3] },
-    { pwmDuty[1], pwmDuty[2], pwmDuty[3], pwmDuty[0] },
-    { pwmDuty[2], pwmDuty[3], pwmDuty[0], pwmDuty[1] },
-    { pwmDuty[3], pwmDuty[0], pwmDuty[1], pwmDuty[2] }
+    { pwmDuty[0], pwmDuty[1], pwmDuty[2], pwmDuty[3] }, //C0
+    { pwmDuty[1], pwmDuty[2], pwmDuty[3], pwmDuty[0] }, //C1
+    { pwmDuty[2], pwmDuty[3], pwmDuty[0], pwmDuty[1] }, //C2
+    { pwmDuty[3], pwmDuty[0], pwmDuty[1], pwmDuty[2] }  //C3
 };
 
 void TIM3_IRQHandler(void) {
@@ -91,19 +95,14 @@ void TIM3_IRQHandler(void) {
    // This is achieved with duty cycle that 
    // is proportional to voltage ratio
 
-  //Useful to cycle through all channels
-  volatile uint32_t* TIM2_CCRx[4] = {
-      &TIM2->CCR1, &TIM2->CCR2,
-      &TIM2->CCR3, &TIM2->CCR4
-  };
     if (TIM3->SR & TIM_SR_UIF) {
        TIM3->SR &= ~TIM_SR_UIF;
 
        uint8_t  com ;    // Active Com 
        uint16_t comDuty;
 
-       com = phase ;   // Driving one Com per phase
-
+       com = MAPCOM (phase) ;   // Driving one Com per phase
+       
        if (invert)
          comDuty = pwmDuty[3] - comsTable[phase][com];
        else
@@ -118,11 +117,11 @@ void TIM3_IRQHandler(void) {
 
        // Drive Segment Line connected to Active com 
        // For now we are testing just one segline
-         if ( (1 << phase) & segStates[0] )     // SEG Pin Output 
-	       TIM16->CCR1 = pwmDuty[3] - Cduty ; // oppose comValue
+         if ( (1 << phase) & segState )     // SEG Pin Output 
+	       TIM16->CCR1 = pwmDuty[3] - comDuty ; // oppose comValue
 	 else   
-	    TIM16->CCR1 = Cduty; // follow com value 
-       }
+	    TIM16->CCR1 = comDuty; // follow com value 
+       
          phase = (phase + 1) % NUM_PHASES;
          if (phase == 0) invert = !invert ; //LCD AC generation
          
@@ -279,17 +278,22 @@ int main(void) {
         blink(3) ;
    if (!(TIM3->CR1 & TIM_CR1_CEN))  //  Timer not running
         blink(5) ;
+/*
     clrSegStates() ;
     for (volatile uint8_t i=0 ; i < 10 ; i++) {
     blink(6) ;
     updateDigit(0, i) ;
-    delay (1500) ;
     } 
 // Not yet connected
     updateDigit(1, 1) ;
     updateDigit(2, 1) ;
     updateDigit(3, 1) ;
+*/
     while (1) {
+    for (int i=0 ; i < 4 ; i++) {
+         blink (1) ;
+         segState = (1 << i) ;
+    } 
        __WFI();  // Sleep until interrupt
     }
 }
