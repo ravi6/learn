@@ -23,11 +23,10 @@
 #define NCOMS 4
 #define MAPCOM(i)  ( comMap[i] )
 
+const uint8_t comPinMap[4] = {3,2,1,0} ;
 volatile uint8_t segState = 0b1111;
 volatile uint8_t mux_index = 2 ;
 volatile uint8_t target_com = 3 ; 
-//const uint8_t comPinMap[4] = {3,2,1,0} ;
-const uint8_t comPinMap[4] = {3,1,2,0} ;
 
 // Logical segment indices
 enum {SEG_A, SEG_B, SEG_C, SEG_D,
@@ -81,7 +80,7 @@ volatile uint8_t invert = 0;  // Com Table Inversion flag
 // [1/3 1/2 2/3 1/2] pattern
 // The above pattern has symmetry around mean (0.5)
 // ie. Subtract 0.5 we get   [-1/3, 0, 1/3, 0]
-const float f = 1.3 ;
+const float f = 1.4 ;
 const float pwmDuty[3] = {f*0.33333f, f*0.50f, f*0.66666f} ;
 const float  comsTable[NPHASES][4] = { //Cyclical shifted left
     { pwmDuty[0], pwmDuty[1], pwmDuty[2], pwmDuty[1] }, //phase 0
@@ -89,17 +88,6 @@ const float  comsTable[NPHASES][4] = { //Cyclical shifted left
     { pwmDuty[2], pwmDuty[1], pwmDuty[0], pwmDuty[1] }, //phase 2
     { pwmDuty[1], pwmDuty[0], pwmDuty[1], pwmDuty[2] }  //phase 3
 };
-/*
-const float sf = 1.0 ;
-const float pwmDuty[4] = {(sf * 1.0f/3.0f), (sf * 1.0f/2.0f),
-                             (sf * 2.0f/3.0f), 1.0f} ;
-const float comsTable[NPHASES][4] = {
-    { pwmDuty[0], pwmDuty[1], pwmDuty[2], pwmDuty[3] }, //Phase0
-    { pwmDuty[1], pwmDuty[2], pwmDuty[3], pwmDuty[0] }, //Phase1
-    { pwmDuty[2], pwmDuty[3], pwmDuty[0], pwmDuty[1] }, //Phase2
-    { pwmDuty[3], pwmDuty[0], pwmDuty[1], pwmDuty[2] }  //Phase3
-};
-*/
 
 void TIM3_IRQHandler(void) {
 
@@ -111,7 +99,7 @@ void TIM3_IRQHandler(void) {
 	  uint8_t ccr = comPinMap[com];
 	  float duty = comsTable[phase][com];
           // CCR value is inverted interms of duty (nothing to do with AC)
-	  (&TIM2->CCR1)[ccr] = (uint16_t)(TIM2ARR * (duty));
+	  (&TIM2->CCR1)[ccr] = (uint16_t)(TIM2ARR * duty);
       }
       // Drive Segments
       segDriver () ;
@@ -304,10 +292,6 @@ int main(void) {
     updateDigit(3, 1) ;
 */
     while (1) {
-    for (int i=0 ; i < 4 ; i++) {
-         blink (1) ;
-         segState = (1 << i) ;
-    } 
        __WFI();  // Sleep until interrupt
     }
 }
