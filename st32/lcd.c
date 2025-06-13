@@ -9,10 +9,10 @@
 // Assumes default system clock = 8 MHz from HSI
 #define TIM2PSC 1
 #define TIM2ARR 255  //  8000/(2 * 256) =  (15.6kHz -> freq) 
-#define TIM3PSC 99 
+#define TIM3PSC 199 
 #define TIM3ARR 799 // 8000/(200*800)  kHz = (50 Hz -> freq)
 #define LED 4     // PB0 as LED indicator
-#define NUM_PHASES   4
+#define NPHASES   4
 #define PWM_MODE1 6
 #define PWM_MODE2 7
 #define MIN(a, b) (((a) < (b)) ? ( a) : (b))
@@ -23,8 +23,11 @@
 #define NCOMS 4
 #define MAPCOM(i)  ( comMap[i] )
 
-volatile uint8_t segState = 0b0010 ;
-const uint8_t comMap[4] = {3,2,1,0} ;
+volatile uint8_t segState = 0b1111;
+volatile uint8_t mux_index = 2 ;
+volatile uint8_t target_com = 3 ; 
+//const uint8_t comPinMap[4] = {3,2,1,0} ;
+const uint8_t comPinMap[4] = {3,1,2,0} ;
 
 // Logical segment indices
 enum {SEG_A, SEG_B, SEG_C, SEG_D,
@@ -69,64 +72,75 @@ void init_TIM3_IRQ(void) ;
 void TIM3_IRQHandler(void) ;
 void clrSegStates(void) ;
 void updateDigit(uint8_t digPos, uint8_t digVal) ;
+void segDriver (void) ;
 
 volatile uint8_t phase = 0;
 volatile uint8_t invert = 0;  // Com Table Inversion flag
 
-//Duty cycles for to PWM Count (Period)  (slightly more than 1/3 bias)
-// Ideally [1/3, 1/2, 2/3, 1/2] .... typical 1/3 bias
-// But my LCD wants higher RMS ... 
+//Duty cycles for to PWM Count (Period)  (1/3 bias)
+// [1/3 1/2 2/3 1/2] pattern
 // The above pattern has symmetry around mean (0.5)
 // ie. Subtract 0.5 we get   [-1/3, 0, 1/3, 0]
-// In my case I scale this by 1.4 to get higher RMS
-//
-const float sf = 1.4 ;
-const uint16_t pwmDuty[4] = {TIM2ARR*(sf * 1/3), TIM2ARR*(sf * 1/2),
-                             TIM2ARR*(sf * 2/3), TIM2ARR} ;
-const uint16_t comsTable[NUM_PHASES][4] = {
-    { pwmDuty[0], pwmDuty[1], pwmDuty[2], pwmDuty[3] }, //C0
-    { pwmDuty[1], pwmDuty[2], pwmDuty[3], pwmDuty[0] }, //C1
-    { pwmDuty[2], pwmDuty[3], pwmDuty[0], pwmDuty[1] }, //C2
-    { pwmDuty[3], pwmDuty[0], pwmDuty[1], pwmDuty[2] }  //C3
+const float f = 1.3 ;
+const float pwmDuty[3] = {f*0.33333f, f*0.50f, f*0.66666f} ;
+const float  comsTable[NPHASES][4] = { //Cyclical shifted left
+    { pwmDuty[0], pwmDuty[1], pwmDuty[2], pwmDuty[1] }, //phase 0
+    { pwmDuty[1], pwmDuty[2], pwmDuty[1], pwmDuty[0] }, //phase 1
+    { pwmDuty[2], pwmDuty[1], pwmDuty[0], pwmDuty[1] }, //phase 2
+    { pwmDuty[1], pwmDuty[0], pwmDuty[1], pwmDuty[2] }  //phase 3
 };
+/*
+const float sf = 1.0 ;
+const float pwmDuty[4] = {(sf * 1.0f/3.0f), (sf * 1.0f/2.0f),
+                             (sf * 2.0f/3.0f), 1.0f} ;
+const float comsTable[NPHASES][4] = {
+    { pwmDuty[0], pwmDuty[1], pwmDuty[2], pwmDuty[3] }, //Phase0
+    { pwmDuty[1], pwmDuty[2], pwmDuty[3], pwmDuty[0] }, //Phase1
+    { pwmDuty[2], pwmDuty[3], pwmDuty[0], pwmDuty[1] }, //Phase2
+    { pwmDuty[3], pwmDuty[0], pwmDuty[1], pwmDuty[2] }  //Phase3
+};
+*/
 
 void TIM3_IRQHandler(void) {
-   // Drive all com Lines setting voltage according to Mux phase
-   // This is achieved with duty cycle that 
-   // is proportional to voltage ratio
 
     if (TIM3->SR & TIM_SR_UIF) {
-       TIM3->SR &= ~TIM_SR_UIF;
+       TIM3->SR &= ~TIM_SR_UIF;   // avoids race conditions
 
-       uint8_t  com ;    // Active Com 
-       uint16_t comDuty;
+      // === Drive all COMs ===
+      for (int com = 0; com < 4; com++) {
+	  uint8_t ccr = comPinMap[com];
+	  float duty = comsTable[phase][com];
+          // CCR value is inverted interms of duty (nothing to do with AC)
+	  (&TIM2->CCR1)[ccr] = (uint16_t)(TIM2ARR * (duty));
+      }
+      // Drive Segments
+      segDriver () ;
 
-       com = MAPCOM (phase) ;   // Driving one Com per phase
-       
-       if (invert)
-         comDuty = pwmDuty[3] - comsTable[phase][com];
-       else
-         comDuty = comsTable[phase][com];
-             
-        switch (com) {  // set CCR value corresponding to COM
-           case 0: TIM2->CCR1 = comDuty; break;  // COM0 
-           case 1: TIM2->CCR2 = comDuty; break;  // COM1
-           case 2: TIM2->CCR3 = comDuty; break;  // COM2
-           case 3: TIM2->CCR4 = comDuty; break;  // COM3 
-        }
-
-       // Drive Segment Line connected to Active com 
-       // For now we are testing just one segline
-         if ( (1 << phase) & segState )     // SEG Pin Output 
-	       TIM16->CCR1 = pwmDuty[3] - comDuty ; // oppose comValue
-	 else   
-	    TIM16->CCR1 = comDuty; // follow com value 
-       
-         phase = (phase + 1) % NUM_PHASES;
-         if (phase == 0) invert = !invert ; //LCD AC generation
+      phase = (phase + 1) % NPHASES;
+      if (phase == 0) invert = !invert ; //LCD AC generation
          
     } // end of TIM3 Flag test 
 } // End of TIM3_IRQ Handle
+
+void segDriver(void) {
+    // Ensure mux is already pointing to correct SEG pin
+    // set_mux_address(mux_index); <-- typically done once per segState update
+   
+    // Is segment on
+    uint8_t isOn = (segState >> mux_index) & 0x1;
+
+    float segDuty;
+    if (phase == target_com && isOn) { // phase corresponds to com that drives seg.
+        segDuty = 1.0f - comsTable[phase][target_com];
+    } else {
+        segDuty = comsTable[phase][target_com];
+    }
+
+    if (invert) segDuty = 1.0f - segDuty ; //for AC signal
+
+    // Apply SEG waveform to PWM
+    TIM16->CCR1 = (uint16_t)(TIM16->ARR * (segDuty));
+}
 
 void init_TIM2_PWM(void) {
     RCC->AHBENR  |= RCC_AHBENR_GPIOAEN;
