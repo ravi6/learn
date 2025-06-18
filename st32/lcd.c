@@ -23,10 +23,10 @@
 #define NCOMS 4
 #define MAPCOM(i)  ( comMap[i] )
 
-const uint8_t comPinMap[4] = {3,2,1,0} ;
-volatile uint8_t segState = 0b1111;
+const uint8_t comPinMap[4] = {0,1,2,3} ;
+volatile uint8_t segState = 0b0100;
 volatile uint8_t mux_index = 2 ;
-volatile uint8_t target_com = 3 ; 
+volatile uint8_t target_com = 2 ; 
 
 // Logical segment indices
 enum {SEG_A, SEG_B, SEG_C, SEG_D,
@@ -80,7 +80,7 @@ volatile uint8_t invert = 0;  // Com Table Inversion flag
 // [1/3 1/2 2/3 1/2] pattern
 // The above pattern has symmetry around mean (0.5)
 // ie. Subtract 0.5 we get   [-1/3, 0, 1/3, 0]
-const float f = 1.4 ;
+const float f = 1.0 ;
 const float pwmDuty[3] = {f*0.33333f, f*0.50f, f*0.66666f} ;
 const float  comsTable[NPHASES][4] = { //Cyclical shifted left
     { pwmDuty[0], pwmDuty[1], pwmDuty[2], pwmDuty[1] }, //phase 0
@@ -98,33 +98,40 @@ void TIM3_IRQHandler(void) {
       for (int com = 0; com < 4; com++) {
 	  uint8_t ccr = comPinMap[com];
 	  float duty = comsTable[phase][com];
-          // CCR value is inverted interms of duty (nothing to do with AC)
+          if (invert) duty = 1 - duty ;  // for AC signal 
 	  (&TIM2->CCR1)[ccr] = (uint16_t)(TIM2ARR * duty);
       }
       // Drive Segments
       segDriver () ;
 
+      if (phase == 3) invert = !invert ; //LCD AC generation
       phase = (phase + 1) % NPHASES;
-      if (phase == 0) invert = !invert ; //LCD AC generation
          
     } // end of TIM3 Flag test 
 } // End of TIM3_IRQ Handle
 
 void segDriver(void) {
-    // Ensure mux is already pointing to correct SEG pin
-    // set_mux_address(mux_index); <-- typically done once per segState update
-   
-    // Is segment on
+
+    // mux_index  .... select which subsegment to lit
+    // target_com .... the com line that is connected to the above
+    // segState   .... Bit pattern controlling on/off status
+    // since we have four coms, expect 4 bits in segState
+    // A segline therfore can light up (four subsegments)
+    // individually with appropriate com signal levels
+
     uint8_t isOn = (segState >> mux_index) & 0x1;
+    // We are in the phase that corresponds to the
+    // com line associated with the segment and it is to be lit
+    uint8_t isActive = (phase == target_com && isOn) ;
 
-    float segDuty;
-    if (phase == target_com && isOn) { // phase corresponds to com that drives seg.
-        segDuty = 1.0f - comsTable[phase][target_com];
-    } else {
-        segDuty = comsTable[phase][target_com];
-    }
-
-    if (invert) segDuty = 1.0f - segDuty ; //for AC signal
+    // The following woud ensure segment turn on when
+    // active, and off when not active, while honouring
+    // iversion to mainatain AC pattern in Seg.
+    float segDuty, comDuty ;
+    comDuty = comsTable[phase][phase] ;
+    if (invert) comDuty = 1 - comDuty ;
+    segDuty = isActive ?  comDuty : 1-comDuty ;
+    if (invert) segDuty = 1 - segDuty ; //for AC signal
 
     // Apply SEG waveform to PWM
     TIM16->CCR1 = (uint16_t)(TIM16->ARR * (segDuty));
