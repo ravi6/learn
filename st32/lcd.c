@@ -7,14 +7,17 @@
 // LCD Driving with 4Mux and 1/3 bias
 //    Four Common Lines .. 
 // Assumes default system clock = 8 MHz from HSI
-#define TIM2PSC 1
-#define TIM2ARR 255  //  8000/(2 * 256) =  (15.6kHz -> freq) 
+#define TIM2PSC 0
+#define TIM2ARR 511  //  8000/(1 * 512) =  (15.6kHz -> freq) 
 #define TIM3PSC 199 
-#define TIM3ARR 799 // 8000/(200*800)  kHz = (50 Hz -> freq)
+#define TIM3ARR 799 // 8000/(20800)  kHz = (50 Hz -> freq)
 #define LED 4     // PB0 as LED indicator
 #define NPHASES   4
-#define PWM_MODE1 6
-#define PWM_MODE2 7
+#define PWM_MODE1 6  // is active high for count < ARR
+#define PWM_MODE2 7  // is active low  for count < ARR
+// Unfortunately there is another TIM2_CCER register bits can
+// alter the polarity (a real messs)
+// Looks as though default active high is 0 and ac
 #define MIN(a, b) (((a) < (b)) ? ( a) : (b))
 
 // Digit Display related stuff
@@ -24,9 +27,9 @@
 #define MAPCOM(i)  ( comMap[i] )
 
 const uint8_t comPinMap[4] = {0,1,2,3} ;
-volatile uint8_t segState = 0b0100;
+volatile uint8_t segState = 0b1111;
 volatile uint8_t mux_index = 2 ;
-volatile uint8_t target_com = 2 ; 
+volatile uint8_t target_com = 0 ; 
 
 // Logical segment indices
 enum {SEG_A, SEG_B, SEG_C, SEG_D,
@@ -76,17 +79,13 @@ void segDriver (void) ;
 volatile uint8_t phase = 0;
 volatile uint8_t invert = 0;  // Com Table Inversion flag
 
-//Duty cycles for to PWM Count (Period)  (1/3 bias)
-// [1/3 1/2 2/3 1/2] pattern
-// The above pattern has symmetry around mean (0.5)
-// ie. Subtract 0.5 we get   [-1/3, 0, 1/3, 0]
-const float f = 1.0 ;
-const float pwmDuty[3] = {f*0.33333f, f*0.50f, f*0.66666f} ;
+//const float f = 1.4 ;
+const float pwmDuty[4] = {0, 0.33333, 0.66666, 1.0} ;
 const float  comsTable[NPHASES][4] = { //Cyclical shifted left
-    { pwmDuty[0], pwmDuty[1], pwmDuty[2], pwmDuty[1] }, //phase 0
-    { pwmDuty[1], pwmDuty[2], pwmDuty[1], pwmDuty[0] }, //phase 1
-    { pwmDuty[2], pwmDuty[1], pwmDuty[0], pwmDuty[1] }, //phase 2
-    { pwmDuty[1], pwmDuty[0], pwmDuty[1], pwmDuty[2] }  //phase 3
+    { pwmDuty[0], pwmDuty[1], pwmDuty[2], pwmDuty[3] }, //phase 0
+    { pwmDuty[1], pwmDuty[2], pwmDuty[3], pwmDuty[0] },  //phase 3
+    { pwmDuty[2], pwmDuty[3], pwmDuty[0], pwmDuty[1] }, //phase 2
+    { pwmDuty[3], pwmDuty[0], pwmDuty[1], pwmDuty[2] }, //phase 1
 };
 
 void TIM3_IRQHandler(void) {
@@ -99,7 +98,8 @@ void TIM3_IRQHandler(void) {
 	  uint8_t ccr = comPinMap[com];
 	  float duty = comsTable[phase][com];
           if (invert) duty = 1 - duty ;  // for AC signal 
-	  (&TIM2->CCR1)[ccr] = (uint16_t)(TIM2ARR * duty);
+          // Active high is 0
+	  (&TIM2->CCR1)[ccr] = (uint16_t)(TIM2ARR * (1-duty));
       }
       // Drive Segments
       segDriver () ;
@@ -133,8 +133,8 @@ void segDriver(void) {
     segDuty = isActive ?  comDuty : 1-comDuty ;
     if (invert) segDuty = 1 - segDuty ; //for AC signal
 
-    // Apply SEG waveform to PWM
-    TIM16->CCR1 = (uint16_t)(TIM16->ARR * (segDuty));
+    // Apply SEG waveform to PWM (Active high is low)
+    TIM16->CCR1 = (uint16_t)(TIM16->ARR * (1 - segDuty));
 }
 
 void init_TIM2_PWM(void) {
@@ -160,16 +160,17 @@ void init_TIM2_PWM(void) {
 
     // Channel_x  is active while  TIMx_ARR < TIMx_CCR1 else inactive
     // Channel_x  output preload enable (TIMx_OC1PE)
-    // PWM_MODE2   center aligned pwm  (Pulse count is at the middle of the pulse)
-    // Improves alighnment
-    TIM2->CCMR1 = (PWM_MODE2 << 4) | (1 << 3) |  // CH1 PWM mode 2 + preload 
-                  (PWM_MODE2 << 12) | (1 << 11); // CH2 PWM mode 2 + preload
-    TIM2->CCMR2 = (PWM_MODE2 << 4) | (1 << 3) |  // CH3 PWM mode 2 + preload
-                  (PWM_MODE2 << 12) | (1 << 11); // CH4 PWM mode 2 + preload
+    // PWM_MODE1  active high if count < ARR (who knows what active high is)
+    // Looks as though active high is (low) ... so duty needs inverted 
+    TIM2->CCMR1 = (PWM_MODE1 << 4) | (1 << 3) |  // CH1 PWM mode 1 + preload 
+                  (PWM_MODE1 << 12) | (1 << 11); // CH2 PWM mode 1 + preload
+    TIM2->CCMR2 = (PWM_MODE1 << 4) | (1 << 3) |  // CH3 PWM mode 1 + preload
+                  (PWM_MODE1 << 12) | (1 << 11); // CH4 PWM mode 1 + preload
 
     TIM2->CCER |= TIM_CCER_CC1E | TIM_CCER_CC2E | TIM_CCER_CC3E | TIM_CCER_CC4E;
     TIM2->CR1  |= TIM_CR1_ARPE;
     TIM2->EGR   = TIM_EGR_UG;
+    //TIM2->CR1 |=  (3 << 5)  ;   // Center Aligned PWM
     TIM2->CR1  |= TIM_CR1_CEN;
 }
 
@@ -186,6 +187,7 @@ void init_TIM3_IRQ(void) {
     TIM3->DIER |= TIM_DIER_UIE; // Enable Update Interrupt
     NVIC_ClearPendingIRQ (TIM3_IRQn) ;
     NVIC_EnableIRQ (TIM3_IRQn);
+    // TIM3->CR1 |=  (3 << 5)  ;   // Center Aligned PWM
     TIM3->CR1  |= TIM_CR1_CEN; // Start Timer
 }
 
@@ -243,7 +245,7 @@ void init_TIM16_PWM(void) {
 
     // Channel_x  is active while  TIMx_ARR < TIMx_CCR1 else inactive
     // Channel_x  output preload enable (TIMx_OC1PE)
-    TIM16->CCMR1 = (PWM_MODE2 << 4) | (1 << 3) ;  // CH1 PWM mode 2 + preload 
+    TIM16->CCMR1 = (PWM_MODE1 << 4) | (1 << 3) ;  // CH1 PWM mode 1 + preload 
     TIM16->CCER |= TIM_CCER_CC1E ;
     TIM16->CR1  |= TIM_CR1_ARPE;
     TIM16->EGR   = TIM_EGR_UG;
