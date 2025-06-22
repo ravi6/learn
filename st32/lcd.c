@@ -130,7 +130,7 @@ void segDriver(void) {
     float segDuty, comDuty ;
     comDuty = comsTable[phase][phase] ;
     if (invert) comDuty = 1 - comDuty ;
-    segDuty = isActive ?  comDuty : 1-comDuty ;
+    segDuty = isActive ?  1-comDuty : comDuty ;
     if (invert) segDuty = 1 - segDuty ; //for AC signal
 
     // Apply SEG waveform to PWM (Active high is low)
