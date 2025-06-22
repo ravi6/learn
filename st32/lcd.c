@@ -29,7 +29,7 @@
 const uint8_t comPinMap[4] = {0,1,2,3} ;
 volatile uint8_t segState = 0b1111;
 volatile uint8_t mux_index = 2 ;
-volatile uint8_t target_com = 0 ; 
+volatile uint8_t target_com = 1 ; 
 
 // Logical segment indices
 enum {SEG_A, SEG_B, SEG_C, SEG_D,
@@ -131,7 +131,6 @@ void segDriver(void) {
     comDuty = comsTable[phase][phase] ;
     if (invert) comDuty = 1 - comDuty ;
     segDuty = isActive ?  1-comDuty : comDuty ;
-    if (invert) segDuty = 1 - segDuty ; //for AC signal
 
     // Apply SEG waveform to PWM (Active high is low)
     TIM16->CCR1 = (uint16_t)(TIM16->ARR * (1 - segDuty));
@@ -170,7 +169,7 @@ void init_TIM2_PWM(void) {
     TIM2->CCER |= TIM_CCER_CC1E | TIM_CCER_CC2E | TIM_CCER_CC3E | TIM_CCER_CC4E;
     TIM2->CR1  |= TIM_CR1_ARPE;
     TIM2->EGR   = TIM_EGR_UG;
-    //TIM2->CR1 |=  (3 << 5)  ;   // Center Aligned PWM
+    TIM2->CR1 |=  (3 << 5)  ;   // Center Aligned PWM
     TIM2->CR1  |= TIM_CR1_CEN;
 }
 
@@ -187,7 +186,7 @@ void init_TIM3_IRQ(void) {
     TIM3->DIER |= TIM_DIER_UIE; // Enable Update Interrupt
     NVIC_ClearPendingIRQ (TIM3_IRQn) ;
     NVIC_EnableIRQ (TIM3_IRQn);
-    // TIM3->CR1 |=  (3 << 5)  ;   // Center Aligned PWM
+    TIM3->CR1 |=  (3 << 5)  ;   // Center Aligned PWM
     TIM3->CR1  |= TIM_CR1_CEN; // Start Timer
 }
 
