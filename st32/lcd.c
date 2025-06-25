@@ -8,9 +8,9 @@
 //    Four Common Lines .. 
 // Assumes default system clock = 8 MHz from HSI
 #define TIM2PSC 0
-#define TIM2ARR 511  //  8000/(1 * 512) =  (15.6kHz -> freq) 
+#define TIM2ARR 2047  //  8000/(1 * 512) =  (15.6kHz -> freq) 
 #define TIM3PSC 199 
-#define TIM3ARR 799 // 8000/(20800)  kHz = (50 Hz -> freq)
+#define TIM3ARR 799 // 8000/(200*800)  kHz = (50 Hz -> freq)
 #define LED 4     // PB0 as LED indicator
 #define NPHASES   4
 #define PWM_MODE1 6  // is active high for count < ARR
@@ -25,19 +25,8 @@
 #define NSEGPINS 8
 #define NCOMS 4
 
-const uint8_t comPinMap[24][4] = {
-{0, 1, 2, 3}, {0, 1, 3, 2}, {0, 2, 1, 3}, {0, 2, 3, 1}, 
-{0, 3, 1, 2}, {0, 3, 2, 1}, {1, 0, 2, 3}, {1, 0, 3, 2}, 
-{1, 2, 0, 3}, {1, 2, 3, 0}, {1, 3, 0, 2}, {1, 3, 2, 0}, 
-{2, 0, 1, 3}, {2, 0, 3, 1}, {2, 1, 0, 3}, {2, 1, 3, 0}, 
-{2, 3, 0, 1}, {2, 3, 1, 0}, {3, 0, 1, 2}, {3, 0, 2, 1}, 
-{3, 1, 0, 2}, {3, 1, 2, 0}, {3, 2, 0, 1}, {3, 2, 1, 0} } ;
-
-const uint8_t iMap = 0 ;
-volatile uint8_t target_com = 2 ; 
-//volatile uint8_t comPinMap[4] = map
-volatile uint8_t segState = 0b1111;
-volatile uint8_t mux_index = 2 ;
+volatile uint8_t comPinMap[4] = {0, 1, 2, 3} ;
+volatile uint8_t segState = 0b1100;
 
 // Logical segment indices
 enum {SEG_A, SEG_B, SEG_C, SEG_D,
@@ -88,7 +77,10 @@ volatile uint8_t phase = 0;
 volatile uint8_t invert = 0;  // Com Table Inversion flag
 
 //const float pwmDuty[4] = {0, 0.33333, 0.66666, 1.0} ;
-const float pwmDuty[4] = {0, 0.5, 0.5, 1.0} ;
+//const float pwmDuty[4] = {0, 0.5, 0.5, 1.0} ;
+const float f = 1.3 ;
+const float pwmDuty[4] = {0.25*f, 0.5*f, 0.75*f, 0.5*f} ;
+
 const float  comsTable[NPHASES][4] = { //Cyclical shifted left
     { pwmDuty[0], pwmDuty[1], pwmDuty[2], pwmDuty[3] }, //phase 0
     { pwmDuty[1], pwmDuty[2], pwmDuty[3], pwmDuty[0] }, //phase 1
@@ -103,7 +95,7 @@ void TIM3_IRQHandler(void) {
 
       // === Drive all COMs ===
       for (int com = 0; com < 4; com++) {
-	  uint8_t ccr = comPinMap[iMap][com];
+	  uint8_t ccr = comPinMap[com];
 	  float duty = comsTable[phase][com];
           if (invert) duty = 1 - duty ;  // for AC signal 
           // Active high is 0
@@ -120,25 +112,17 @@ void TIM3_IRQHandler(void) {
 
 void segDriver(void) {
 
-    // mux_index  .... select which subsegment to lit
-    // target_com .... the com line that is connected to the above
     // segState   .... Bit pattern controlling on/off status
     // since we have four coms, expect 4 bits in segState
     // A segline therfore can light up (four subsegments)
-    // individually with appropriate com signal levels
+    // individually with appropriate segState
 
-    uint8_t isOn = (segState >> mux_index) & 0x1;
-    // We are in the phase that corresponds to the
-    // com line associated with the segment and it is to be lit
-    uint8_t isActive = (phase == target_com && isOn) ;
-
-    // The following woud ensure segment turn on when
-    // active, and off when not active, while honouring
-    // iversion to mainatain AC pattern in Seg.
     float segDuty, comDuty ;
+    uint8_t isOn = (segState >> phase) & 0x1;
+
     comDuty = comsTable[phase][phase] ;
     if (invert) comDuty = 1 - comDuty ;
-    segDuty = (isActive ?  1 - comDuty :  comDuty) ;
+    segDuty = (isOn ?  1 - comDuty :  comDuty) ;
     // Apply SEG waveform to PWM (Active high is low)
     TIM16->CCR1 = (uint16_t)(TIM16->ARR * (1 - segDuty));
 }

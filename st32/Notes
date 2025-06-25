@@ -1,0 +1,61 @@
+comMAP = [0 1 2 3]
+SL - left half digit segment
+SR - right half digit segment
+
+Letters in lower case
+indicate flickering segment
+
+targeCOM   SL     SR
+ 0         G      B
+ 1         GDe    Bcp 
+ 2         ED     CP
+ 3         GD     BP
+
+
+comMAP = [0 1 3 2]
+targeCOM   SL     SR
+ 0         G      B
+ 1         Ged    Bcp 
+ 2         ED     CP
+ 3         EG     BC
+
+
+comMAP = [0 2 1 3]
+targeCOM   SL     SR
+ 0         E      C
+ 1         gdE    bCp 
+ 2         GD     BP
+ 3         ED     CP
+        
+comMAP = [0 2 3 1]
+targeCOM   SL     SR
+ 0         E      C
+ 1         gdE    bCp 
+ 2         GD     BP
+ 3         Eg     Bc
+
+25th June 2025
+New Tests this time Just SegState (removed targetCom implementation{
+ComPin Map:   [0 1 2 3]
+This trend prevailed with different Voltage patterns
+GD|BP	ED|CP	E|C	G|B         (left|righ segs)
+0000	0100	1111	0001
+1000	0110	0111	0011
+0010	1100	0101	1001
+1010	1110	1101	1011
+
+-0-0    -1-0    -1-1    -0-1
+The above test showed that I could never get AF. Why?
+
+C2 off C0 on  .... G | B
+C2 off C0 off  ... GD | BP      
+C2 on  C0 on ....  E | C
+C2 on  C0 off  ... ED | CP    
+****  Only C0, C2  seem to control  (BCP GED)
+
+TI Manual wiring :   S1 [P B C D]     S2 [A F G E]
+                         0 1 2 3          0 1 2 3
+C0 -> (P A) 
+C1 -> (B F)
+C2 -> (C G)
+C3 -> (D E)
