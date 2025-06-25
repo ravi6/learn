@@ -24,12 +24,20 @@
 #define NUM_DIGITS 4
 #define NSEGPINS 8
 #define NCOMS 4
-#define MAPCOM(i)  ( comMap[i] )
 
-const uint8_t comPinMap[4] = {0,1,2,3} ;
+const uint8_t comPinMap[24][4] = {
+{0, 1, 2, 3}, {0, 1, 3, 2}, {0, 2, 1, 3}, {0, 2, 3, 1}, 
+{0, 3, 1, 2}, {0, 3, 2, 1}, {1, 0, 2, 3}, {1, 0, 3, 2}, 
+{1, 2, 0, 3}, {1, 2, 3, 0}, {1, 3, 0, 2}, {1, 3, 2, 0}, 
+{2, 0, 1, 3}, {2, 0, 3, 1}, {2, 1, 0, 3}, {2, 1, 3, 0}, 
+{2, 3, 0, 1}, {2, 3, 1, 0}, {3, 0, 1, 2}, {3, 0, 2, 1}, 
+{3, 1, 0, 2}, {3, 1, 2, 0}, {3, 2, 0, 1}, {3, 2, 1, 0} } ;
+
+const uint8_t iMap = 0 ;
+volatile uint8_t target_com = 2 ; 
+//volatile uint8_t comPinMap[4] = map
 volatile uint8_t segState = 0b1111;
 volatile uint8_t mux_index = 2 ;
-volatile uint8_t target_com = 1 ; 
 
 // Logical segment indices
 enum {SEG_A, SEG_B, SEG_C, SEG_D,
@@ -79,13 +87,13 @@ void segDriver (void) ;
 volatile uint8_t phase = 0;
 volatile uint8_t invert = 0;  // Com Table Inversion flag
 
-//const float f = 1.4 ;
-const float pwmDuty[4] = {0, 0.33333, 0.66666, 1.0} ;
+//const float pwmDuty[4] = {0, 0.33333, 0.66666, 1.0} ;
+const float pwmDuty[4] = {0, 0.5, 0.5, 1.0} ;
 const float  comsTable[NPHASES][4] = { //Cyclical shifted left
     { pwmDuty[0], pwmDuty[1], pwmDuty[2], pwmDuty[3] }, //phase 0
-    { pwmDuty[1], pwmDuty[2], pwmDuty[3], pwmDuty[0] },  //phase 3
+    { pwmDuty[1], pwmDuty[2], pwmDuty[3], pwmDuty[0] }, //phase 1
     { pwmDuty[2], pwmDuty[3], pwmDuty[0], pwmDuty[1] }, //phase 2
-    { pwmDuty[3], pwmDuty[0], pwmDuty[1], pwmDuty[2] }, //phase 1
+    { pwmDuty[3], pwmDuty[0], pwmDuty[1], pwmDuty[2] }, //phase 3
 };
 
 void TIM3_IRQHandler(void) {
@@ -95,7 +103,7 @@ void TIM3_IRQHandler(void) {
 
       // === Drive all COMs ===
       for (int com = 0; com < 4; com++) {
-	  uint8_t ccr = comPinMap[com];
+	  uint8_t ccr = comPinMap[iMap][com];
 	  float duty = comsTable[phase][com];
           if (invert) duty = 1 - duty ;  // for AC signal 
           // Active high is 0
@@ -130,8 +138,7 @@ void segDriver(void) {
     float segDuty, comDuty ;
     comDuty = comsTable[phase][phase] ;
     if (invert) comDuty = 1 - comDuty ;
-    segDuty = isActive ?  1-comDuty : comDuty ;
-
+    segDuty = (isActive ?  1 - comDuty :  comDuty) ;
     // Apply SEG waveform to PWM (Active high is low)
     TIM16->CCR1 = (uint16_t)(TIM16->ARR * (1 - segDuty));
 }
@@ -299,6 +306,7 @@ int main(void) {
     updateDigit(2, 1) ;
     updateDigit(3, 1) ;
 */
+
     while (1) {
        __WFI();  // Sleep until interrupt
     }
