@@ -39,6 +39,8 @@ New Tests this time Just SegState (removed targetCom implementation{
 ComPin Map:   [0 1 2 3]
 This trend prevailed with different Voltage patterns
 GD|BP	ED|CP	E|C	G|B         (left|righ segs)
+
+GD|BP	ED|CP	E|C	G|B 
 0000	0100	1111	0001
 1000	0110	0111	0011
 0010	1100	0101	1001

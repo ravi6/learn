@@ -8,7 +8,7 @@
 //    Four Common Lines .. 
 // Assumes default system clock = 8 MHz from HSI
 #define TIM2PSC 0
-#define TIM2ARR 2047  //  8000/(1 * 512) =  (15.6kHz -> freq) 
+#define TIM2ARR 512  //  8000/(1 * 512) =  (15.6kHz -> freq) 
 #define TIM3PSC 199 
 #define TIM3ARR 799 // 8000/(200*800)  kHz = (50 Hz -> freq)
 #define LED 4     // PB0 as LED indicator
@@ -26,7 +26,7 @@
 #define NCOMS 4
 
 volatile uint8_t comPinMap[4] = {0, 1, 2, 3} ;
-volatile uint8_t segState = 0b1100;
+volatile uint8_t segState = 0b1010;
 
 // Logical segment indices
 enum {SEG_A, SEG_B, SEG_C, SEG_D,
@@ -72,13 +72,14 @@ void TIM3_IRQHandler(void) ;
 void clrSegStates(void) ;
 void updateDigit(uint8_t digPos, uint8_t digVal) ;
 void segDriver (void) ;
+void resetTimers(void) ;
 
 volatile uint8_t phase = 0;
 volatile uint8_t invert = 0;  // Com Table Inversion flag
 
 //const float pwmDuty[4] = {0, 0.33333, 0.66666, 1.0} ;
 //const float pwmDuty[4] = {0, 0.5, 0.5, 1.0} ;
-const float f = 1.3 ;
+const float f = 1.4 ;
 const float pwmDuty[4] = {0.25*f, 0.5*f, 0.75*f, 0.5*f} ;
 
 const float  comsTable[NPHASES][4] = { //Cyclical shifted left
@@ -88,6 +89,20 @@ const float  comsTable[NPHASES][4] = { //Cyclical shifted left
     { pwmDuty[3], pwmDuty[0], pwmDuty[1], pwmDuty[2] }, //phase 3
 };
 
+void resetTimers (void) {
+  // Turn off timers
+  TIM15->CR1 &= ~TIM_CR1_CEN;
+  TIM2->CR1  &= ~TIM_CR1_CEN;
+
+  // Reset counters
+  TIM15->CNT = 0;
+  TIM2->CNT  = 0;
+
+  // Start both together
+  TIM15->CR1 |= TIM_CR1_CEN;
+  TIM2->CR1  |= TIM_CR1_CEN;
+
+}
 void TIM3_IRQHandler(void) {
 
     if (TIM3->SR & TIM_SR_UIF) {
@@ -161,7 +176,6 @@ void init_TIM2_PWM(void) {
     TIM2->CR1  |= TIM_CR1_ARPE;
     TIM2->EGR   = TIM_EGR_UG;
     TIM2->CR1 |=  (3 << 5)  ;   // Center Aligned PWM
-    TIM2->CR1  |= TIM_CR1_CEN;
 }
 
 void init_TIM3_IRQ(void) {
@@ -241,7 +255,6 @@ void init_TIM16_PWM(void) {
     TIM16->EGR   = TIM_EGR_UG;
     // This is a must as TIM16 has complementary outputs
     TIM16->BDTR |= TIM_BDTR_MOE ;   //Master output Enable
-    TIM16->CR1  |= TIM_CR1_CEN;
 }
 
 // Update SEG states for a given digit and its value
@@ -270,6 +283,9 @@ int main(void) {
   GPIOB->ODR = (0 << LED);  // LED off
   init_TIM2_PWM() ; // used for common pins signals (4 off)
   init_TIM16_PWM() ; // used for single SEG pin
+  // Enable Timers
+  TIM2->CR1  |= TIM_CR1_CEN;
+  TIM16->CR1  |= TIM_CR1_CEN;
 
   init_TIM3_IRQ() ;
 
@@ -292,6 +308,11 @@ int main(void) {
 */
 
     while (1) {
+     for (uint8_t i=0 ; i<16 ; i++){
+        segState = i  ;
+        resetTimers () ;
+        delay (5000) ;
+     }
        __WFI();  // Sleep until interrupt
     }
 }
