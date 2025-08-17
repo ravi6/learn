@@ -1,0 +1,20 @@
+# Flat Bed Mount base connected to the Motor Shaft
+#----------------------------------------
+tabL = 0.3
+tabW = 0.2
+tabH = 12.5e-3
+#Aluminum made
+tabRho = 2700  
+tabMass = tabL * tabW * tabH * tabRho
+tabMi = (1.0/12) * tabMass * (tabL * tabL + tabW * tabW) 
+
+#Cylindrical Optics and Camera Pod attached to table
+#-----------------------------------------
+camR = 150e-3
+camL = 300e-3
+camMass = 4 
+camMi = 0.25 * camMass * (camR * camR + camL * camL / 3.0) 
+
+
+
+

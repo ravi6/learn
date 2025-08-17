@@ -1,0 +1,22 @@
+// Put your JavaScript program here.
+// Refer to parameters in scope using dollar-sign{parameterName}.
+// See: https://wiki.eecs.berkeley.edu/accessors/Version1/AccessorSpecification
+
+   exports.setup = function() {
+       this.input('input', {'type':'int'});
+       this.output('output', {'type':'int'});
+   }
+   exports.fire = function() {
+       var value = this.get('input');
+       if (value &lt; 0) {
+           error("Input must be greater than or equal to 0.");
+       } else {
+           var total = 1;
+           while (value &gt; 1) {
+               total *= value;
+               value--;
+           }
+           this.send('output', total);
+       }
+   }
+   
