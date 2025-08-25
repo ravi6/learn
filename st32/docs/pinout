@@ -1,0 +1,45 @@
+
+You’re right—sorry about that. Let’s fix it with the **board-accurate map** for the **Nucleo-32 STM32F303K8 (DIP-30 “stick”, mini-USB, REF pin on silk)**.
+
+# Nucleo-32 F303K8 (DIP-30) pin mapping (matches D/A/REF labels)
+
+| Board label | MCU pin   | Common alternates (AF)                                                                          |
+| ----------- | --------- | ----------------------------------------------------------------------------------------------- |
+| D0          | **PA10**  | USART1\_RX, TIM1\_CH3  *(some stick revisions don’t route PA10 → treat as NC; use PB7 instead)* |
+| D1          | **PA9**   | USART1\_TX, TIM1\_CH2                                                                           |
+| D2          | **PA12**  | TIM1\_ETR, USB\_DP, USART1\_RTS                                                                 |
+| D3          | **PB0**   | ADC12\_IN8, TIM3\_CH3, TIM1\_CH2N                                                               |
+| D4          | **PB7**   | USART1\_RX (alt), I2C1\_SDA, TIM4\_CH2                                                          |
+| D5          | **PB6**   | USART1\_TX (alt), I2C1\_SCL, TIM4\_CH1                                                          |
+| D6          | **PB1**   | ADC12\_IN9, TIM3\_CH4, TIM1\_CH3N                                                               |
+| D7          | **PF0**   | OSC\_IN, MCO                                                                                    |
+| D8          | **PF1**   | OSC\_OUT                                                                                        |
+| D9          | **PA8**   | TIM1\_CH1, MCO                                                                                  |
+| D10         | **PA11**  | USB\_DM, USART1\_CTS, TIM1\_CH4                                                                 |
+| D11         | **PB5**   | SPI1\_MOSI, I2C1\_SMBA, TIM3\_CH2                                                               |
+| D12         | **PB4**   | SPI1\_MISO, TIM3\_CH1                                                                           |
+| D13 (LED)   | **PB3**   | SPI1\_SCK, TIM2\_CH2  *(on-board LED)*                                                          |
+| D14         | **PB9**   | I2C1\_SDA, TIM4\_CH4                                                                            |
+| D15         | **PB8**   | I2C1\_SCL, TIM4\_CH3                                                                            |
+| A0          | **PA0**   | ADC1\_IN1, TIM2\_CH1, TIM15\_CH1                                                                |
+| A1          | **PA1**   | ADC1\_IN2, TIM2\_CH2, TIM15\_CH1N                                                               |
+| A2          | **PA3**   | ADC2\_IN4, USART2\_RX, TIM2\_CH4                                                                |
+| A3          | **PA4**   | ADC12\_IN9, **DAC1\_OUT1**, SPI1\_NSS                                                           |
+| A4          | **PA5**   | ADC2\_IN2, SPI1\_SCK, TIM2\_CH1                                                                 |
+| A5          | **PA6**   | ADC2\_IN3, TIM3\_CH1, SPI1\_MISO                                                                |
+| A6          | **PA7**   | ADC2\_IN4, TIM3\_CH2, SPI1\_MOSI                                                                |
+| A7          | **PA2**   | ADC1\_IN3, USART2\_TX, TIM2\_CH3                                                                |
+| REF         | **VREF+** | External ADC/DAC reference input                                                                |
+| 3V3         | VDD       | 3.3 V out/in (board regulated)                                                                  |
+| GND         | VSS       | Ground                                                                                          |
+| NRST        | NRST      | Reset                                                                                           |
+
+### Quick function cheats
+
+* **UART1**: PA9 (TX) + PA10 (RX). If **PA10 isn’t present on your stick**, use **PB6 (TX)** + **PB7 (RX)** instead (set AF accordingly).
+* **I2C1**: **PB8 (SCL)** + **PB9 (SDA)** at **D15/D14**.
+* **SPI1**: **PB3=SCK (D13)**, **PB4=MISO (D12)**, **PB5=MOSI (D11)**, **PA4=NSS (A3)**.
+* **ADC**: **A0–A7** map to **PA0,1,3,4,5,6,7,2** respectively; **REF** feeds **VREF+**.
+
+If any of your silkscreen labels differ (some runs omit D0 or mark it “NC”), tell me exactly what you see and I’ll tailor the table to that print.
+

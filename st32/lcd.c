@@ -9,8 +9,8 @@
 // Assumes default system clock = 8 MHz from HSI
 #define TIM2PSC 0
 #define TIM2ARR 512  //  8000/(1 * 512) =  (15.6kHz -> freq) 
-#define TIM3PSC 199 
-#define TIM3ARR 799 // 8000/(200*800)  kHz = (50 Hz -> freq)
+#define TIM3PSC 799
+#define TIM3ARR 199 // 8000/(200*800)  kHz = (50 Hz -> freq)
 #define LED 4     // PB0 as LED indicator
 #define NPHASES   4
 #define PWM_MODE1 6  // is active high for count < ARR
@@ -79,8 +79,11 @@ volatile uint8_t invert = 0;  // Com Table Inversion flag
 
 //const float pwmDuty[4] = {0, 0.33333, 0.66666, 1.0} ;
 //const float pwmDuty[4] = {0, 0.5, 0.5, 1.0} ;
-const float f = 1.4 ;
-const float pwmDuty[4] = {0.25*f, 0.5*f, 0.75*f, 0.5*f} ;
+//const float f = 1.4 ;
+//const float pwmDuty[4] = {0.25*f, 0.5*f, 0.75*f, 0.5*f} ;
+
+const float pwmDuty[4] = {0, 1, 0.06251, 1} ; // extreme swing but less DC bias and optimal RMS
+
 
 const float  comsTable[NPHASES][4] = { //Cyclical shifted left
     { pwmDuty[0], pwmDuty[1], pwmDuty[2], pwmDuty[3] }, //phase 0
@@ -308,10 +311,11 @@ int main(void) {
 */
 
     while (1) {
-     for (uint8_t i=0 ; i<16 ; i++){
-        segState = i  ;
-        resetTimers () ;
+     for (uint8_t i=0 ; i<4 ; i++){
+        segState = 1<<i  ;
+        // resetTimers () ;
         delay (5000) ;
+//        blink(3) ;
      }
        __WFI();  // Sleep until interrupt
     }
