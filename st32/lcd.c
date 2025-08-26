@@ -79,10 +79,10 @@ volatile uint8_t invert = 0;  // Com Table Inversion flag
 
 //const float pwmDuty[4] = {0, 0.33333, 0.66666, 1.0} ;
 //const float pwmDuty[4] = {0, 0.5, 0.5, 1.0} ;
-//const float f = 1.4 ;
-//const float pwmDuty[4] = {0.25*f, 0.5*f, 0.75*f, 0.5*f} ;
+const float f = 1.33 ;
+const float pwmDuty[4] = {0.25*f, 0.5*f, 0.75*f, 0.5*f} ;
 
-const float pwmDuty[4] = {0, 1, 0.06251, 1} ; // extreme swing but less DC bias and optimal RMS
+//const float pwmDuty[4] = {0, 1, 0.06251, 1} ; // extreme swing but less DC bias and optimal RMS
 
 
 const float  comsTable[NPHASES][4] = { //Cyclical shifted left
@@ -313,9 +313,9 @@ int main(void) {
     while (1) {
      for (uint8_t i=0 ; i<4 ; i++){
         segState = 1<<i  ;
-        // resetTimers () ;
+         resetTimers () ;
         delay (5000) ;
-//        blink(3) ;
+        blink(3) ;
      }
        __WFI();  // Sleep until interrupt
     }
