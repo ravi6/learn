@@ -8,14 +8,27 @@ static void delay (unsigned int time) {
         for (volatile unsigned int j = 0; j < 2000; j++);
 }
 
-void TwoPinAC () {
-    // Turn on the GPIOA peripheral
-    RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
+// Include the specific header for your STM32F303K8 (e.g., stm32f3xx.h)
 
-   // Put pin PA0 and PA1 in general purpose mode ( ms=0 ls=1 )
-    GPIOA->MODER  |= GPIO_MODER_MODER0_0;   // A0 .. PA0 ... (P4 from Right)
-    GPIOA->MODER  |= GPIO_MODER_MODER1_0;   // A1 .. PA1 ... (P5 from Right)  --> LED
-    GPIOA->MODER  |= GPIO_MODER_MODER8_0;   // D9 .. PA8 ...  (P4L) 
+void resetGPIOA(void) {
+    RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
+    (void)RCC->AHBENR ;  // wait for above to completeyy
+    GPIOA->MODER   = 0xA8000000; 
+    GPIOA->OTYPER  = 0x00000000;
+    GPIOA->OSPEEDR = 0x0C000000;  
+    GPIOA->PUPDR   = 0x64000000;
+    GPIOA->AFR[0]  = 0x00000000;
+    GPIOA->AFR[1]  = 0x00000000;
+}
+
+void TwoPinAC () {
+    resetGPIOA () ;
+
+   // Put pin PA0,1,8 are output pins
+    GPIOA->MODER  |= (0x1 << (0 * 2));   // A0 .. PA0 ... (P4 from Right)
+    GPIOA->MODER  |= (0x1 << (1 * 2));   // A1 .. PA1 ... (P5 from Right)  --> LED
+    GPIOA->MODER  |= (0x1 << (8 * 2));   // D9 .. PA8 ...  (P4L) 
+    
     // Generate squarewaves that differ in phase 
        while(1) {
 	  GPIOA->BSRR = GPIO_BSRR_BR_0; // PA0 pin off
@@ -32,8 +45,10 @@ void TwoPinAC () {
 
 
 int main (void) {
-    while (1) ;
     TwoPinAC() ;  
     // Return 0 to satisfy compiler
+    while (1) ;
     return 0;
 }
+
+
