@@ -11,7 +11,7 @@
 #define TIM2ARR 512  //  8000/(1 * 512) =  (15.6kHz -> freq) 
 #define TIM3PSC 799
 #define TIM3ARR 199 // 8000/(200*800)  kHz = (50 Hz -> freq)
-#define LED 4     // PB0 as LED indicator
+#define LED 0     // PB0 as LED indicator
 #define NPHASES   4
 #define PWM_MODE1 6  // is active high for count < ARR
 #define PWM_MODE2 7  // is active low  for count < ARR
@@ -73,6 +73,8 @@ void clrSegStates(void) ;
 void updateDigit(uint8_t digPos, uint8_t digVal) ;
 void segDriver (void) ;
 void resetTimers(void) ;
+void setupMux(void) ;
+void selSeg (uint8_t k) ;
 
 volatile uint8_t phase = 0;
 volatile uint8_t invert = 0;  // Com Table Inversion flag
@@ -283,6 +285,8 @@ void clrSegStates(void) {
 int main(void) {
 
   setupLED() ; // Debug indicator
+  setupMux() ; 
+
   GPIOB->ODR = (0 << LED);  // LED off
   init_TIM2_PWM() ; // used for common pins signals (4 off)
   init_TIM16_PWM() ; // used for single SEG pin
@@ -329,4 +333,24 @@ char * toBin (uint8_t k) {
       else s[7-i] = '0' ;
    } 
    return (s);
+
+void selSeg (uint8_t k) {
+// Segment numbers 0 to 7 only
+ GPIOB->ODR = ((ISSET (k, 0)) << MUXA);  
+ GPIOB->ODR = ((ISSET (k, 1)) << MUXB);  
+ GPIOB->ODR = ((ISSET (k, 2)) << MUXC);  
+}
+
+void setupMux () {
+  //  Setup Mux IO pins we use GPIOB
+  enum {MUXA=4, MUXB, MUXC, MUXINH} ;
+  RCC->AHBENR  |= RCC_AHBENR_GPIOBEN;
+  (void)RCC->AHBENR ;  // wait for above to completeyy
+
+  // Config Mux pins as output
+  GPIOB->MODER  |= (0x1 << (MUXA * 2));   // D12 .. PB4 
+  GPIOB->MODER  |= (0x1 << (MUXB * 2));   // D11 .. PB5 
+  GPIOB->MODER  |= (0x1 << (MUXC * 2));   // D5  .. PB6 
+  GPIOB->MODER  |= (0x1 << (MUXINH * 2)); // D4  .. PB7 
+  GPIOB->ODR = (1 << MUXA); // inhibit Mux  
 }
