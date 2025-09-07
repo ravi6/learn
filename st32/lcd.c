@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+//#include "stm32f3xx.h"
 
 // LCD Driving with 4Mux and 1/3 bias
 //    Four Common Lines .. 
@@ -19,6 +20,7 @@
 // alter the polarity (a real messs)
 // Looks as though default active high is 0 and ac
 #define MIN(a, b) (((a) < (b)) ? ( a) : (b))
+#define ISSET(reg, n) ( ((reg) &  (1<<(n))) != 0 )
 
 // Digit Display related stuff
 #define NUM_DIGITS 4
@@ -32,6 +34,7 @@ volatile uint8_t segState = 0b1010;
 enum {SEG_A, SEG_B, SEG_C, SEG_D,
       SEG_E, SEG_F, SEG_G, SEG_P}  ;
 
+enum {MUXA=4, MUXB, MUXC, MUXINH} ;
 // Example LCD Digit Mapper for SEG+COM paired segment layout
 // Assumptions:
 // - 4 digits
@@ -75,6 +78,7 @@ void segDriver (void) ;
 void resetTimers(void) ;
 void setupMux(void) ;
 void selSeg (uint8_t k) ;
+void freeDebugPins () ;
 
 volatile uint8_t phase = 0;
 volatile uint8_t invert = 0;  // Com Table Inversion flag
@@ -282,26 +286,103 @@ void clrSegStates(void) {
         segStates[i] = 0;
 }
 
+void selSeg (uint8_t k) {
+// Segment numbers 0 to 7 only
+/*
+ GPIOB->ODR = ((ISSET (k, 0)) << MUXA);  
+ GPIOB->ODR = ((ISSET (k, 1)) << MUXB);  
+ GPIOB->ODR = ((ISSET (k, 2)) << MUXC);  
+*/
+ GPIOB->ODR = (1<< MUXA);  
+ GPIOB->ODR = (1<< MUXB);  
+ GPIOB->ODR = (1<< MUXC);  
+}
+
+void setupMux () {
+  //  Setup Mux IO pins we use GPIOB
+  RCC->AHBENR  |= RCC_AHBENR_GPIOBEN;
+  (void)RCC->AHBENR ;  // wait for above to completeyy
+
+  // Config Mux pins as output
+  GPIOB->MODER  |= (0x1 << (MUXA * 2));   // D12 .. PB4 
+  GPIOB->MODER  |= (0x1 << (MUXB * 2));   // D11 .. PB5 
+  GPIOB->MODER  |= (0x1 << (MUXC * 2));   // D5  .. PB6 
+  GPIOB->MODER  |= (0x1 << (MUXINH * 2)); // D4  .. PB7 
+  GPIOB->ODR = (1 << MUXINH); // inhibit Mux  
+}
+char * toBin (uint8_t k) {
+   char *s ;
+   s = (char *) malloc (8) ;
+   for (int i=0 ; i<8 ; i++) {
+      if (k & (1 << i)) s[7-i] = '1' ;
+      else s[7-i] = '0' ;
+   } 
+   return (s);
+}
+
+void freeDebugPins(void) {
+    // Release PB4,5,7,15 from JTAG
+    // Also PA13, 14 
+    // Enable SYSCFG clock
+    RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;
+
+    // Re-map debug: JTAG disabled, SWD enabled (keeps PA13/PA14 for SWD)
+    SYSCFG->CFGR1 = (SYSCFG->CFGR1 & ~(0b111 << 8))  // clear only bits 10:8
+               |  (0b001 << 8);                  // set SWD-only
+}
+
+void free_debug_pins(void) {
+    // Enable SYSCFG clock
+    RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;
+    (void)RCC->APB2ENR;  // read back to ensure clock is enabled
+
+    uint32_t tmp = SYSCFG->CFGR1;
+    tmp &= ~(0b111 << 8);  // clear debug[10:8]
+    tmp |=  (0b001 << 8);  // set to SWD only (software debug)
+    SYSCFG->CFGR1 = tmp;
+}
+
 int main(void) {
 
-  setupLED() ; // Debug indicator
+  freeDebugPins();
+  setupLED() ;                // Debug indicator
   setupMux() ; 
+  //selSeg (0) ;
+  GPIOB->ODR = (1 << MUXINH); // 0 enable Mux, 1 disable  
+  GPIOB->ODR = (0 << LED);    // LED off
+//    selSeg (7) ; // push toseg0
+    while (1) {
+     for (uint8_t i=0 ; i<4 ; i++){
+ //       segState = 1<<i  ;
+ //       resetTimers () ;
+        delay (5000) ;
+        GPIOB->ODR ^= (3 << MUXA);  // Toggle PBx
+        GPIOB->ODR ^= (3 << MUXB);  // Toggle PBx
+        GPIOB->ODR ^= (3 << MUXC);  // Toggle PBx
+        GPIOB->ODR ^= (3 << MUXINH);  // Toggle PBx
+        blink(3) ;
+     }
+       __WFI();  // Sleep until interrupt
+    }
+}
 
-  GPIOB->ODR = (0 << LED);  // LED off
-  init_TIM2_PWM() ; // used for common pins signals (4 off)
-  init_TIM16_PWM() ; // used for single SEG pin
+/*
+  init_TIM2_PWM() ;           // used for common pins signals (4 off)
+  init_TIM16_PWM() ;          // used for single SEG pin
+
   // Enable Timers
   TIM2->CR1  |= TIM_CR1_CEN;
   TIM16->CR1  |= TIM_CR1_CEN;
 
   init_TIM3_IRQ() ;
 
-   if (!(TIM2->CR1 & TIM_CR1_CEN))  // Timer is not  running!
+   if (!(TIM2->CR1 & TIM_CR1_CEN))   // Timer is not  running!
         blink(2) ;
    if (!(TIM16->CR1 & TIM_CR1_CEN))  // Timer is not  running!
         blink(3) ;
-   if (!(TIM3->CR1 & TIM_CR1_CEN))  //  Timer not running
+   if (!(TIM3->CR1 & TIM_CR1_CEN))   //  Timer not running
         blink(5) ;
+*/
 /*
     clrSegStates() ;
     for (volatile uint8_t i=0 ; i < 10 ; i++) {
@@ -314,43 +395,3 @@ int main(void) {
     updateDigit(3, 1) ;
 */
 
-    while (1) {
-     for (uint8_t i=0 ; i<4 ; i++){
-        segState = 1<<i  ;
-         resetTimers () ;
-        delay (5000) ;
-        blink(3) ;
-     }
-       __WFI();  // Sleep until interrupt
-    }
-}
-
-char * toBin (uint8_t k) {
-   char *s ;
-   s = (char *) malloc (8) ;
-   for (int i=0 ; i<8 ; i++) {
-      if (k & (1 << i)) s[7-i] = '1' ;
-      else s[7-i] = '0' ;
-   } 
-   return (s);
-
-void selSeg (uint8_t k) {
-// Segment numbers 0 to 7 only
- GPIOB->ODR = ((ISSET (k, 0)) << MUXA);  
- GPIOB->ODR = ((ISSET (k, 1)) << MUXB);  
- GPIOB->ODR = ((ISSET (k, 2)) << MUXC);  
-}
-
-void setupMux () {
-  //  Setup Mux IO pins we use GPIOB
-  enum {MUXA=4, MUXB, MUXC, MUXINH} ;
-  RCC->AHBENR  |= RCC_AHBENR_GPIOBEN;
-  (void)RCC->AHBENR ;  // wait for above to completeyy
-
-  // Config Mux pins as output
-  GPIOB->MODER  |= (0x1 << (MUXA * 2));   // D12 .. PB4 
-  GPIOB->MODER  |= (0x1 << (MUXB * 2));   // D11 .. PB5 
-  GPIOB->MODER  |= (0x1 << (MUXC * 2));   // D5  .. PB6 
-  GPIOB->MODER  |= (0x1 << (MUXINH * 2)); // D4  .. PB7 
-  GPIOB->ODR = (1 << MUXA); // inhibit Mux  
-}
