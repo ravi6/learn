@@ -3,8 +3,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-//#include "stm32f3xx.h"
-
 // LCD Driving with 4Mux and 1/3 bias
 //    Four Common Lines .. 
 // Assumes default system clock = 8 MHz from HSI
@@ -12,7 +10,6 @@
 #define TIM2ARR 512  //  8000/(1 * 512) =  (15.6kHz -> freq) 
 #define TIM3PSC 799
 #define TIM3ARR 199 // 8000/(200*800)  kHz = (50 Hz -> freq)
-#define LED 0     // PB0 as LED indicator
 #define NPHASES   4
 #define PWM_MODE1 6  // is active high for count < ARR
 #define PWM_MODE2 7  // is active low  for count < ARR
@@ -34,7 +31,7 @@ volatile uint8_t segState = 0b1010;
 enum {SEG_A, SEG_B, SEG_C, SEG_D,
       SEG_E, SEG_F, SEG_G, SEG_P}  ;
 
-enum {MUXA=4, MUXB, MUXC, MUXINH} ;
+enum {LED=0, MUXA=4, MUXB, MUXC, MUXINH} ;
 // Example LCD Digit Mapper for SEG+COM paired segment layout
 // Assumptions:
 // - 4 digits
@@ -65,7 +62,6 @@ const uint8_t digEncode[10] = {0x3F, 0x06, 0x5B, 0x4F, 0x66,
 // Output buffer for current SEG phase state
 uint8_t segStates[NSEGPINS] = {0}; // Will be applied in the interrupt
 
-void setupLED(void) ;
 void delay (unsigned int time) ;
 void blink (int n) ;
 void init_TIM2_PWM(void) ;
@@ -78,7 +74,6 @@ void segDriver (void) ;
 void resetTimers(void) ;
 void setupMux(void) ;
 void selSeg (uint8_t k) ;
-void freeDebugPins () ;
 
 volatile uint8_t phase = 0;
 volatile uint8_t invert = 0;  // Com Table Inversion flag
@@ -204,20 +199,6 @@ void init_TIM3_IRQ(void) {
     TIM3->CR1  |= TIM_CR1_CEN; // Start Timer
 }
 
-void setupLED() {
-    RCC->AHBENR |= RCC_AHBENR_GPIOBEN; // 1. Enable GPIOB clock
-    (void)RCC->AHBENR ;  // wait for above to completeyy
-
-    GPIOB->MODER &= ~(3 << (LED * 2));    // Clear MODERx bits
-    GPIOB->MODER |=  (1 << (LED * 2));    // Set MODERx = 0b01 (output mode)
-    GPIOB->AFR[0] &= ~(0xF << (LED * 4)) ; // CLR AFRL bits  (insurence)
-
-    GPIOB->OTYPER &= ~(1 << LED);         // Push-pull
-    GPIOB->OSPEEDR |= (1 << (LED * 2));   // Medium speed
-    GPIOB->PUPDR   &= ~(3 << (LED * 2));    // No pull-up/down
-    GPIOB->ODR |= (1 << LED);             // PBx = 1 (LED ON, if active high)
-}
-
 void delay (unsigned int time) {
   // Time in MilliSeconds (Caliberated on STM32F303X8B)
     for (volatile unsigned int i = 0; i < time; i++)
@@ -226,7 +207,7 @@ void delay (unsigned int time) {
 
 void blink (int count) {
     for (int i = 0; i < 2*count ; i++)  {
-        GPIOB->ODR ^= (3 << LED);  // Toggle PBx
+        GPIOB->ODR ^= (1 << LED);  // Toggle PBx
         delay (1000) ;
     }
 }
@@ -288,28 +269,31 @@ void clrSegStates(void) {
 
 void selSeg (uint8_t k) {
 // Segment numbers 0 to 7 only
-/*
- GPIOB->ODR = ((ISSET (k, 0)) << MUXA);  
- GPIOB->ODR = ((ISSET (k, 1)) << MUXB);  
- GPIOB->ODR = ((ISSET (k, 2)) << MUXC);  
-*/
- GPIOB->ODR = (1<< MUXA);  
- GPIOB->ODR = (1<< MUXB);  
- GPIOB->ODR = (1<< MUXC);  
+ if (ISSET (k, 0))  GPIOB->BSRR = (1 << MUXA) ;
+ else GPIOB->BSRR = (1 << (MUXA + 16))  ;
+ if (ISSET (k, 1))  GPIOB->BSRR = (1 << MUXB) ;
+ else GPIOB->BSRR = (1 << (MUXB + 16))  ;
+ if (ISSET (k, 2))  GPIOB->BSRR = (1 << MUXC) ;
+ else GPIOB->BSRR = (1 << (MUXC + 16))  ;
 }
 
 void setupMux () {
-  //  Setup Mux IO pins we use GPIOB
+  //  Setup Mux IO pins and LED blinker we use GPIOB
   RCC->AHBENR  |= RCC_AHBENR_GPIOBEN;
   (void)RCC->AHBENR ;  // wait for above to completeyy
 
-  // Config Mux pins as output
-  GPIOB->MODER  |= (0x1 << (MUXA * 2));   // D12 .. PB4 
-  GPIOB->MODER  |= (0x1 << (MUXB * 2));   // D11 .. PB5 
-  GPIOB->MODER  |= (0x1 << (MUXC * 2));   // D5  .. PB6 
-  GPIOB->MODER  |= (0x1 << (MUXINH * 2)); // D4  .. PB7 
-  GPIOB->ODR = (1 << MUXINH); // inhibit Mux  
-}
+  // Config Mux Select and LED pins
+  uint8_t pin[5] = {MUXA, MUXB, MUXC, MUXINH, LED} ;
+  for (uint8_t i = 0 ; i < 5 ; i ++) {
+      GPIOB->MODER &= ~(3 << (2 * pin[i])); // clear
+      GPIOB->MODER |= (1 << (2 * pin[i]));  // output mode
+      GPIOB->OSPEEDR |= (0 << ( 2 * pin[i]));   // low speed
+      GPIOB->OTYPER &= ~(1 << pin[i]);      // Push-pull
+      GPIOB->AFR[0] &= ~(0xF << (4 * pin[i])) ; // CLR AFRL bits  (insurence)
+      GPIOB->PUPDR  &= ~(3 << (LED * 2));    // No pull-up/down
+  }
+} // end setupMuxLED
+
 char * toBin (uint8_t k) {
    char *s ;
    s = (char *) malloc (8) ;
@@ -320,51 +304,23 @@ char * toBin (uint8_t k) {
    return (s);
 }
 
-void freeDebugPins(void) {
-    // Release PB4,5,7,15 from JTAG
-    // Also PA13, 14 
-    // Enable SYSCFG clock
-    RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;
-
-    // Re-map debug: JTAG disabled, SWD enabled (keeps PA13/PA14 for SWD)
-    SYSCFG->CFGR1 = (SYSCFG->CFGR1 & ~(0b111 << 8))  // clear only bits 10:8
-               |  (0b001 << 8);                  // set SWD-only
-}
-
-void free_debug_pins(void) {
-    // Enable SYSCFG clock
-    RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;
-    (void)RCC->APB2ENR;  // read back to ensure clock is enabled
-
-    uint32_t tmp = SYSCFG->CFGR1;
-    tmp &= ~(0b111 << 8);  // clear debug[10:8]
-    tmp |=  (0b001 << 8);  // set to SWD only (software debug)
-    SYSCFG->CFGR1 = tmp;
-}
-
 int main(void) {
 
-  freeDebugPins();
-  setupLED() ;                // Debug indicator
   setupMux() ; 
   //selSeg (0) ;
   GPIOB->ODR = (1 << MUXINH); // 0 enable Mux, 1 disable  
-  GPIOB->ODR = (0 << LED);    // LED off
-//    selSeg (7) ; // push toseg0
-    while (1) {
-     for (uint8_t i=0 ; i<4 ; i++){
+  GPIOB->ODR &= (1 << LED);    // LED off
+  while (1) {
+    for (uint8_t i=0 ; i<8 ; i++) {
+          selSeg (i) ; // push toseg0
  //       segState = 1<<i  ;
  //       resetTimers () ;
-        delay (5000) ;
-        GPIOB->ODR ^= (3 << MUXA);  // Toggle PBx
-        GPIOB->ODR ^= (3 << MUXB);  // Toggle PBx
-        GPIOB->ODR ^= (3 << MUXC);  // Toggle PBx
-        GPIOB->ODR ^= (3 << MUXINH);  // Toggle PBx
-        blink(3) ;
-     }
-       __WFI();  // Sleep until interrupt
+        delay (500) ;
+        blink(1) ;
     }
-}
+     //  __WFI();  // Sleep until interrupt (use when timers exist)
+  } // end while
+} // end main
 
 /*
   init_TIM2_PWM() ;           // used for common pins signals (4 off)
