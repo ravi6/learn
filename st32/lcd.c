@@ -13,11 +13,14 @@
 #define NPHASES   4
 #define PWM_MODE1 6  // is active high for count < ARR
 #define PWM_MODE2 7  // is active low  for count < ARR
+//
 // Unfortunately there is another TIM2_CCER register bits can
 // alter the polarity (a real messs)
 // Looks as though default active high is 0 and ac
+
 #define MIN(a, b) (((a) < (b)) ? ( a) : (b))
 #define ISSET(reg, n) ( ((reg) &  (1<<(n))) != 0 )
+#define GPBOUT(i, s) ( GPIOB->BSRR = (1 << (i + (s ? 0 : 16))) )
 
 // Digit Display related stuff
 #define NUM_DIGITS 4
@@ -269,12 +272,9 @@ void clrSegStates(void) {
 
 void selSeg (uint8_t k) {
 // Segment numbers 0 to 7 only
- if (ISSET (k, 0))  GPIOB->BSRR = (1 << MUXA) ;
- else GPIOB->BSRR = (1 << (MUXA + 16))  ;
- if (ISSET (k, 1))  GPIOB->BSRR = (1 << MUXB) ;
- else GPIOB->BSRR = (1 << (MUXB + 16))  ;
- if (ISSET (k, 2))  GPIOB->BSRR = (1 << MUXC) ;
- else GPIOB->BSRR = (1 << (MUXC + 16))  ;
+ GPBOUT(MUXA, ISSET (k, 0)) ;
+ GPBOUT(MUXB, ISSET (k, 1)) ;
+ GPBOUT(MUXC, ISSET (k, 2)) ;
 }
 
 void setupMux () {
@@ -306,39 +306,36 @@ char * toBin (uint8_t k) {
 
 int main(void) {
 
-  setupMux() ; 
-  //selSeg (0) ;
-  GPIOB->ODR = (1 << MUXINH); // 0 enable Mux, 1 disable  
-  GPIOB->ODR &= (1 << LED);    // LED off
-  while (1) {
-    for (uint8_t i=0 ; i<8 ; i++) {
-          selSeg (i) ; // push toseg0
- //       segState = 1<<i  ;
- //       resetTimers () ;
-        delay (500) ;
-        blink(1) ;
-    }
-     //  __WFI();  // Sleep until interrupt (use when timers exist)
-  } // end while
-} // end main
-
-/*
   init_TIM2_PWM() ;           // used for common pins signals (4 off)
   init_TIM16_PWM() ;          // used for single SEG pin
 
   // Enable Timers
   TIM2->CR1  |= TIM_CR1_CEN;
   TIM16->CR1  |= TIM_CR1_CEN;
-
   init_TIM3_IRQ() ;
 
-   if (!(TIM2->CR1 & TIM_CR1_CEN))   // Timer is not  running!
-        blink(2) ;
-   if (!(TIM16->CR1 & TIM_CR1_CEN))  // Timer is not  running!
-        blink(3) ;
-   if (!(TIM3->CR1 & TIM_CR1_CEN))   //  Timer not running
-        blink(5) ;
-*/
+   if (!(TIM2->CR1 & TIM_CR1_CEN))  blink (2);   // Timer is not  running!
+   if (!(TIM16->CR1 & TIM_CR1_CEN)) blink (3);  // Timer is not  running!
+   if (!(TIM3->CR1 & TIM_CR1_CEN))  blink (5);  //  Timer not running
+
+  setupMux() ; 
+  GPBOUT(MUXINH, 0) ; // 0 Enable Mux, 1 disable 
+  GPBOUT(LED, 0) ; // 0 off
+
+  selSeg (0) ;
+
+  while (1) {
+    for (uint8_t i=0 ; i<8 ; i++) {
+        selSeg (i) ; // push toseg0
+        segState = 1<<i  ;
+        resetTimers () ;
+        delay (500) ;
+        blink(1) ;
+    } 
+       __WFI();  // Sleep until interrupt (use when timers exist)
+  } // end while
+} // end main
+
 /*
     clrSegStates() ;
     for (volatile uint8_t i=0 ; i < 10 ; i++) {
