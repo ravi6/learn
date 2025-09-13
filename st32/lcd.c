@@ -20,7 +20,7 @@
 
 #define MIN(a, b) (((a) < (b)) ? ( a) : (b))
 #define ISSET(reg, n) ( ((reg) &  (1<<(n))) != 0 )
-#define GPBOUT(i, s) ( GPIOB->BSRR = (1 << (i + (s ? 0 : 16))) )
+#define SETSTATE(gpio, pin, s) ( (gpio)->BSRR = (1 << (pin + (s ? 0 : 16))) )
 
 // Digit Display related stuff
 #define NUM_DIGITS 4
@@ -34,7 +34,7 @@ volatile uint8_t segState = 0b1010;
 enum {SEG_A, SEG_B, SEG_C, SEG_D,
       SEG_E, SEG_F, SEG_G, SEG_P}  ;
 
-enum {LED=0, MUXA=4, MUXB, MUXC, MUXINH} ;
+enum {LED=11, MUXA=4, MUXB=5, MUXC=0, MUXINH=7} ;
 // Example LCD Digit Mapper for SEG+COM paired segment layout
 // Assumptions:
 // - 4 digits
@@ -77,6 +77,7 @@ void segDriver (void) ;
 void resetTimers(void) ;
 void setupMux(void) ;
 void selSeg (uint8_t k) ;
+void outPin (GPIO_TypeDef *gpio, uint8_t pin);
 
 volatile uint8_t phase = 0;
 volatile uint8_t invert = 0;  // Com Table Inversion flag
@@ -210,7 +211,7 @@ void delay (unsigned int time) {
 
 void blink (int count) {
     for (int i = 0; i < 2*count ; i++)  {
-        GPIOB->ODR ^= (1 << LED);  // Toggle PBx
+        GPIOA->ODR ^= (1 << LED);  // Toggle PBx
         delay (1000) ;
     }
 }
@@ -248,6 +249,7 @@ void init_TIM16_PWM(void) {
     TIM16->EGR   = TIM_EGR_UG;
     // This is a must as TIM16 has complementary outputs
     TIM16->BDTR |= TIM_BDTR_MOE ;   //Master output Enable
+    TIM16->CCER &= ~TIM_CCER_CC1NE; // ensure PB6 stays free
 }
 
 // Update SEG states for a given digit and its value
@@ -272,26 +274,19 @@ void clrSegStates(void) {
 
 void selSeg (uint8_t k) {
 // Segment numbers 0 to 7 only
- GPBOUT(MUXA, ISSET (k, 0)) ;
- GPBOUT(MUXB, ISSET (k, 1)) ;
- GPBOUT(MUXC, ISSET (k, 2)) ;
+ SETSTATE(GPIOB, MUXA, ISSET (k, 0)) ;
+ SETSTATE(GPIOB, MUXB, ISSET (k, 1)) ;
+ SETSTATE(GPIOB, MUXC, ISSET (k, 2)) ;
 }
 
 void setupMux () {
-  //  Setup Mux IO pins and LED blinker we use GPIOB
+  //  Setup Mux IO pins 
   RCC->AHBENR  |= RCC_AHBENR_GPIOBEN;
   (void)RCC->AHBENR ;  // wait for above to completeyy
-
-  // Config Mux Select and LED pins
-  uint8_t pin[5] = {MUXA, MUXB, MUXC, MUXINH, LED} ;
-  for (uint8_t i = 0 ; i < 5 ; i ++) {
-      GPIOB->MODER &= ~(3 << (2 * pin[i])); // clear
-      GPIOB->MODER |= (1 << (2 * pin[i]));  // output mode
-      GPIOB->OSPEEDR |= (0 << ( 2 * pin[i]));   // low speed
-      GPIOB->OTYPER &= ~(1 << pin[i]);      // Push-pull
-      GPIOB->AFR[0] &= ~(0xF << (4 * pin[i])) ; // CLR AFRL bits  (insurence)
-      GPIOB->PUPDR  &= ~(3 << (LED * 2));    // No pull-up/down
-  }
+  outPin (GPIOB, MUXA) ;
+  outPin (GPIOB, MUXB) ;
+  outPin (GPIOB, MUXC) ;
+  outPin (GPIOB, MUXINH) ;
 } // end setupMuxLED
 
 char * toBin (uint8_t k) {
@@ -304,7 +299,18 @@ char * toBin (uint8_t k) {
    return (s);
 }
 
+void outPin (GPIO_TypeDef *gpio, uint8_t pin) {
+// Configure a gpio pin for slow output
+  gpio->MODER &= ~(3 << (2 * pin)); // clear
+  gpio->MODER |= (1 << (2 * pin));  // output mode
+  gpio->OSPEEDR |= (0 << ( 2 * pin));   // low speed
+  gpio->OTYPER &= ~(1 << pin);      // Push-pull
+  gpio->AFR[0] &= ~(0xF << (4 * pin)) ; // CLR AFRL bits  (insurence)
+  gpio->PUPDR  &= ~(3 << (2 * pin));    // No pull-up/down
+}
+
 int main(void) {
+
 
   init_TIM2_PWM() ;           // used for common pins signals (4 off)
   init_TIM16_PWM() ;          // used for single SEG pin
@@ -314,22 +320,24 @@ int main(void) {
   TIM16->CR1  |= TIM_CR1_CEN;
   init_TIM3_IRQ() ;
 
-   if (!(TIM2->CR1 & TIM_CR1_CEN))  blink (2);   // Timer is not  running!
-   if (!(TIM16->CR1 & TIM_CR1_CEN)) blink (3);  // Timer is not  running!
-   if (!(TIM3->CR1 & TIM_CR1_CEN))  blink (5);  //  Timer not running
+  if (!(TIM2->CR1 & TIM_CR1_CEN))  blink (2);   // Timer is not  running!
+  if (!(TIM16->CR1 & TIM_CR1_CEN)) blink (3);  // Timer is not  running!
+  if (!(TIM3->CR1 & TIM_CR1_CEN))  blink (5);  //  Timer not running
 
+  //Add LED
+  outPin (GPIOA, LED) ;
+  SETSTATE(GPIOA, LED, 1) ;   // LED on
+  // Add Mux
   setupMux() ; 
-  GPBOUT(MUXINH, 0) ; // 0 Enable Mux, 1 disable 
-  GPBOUT(LED, 0) ; // 0 off
+  SETSTATE(GPIOB, MUXINH, 1) ; // 0 Enable Mux, 1 disable 
 
   selSeg (0) ;
-
   while (1) {
     for (uint8_t i=0 ; i<8 ; i++) {
         selSeg (i) ; // push toseg0
         segState = 1<<i  ;
         resetTimers () ;
-        delay (500) ;
+        delay (1500) ;
         blink(1) ;
     } 
        __WFI();  // Sleep until interrupt (use when timers exist)
