@@ -311,7 +311,6 @@ void outPin (GPIO_TypeDef *gpio, uint8_t pin) {
 
 int main(void) {
 
-
   init_TIM2_PWM() ;           // used for common pins signals (4 off)
   init_TIM16_PWM() ;          // used for single SEG pin
 
@@ -329,12 +328,12 @@ int main(void) {
   SETSTATE(GPIOA, LED, 1) ;   // LED on
   // Add Mux
   setupMux() ; 
-  SETSTATE(GPIOB, MUXINH, 1) ; // 0 Enable Mux, 1 disable 
+  SETSTATE(GPIOB, MUXINH, 0) ; // 0 Enable Mux, 1 disable 
 
   selSeg (0) ;
   while (1) {
     for (uint8_t i=0 ; i<8 ; i++) {
-        selSeg (i) ; // push toseg0
+        selSeg (7) ; // push toseg0
         segState = 1<<i  ;
         resetTimers () ;
         delay (1500) ;
