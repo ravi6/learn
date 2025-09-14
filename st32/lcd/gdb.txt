@@ -1,0 +1,86 @@
+No symbol table is loaded.  Use the "file" command.
+File not changed.
+quit
+Use FILE as program to be debugged.
+It is read for its symbols, for getting the contents of pure memory,
+and it is the program executed when you use the `run' command.
+If FILE cannot be found as specified, your execution directory path
+($PATH) is searched for a command of that name.
+No arg means to have no executable file and no symbols.
+"/Users/ravi/SrikanthData/www/learn/st32/lcd/timers.c": not in executable format: file format not recognized
+42	
+43	}
+44	void delay (unsigned int time) {
+45	  // Time in MilliSeconds (Caliberated on STM32F303X8B)
+46	    for (volatile unsigned int i = 0; i < time; i++)
+47	        for (volatile unsigned int j = 0; j < 575 ; j++);
+48	}
+49	
+50	void blink (int count) {
+51	    for (int i = 0; i < 2*count ; i++)  {
+52	        GPIOA->ODR ^= (1 << LED);  // Toggle PBx
+53	        delay (1000) ;
+54	    }
+55	}
+56	
+57	char * toBin (uint8_t k) {
+58	   char *s ;
+59	   s = (char *) malloc (8) ;
+60	   for (int i=0 ; i<8 ; i++) {
+61	      if (k & (1 << i)) s[7-i] = '1' ;
+62	      else s[7-i] = '0' ;
+63	   } 
+64	   return (s);
+65	}
+66	
+67	void startUp() {
+68	
+69	  init_TIM2_PWM() ;           // used for common pins signals (4 off)
+70	  init_TIM16_PWM() ;          // used for single SEG pin
+71	
+72	  // Enable Timers
+73	  TIM2->CR1  |= TIM_CR1_CEN;
+74	  TIM16->CR1  |= TIM_CR1_CEN;
+75	  init_TIM3_IRQ() ;
+76	
+77	  if (!(TIM2->CR1 & TIM_CR1_CEN))  blink (2);   // Timer is not  running!
+78	  if (!(TIM16->CR1 & TIM_CR1_CEN)) blink (3);  // Timer is not  running!
+79	  if (!(TIM3->CR1 & TIM_CR1_CEN))  blink (5);  //  Timer not running
+80	
+81	  //Add LED
+82	  outPin (GPIOA, LED) ;
+83	  SETSTATE(GPIOA, LED, 1) ;   // LED on
+84	  // Add Mux
+85	  setupMux() ; 
+86	  SETSTATE(GPIOB, MUXINH, 0) ; // 0 Enable Mux, 1 disable 
+87	}
+88	
+End of the file was already reached, use "list ." to list the current location again
+Breakpoint 1 at 0x8000dee: file timers.c, line 56.
+Note: automatically using hardware breakpoints for read-only addresses.
+Continuing.
+
+Program received signal SIGTRAP, Trace/breakpoint trap.
+0x080009a6 in delay (time=4500) at utils.c:47
+47	        for (volatile unsigned int j = 0; j < 575 ; j++);
+quit
+No executable file specified.
+Use the "file" or "exec-file" command.
+Reading symbols from app.elf...
+Breakpoint 1 at 0x8000de6: file timers.c, line 55.
+Note: automatically using hardware breakpoints for read-only addresses.
+Continuing.
+
+Breakpoint 1, init_TIM2_PWM () at timers.c:55
+55	    TIM2->SMCR = 0 ;   // normal PWM mode (not a slave)
+print, inspect, p
+Quit
+No symbol "nibbles" in current context.
+$1 = 26728
+$2 = 4369
+$3 = 2818572458
+$4 = 4369
+$5 = 0
+$6 = 0
+$7 = 201326847
+$8 = 1677721600
