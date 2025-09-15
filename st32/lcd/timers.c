@@ -36,8 +36,8 @@ void init_TIM2_PWM(void) {
     (void)RCC->APB1ENR ;  // wait for above to completeyy
 
   // PA0–PA3 → TIM2 CH1–CH4 (AF1) Used for Common Signals
-    configPWMpin (PA2) ; configPWMpin (PA3) ;
     configPWMpin (PA0) ; configPWMpin (PA1) ;
+    configPWMpin (PA2) ; configPWMpin (PA3) ;
 
     TIM2->PSC = TIM2PSC ;
     TIM2->ARR = TIM2ARR ;
@@ -101,32 +101,21 @@ void init_TIM16_PWM(void) {
 
 void TIM3_IRQHandler(void) {
 
-    float duty ;
     if (TIM3->SR & TIM_SR_UIF) {
        TIM3->SR &= ~TIM_SR_UIF;   // avoids race conditions
-    
-    // Stratifiy phase, and invert globals while 
-    // executing this interrupt
-    uint8_t local_phase = phase ;
-    uint8_t local_invert = invert ;
     
 
     // === Drive all COMs ===
     //  CCRx  is set with 1-duty insteady of duty since
     //  active low in PWM
+    volatile uint32_t *ccr[4] = { &TIM2->CCR1, &TIM2->CCR2, 
+                                  &TIM2->CCR3, &TIM2->CCR4 };
 
-        duty = comsTable[local_phase][0];
-        if (local_invert) duty = 1 - duty ;  // for AC signal 
-	    TIM2->CCR1 = (uint16_t)(TIM2ARR * (1 - duty));
-        duty = comsTable[local_phase][1];
-        if (local_invert) duty = 1 - duty ;  // for AC signal 
-	    TIM2->CCR2 = (uint16_t)(TIM2ARR * (1 - duty));
-        duty = comsTable[local_phase][2];
-        if (local_invert) duty = 1 - duty ;  // for AC signal 
-	    TIM2->CCR3 = (uint16_t)(TIM2ARR * (1 - duty));
-        duty = comsTable[local_phase][3];
-        if (local_invert) duty = 1 - duty ;  // for AC signal 
-	    TIM2->CCR4 = (uint16_t)(TIM2ARR * (1 - duty));
+    for (int com = 0; com < 4; com++) {
+         float duty = comsTable[phase][com];
+         if (invert) duty = 1 - duty;
+         *ccr[com] = (uint16_t)(TIM2ARR * duty);
+     }
 
      TIM2->EGR = TIM_EGR_UG;   // <<< force preload transfer for all 4 channels
 
@@ -151,17 +140,11 @@ void segDriver(void) {
 
     float segDuty, comDuty ;
 
-    // Stratifiy phase, and invert globals while 
-    // executing this interrupt
-    uint8_t local_phase = phase ;
-    uint8_t local_invert = invert ;
+    uint8_t isOn = (getSegState() >> phase) & 0x1;
 
-    uint8_t isOn = (getSegState() >> local_phase) & 0x1;
-
-    comDuty = comsTable[local_phase][local_phase] ;
-    if (local_invert) comDuty = 1 - comDuty ;
+    comDuty = comsTable[phase][phase] ;
+    if (invert) comDuty = 1 - comDuty ;
     segDuty = (isOn ?  1 - comDuty :  comDuty) ;
     // Apply SEG waveform to PWM (Active high is low)
     TIM16->CCR1 = (uint16_t)(TIM16->ARR * (1 - segDuty));
 }
-
