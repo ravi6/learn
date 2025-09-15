@@ -35,8 +35,8 @@ enum {SEG_A, SEG_B, SEG_C, SEG_D,
       SEG_E, SEG_F, SEG_G, SEG_P}  ;
 
 enum {LED=11, MUXA=4, MUXB=5, MUXC=0, MUXINH=7} ;
-enum {PA0, PA1, PA2, PA3, PA4, PA5, PA6} ;
-enum {PB0, PB1, PB2, PB3, PB4, PB5, PB6, PB7} ;
+enum {PA0=0, PA1, PA2, PA3, PA4, PA5, PA6} ;
+enum {PB0=0, PB1, PB2, PB3, PB4, PB5, PB6, PB7} ;
 
 void delay (unsigned int time) ;
 void blink (int n) ;
