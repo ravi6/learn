@@ -1,21 +1,20 @@
 #include "lcd.h"
 int main(void) {
-  uint8_t s[8] = {
-                  15, 15,
-                  0, 0,
-                  0, 0,
-                  0, 0,
-} ;
+  uint8_t s[4] = {0b0001, 0b0010, 0b0100, 0b1000}; 
+                  
+
   startUp () ;
   selSeg (0) ;
   while (1) {
-    for (uint8_t i=0 ; i<7 ; i++) {
+       for (uint8_t i=0 ; i<8 ; i++) {
         selSeg (i) ; // push toseg0
-        setSegState (s[i]);
-//        resetTimers () ;
-        delay (4500) ;
-//        blink(1) ;
-    } 
+        for (uint8_t k=0 ; k <4 ; k++) {
+           setSegState (s[k]) ;
+           resetTimers () ;
+           delay (15450) ;
+        }
+        blink(1) ;
+       } 
        __WFI();  // Sleep until interrupt (use when timers exist)
   } // end while
 } // end main

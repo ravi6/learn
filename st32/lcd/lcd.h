@@ -54,4 +54,6 @@ void outPin (GPIO_TypeDef *gpio, uint8_t pin);
 void startUp(void) ;
 void setSegState (uint8_t s) ;
 uint8_t  getSegState () ;
+extern volatile uint8_t segState ; //= 0b0001;
+extern uint8_t segStates[NSEGPINS] ; //= {0}; // Will be applied in the interrupt
 #endif

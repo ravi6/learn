@@ -1,10 +1,10 @@
 #include "lcd.h"
 
 // All code related to LCD segments handling
+// It is illegal to initialize these vars as they are external 
+volatile uint8_t segState ;
+uint8_t segStates[NSEGPINS] ; // Will be applied in the interrupt
 
-volatile uint8_t segState = 0b1010;
-
-uint8_t segStates[NSEGPINS] = {0}; // Will be applied in the interrupt
 // Digit encoding using logical segments (A-G, DP)
 const uint8_t digEncode[10] = {0x3F, 0x06, 0x5B, 0x4F, 0x66, 
                                0x6D, 0x7D, 0x07, 0x7F, 0x6F} ;

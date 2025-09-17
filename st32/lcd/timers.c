@@ -2,8 +2,9 @@
 
 // Output buffer for current SEG phase state
 volatile uint8_t phase = 0;
-volatile uint8_t invert = 0;  // Com Table Inversion flag
+volatile uint8_t invert = 1;  // Com Table Inversion flag
 const float pwmDuty[4] = {0, 0.33333, 0.66666, 1.0} ;
+
 //const float pwmDuty[4] = {0, 0.5, 0.5, 1.0} ;
 //const float f = 1.33 ;
 //const float pwmDuty[4] = {0.25*f, 0.5*f, 0.75*f, 0.5*f} ;
@@ -84,6 +85,10 @@ void init_TIM16_PWM(void) {
     (void)RCC->APB2ENR ;  // wait for above to completeyy
 
     configPWMpin (PA6)  ;   // (PA6) as  segment pin
+    // This is a must as TIM16 has complementary outputs
+    TIM16->BDTR |= TIM_BDTR_MOE ;   //Master output Enable
+    TIM16->CCER &= ~TIM_CCER_CC1NE; // ensure PB6 stays free
+
 
     // Using same frequency settings as TIM2 that control Commons
     TIM16->PSC = TIM2PSC  ;
@@ -108,7 +113,9 @@ void TIM3_IRQHandler(void) {
     // === Drive all COMs ===
     //  CCRx  is set with 1-duty insteady of duty since
     //  active low in PWM
-    volatile uint32_t *ccr[4] = { &TIM2->CCR1, &TIM2->CCR2, 
+    // Note CCRs are not aligned with COM index. Nucleo board
+    // hardwired in this way (GPIOA1, GPIOA0, GPIOA2, GPIOA3)
+    volatile uint32_t *ccr[4] = { &TIM2->CCR2, &TIM2->CCR1, 
                                   &TIM2->CCR3, &TIM2->CCR4 };
 
     for (int com = 0; com < 4; com++) {
@@ -120,7 +127,7 @@ void TIM3_IRQHandler(void) {
      TIM2->EGR = TIM_EGR_UG;   // <<< force preload transfer for all 4 channels
 
      // Drive Segments
-     //segDriver () ;
+     segDriver () ;
 
       if (phase == 3) {
           phase = 0 ; // new cycle
@@ -139,12 +146,14 @@ void segDriver(void) {
     // individually with appropriate segState
 
     float segDuty, comDuty ;
-
-    uint8_t isOn = (getSegState() >> phase) & 0x1;
+    uint8_t state ;
+    state = getSegState() ;
+    uint8_t isOn = (state >> phase) & 0x1;
 
     comDuty = comsTable[phase][phase] ;
     if (invert) comDuty = 1 - comDuty ;
     segDuty = (isOn ?  1 - comDuty :  comDuty) ;
     // Apply SEG waveform to PWM (Active high is low)
     TIM16->CCR1 = (uint16_t)(TIM16->ARR * (1 - segDuty));
+    TIM16->EGR = TIM_EGR_UG;
 }
