@@ -67,22 +67,23 @@ char * toBin (uint8_t k) {
 void startUp() {
 
   init_TIM2_PWM() ;           // used for common pins signals (4 off)
-  init_TIM16_PWM() ;          // used for single SEG pin
+  init_TIM15_PWM() ;          // used for single SEG pin
+  init_TIM3_IRQ() ;          // Control wave patterns of Cx, and Seg
 
-  // Enable Timers
-  TIM2->CR1  |= TIM_CR1_CEN;
-  TIM16->CR1  |= TIM_CR1_CEN;
-  init_TIM3_IRQ() ;
-
-  if (!(TIM2->CR1 & TIM_CR1_CEN))  blink (2);   // Timer is not  running!
-  if (!(TIM16->CR1 & TIM_CR1_CEN)) blink (3);  // Timer is not  running!
-  if (!(TIM3->CR1 & TIM_CR1_CEN))  blink (5);  //  Timer not running
-
-  //Add LED
   outPin (GPIOA, LED) ;
   SETSTATE(GPIOA, LED, 1) ;   // LED on
+
+  // Enable Timers
+  TIM15->CR1 |= TIM_CR1_CEN; // first slave (Seg line PWM clock)
+  TIM2->CR1  |= TIM_CR1_CEN;  // then master (Cx lines PWM clock))
+  TIM3->CR1  |= TIM_CR1_CEN; // (Seg and Cx signal gen clock)
+
+  // Check they are ticking
+  if (!(TIM2->CR1 & TIM_CR1_CEN))  blink (2);   // TIM2 not  running!
+  if (!(TIM15->CR1 & TIM_CR1_CEN)) blink (3);  // TIM15 not  running!
+  if (!(TIM3->CR1 & TIM_CR1_CEN))  blink (5);  //  TIM2 not running
+
   // Add Mux
   setupMux() ; 
   SETSTATE(GPIOB, MUXINH, 0) ; // 0 Enable Mux, 1 disable 
 }
-

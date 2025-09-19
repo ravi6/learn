@@ -4,12 +4,6 @@
 volatile uint8_t phase = 0;
 volatile uint8_t invert = 1;  // Com Table Inversion flag
 const float pwmDuty[4] = {0, 0.33333, 0.66666, 1.0} ;
-
-//const float pwmDuty[4] = {0, 0.5, 0.5, 1.0} ;
-//const float f = 1.33 ;
-//const float pwmDuty[4] = {0.25*f, 0.5*f, 0.75*f, 0.5*f} ;
-//const float pwmDuty[4] = {0, 1, 0.06251, 1} ; // extreme swing but less DC bias and optimal RMS
-
 const float  comsTable[NPHASES][4] = { //Cyclical shifted left
     { pwmDuty[0], pwmDuty[2], pwmDuty[1], pwmDuty[3] }, //phase 0
     { pwmDuty[2], pwmDuty[1], pwmDuty[3], pwmDuty[0] }, //phase 1
@@ -42,11 +36,6 @@ void init_TIM2_PWM(void) {
     TIM2->PSC = TIM2PSC ;
     TIM2->ARR = TIM2ARR ;
     TIM2->CR1  |= TIM_CR1_ARPE; // enable auto-reload preload
-
-    // Channel_x  is active while  TIMx_ARR < TIMx_CCR1 else inactive
-    // Channel_x  output preload enable (TIMx_OC1PE)
-    // PWM_MODE1  active high if count < ARR (who knows what active high is)
-    // Looks as though active high is (low) ... so duty needs inverted 
     TIM2->CCMR1 = (PWM_MODE1 << 4) | (1 << 3) |  // CH1 PWM mode 1 + preload 
                   (PWM_MODE1 << 12) | (1 << 11); // CH2 PWM mode 1 + preload
     TIM2->CCMR2 = (PWM_MODE1 << 4) | (1 << 3) |  // CH3 PWM mode 1 + preload
@@ -84,6 +73,9 @@ void init_TIM15_PWM(void) {
     (void)RCC->APB2ENR ;  // wait for above to completeyy
 
     configPWMpin (PA6)  ;   // (PA6) as  segment pin
+    // This is a must as TIM15 has complementary outputs
+    TIM15->BDTR |= TIM_BDTR_MOE ;   //Master output Enable
+    TIM15->CCER &= ~TIM_CCER_CC1NE; // ensure PB6 stays free
 
     // Using same frequency settings as TIM2 that control Commons
     TIM15->PSC = TIM2PSC  ;
@@ -98,8 +90,7 @@ void init_TIM15_PWM(void) {
    
   // Select TIM2 TRGO as trigger input (Table 129, page 732)
   TIM15->SMCR &= ~(TIM_SMCR_SMS | TIM_SMCR_TS);
-//  TIM15->SMCR |= (0b100 << TIM_SMCR_SMS_Pos);  // SMS=100 → reset mode
-  TIM15->SMCR |= (0b110 << TIM_SMCR_SMS_Pos);  // SMS=100 → Trigger mode
+  TIM15->SMCR |= (0b100 << TIM_SMCR_SMS_Pos);  // SMS=100 → reset mode
   TIM15->SMCR |= (0b000 << TIM_SMCR_TS_Pos);    // (TS =0b000) ITR0 → TIM2 TRGO
 
 // TIM15 will reset counter each TIM2 update
@@ -110,10 +101,6 @@ void TIM3_IRQHandler(void) {
     if (TIM3->SR & TIM_SR_UIF) {
        TIM3->SR &= ~TIM_SR_UIF;   // avoids race conditions
 
-    // === Drive all COMs ===
-    //  CCRx  is set with 1-duty insteady of duty since
-    //  active low in PWM
-    // Note CCRs are not aligned with COM index. Nucleo board
     // hardwired in this way (GPIOA1, GPIOA0, GPIOA2, GPIOA3)
     volatile uint32_t *ccr[4] = { &TIM2->CCR2, &TIM2->CCR1, 
                                   &TIM2->CCR3, &TIM2->CCR4 };
@@ -140,13 +127,7 @@ void TIM3_IRQHandler(void) {
 
 void segDriver(void) {
 
-    // segState   .... Bit pattern controlling on/off status
-    // since we have four coms, expect 4 bits in segState
-    // A segline therfore can light up (four subsegments)
-    // individually with appropriate segState
-
     float segDuty, comDuty ;
-
     uint8_t state = getSegState() ;
     uint8_t isOn = (state >> phase) & 0x1;
 
@@ -156,4 +137,28 @@ void segDriver(void) {
     // Apply SEG waveform to PWM (Active high is low)
     TIM15->CCR1 = (uint16_t)(TIM15->ARR * (1 - segDuty));
     TIM15->EGR = TIM_EGR_UG;
+}
+
+void startUp() {
+
+  init_TIM2_PWM() ;           // used for common pins signals (4 off)
+  init_TIM15_PWM() ;          // used for single SEG pin
+  init_TIM3_IRQ() ;          // Control wave patterns of Cx, and Seg
+
+  outPin (GPIOA, LED) ;
+  SETSTATE(GPIOA, LED, 1) ;   // LED on
+
+  // Enable Timers
+  TIM15->CR1 |= TIM_CR1_CEN; // first slave (Seg line PWM clock)
+  TIM2->CR1  |= TIM_CR1_CEN;  // then master (Cx lines PWM clock))
+  TIM3->CR1  |= TIM_CR1_CEN; // (Seg and Cx signal gen clock)
+
+  // Check they are ticking
+  if (!(TIM2->CR1 & TIM_CR1_CEN))  blink (2);   // TIM2 not  running!
+  if (!(TIM15->CR1 & TIM_CR1_CEN)) blink (3);  // TIM15 not  running!
+  if (!(TIM3->CR1 & TIM_CR1_CEN))  blink (5);  //  TIM2 not running
+
+  // Add Mux
+  setupMux() ; 
+  SETSTATE(GPIOB, MUXINH, 0) ; // 0 Enable Mux, 1 disable 
 }

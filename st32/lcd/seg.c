@@ -9,19 +9,10 @@ uint8_t segStates[NSEGPINS] ; // Will be applied in the interrupt
 const uint8_t digEncode[10] = {0x3F, 0x06, 0x5B, 0x4F, 0x66, 
                                0x6D, 0x7D, 0x07, 0x7F, 0x6F} ;
 
-// Example LCD Digit Mapper for SEG+COM paired segment layout
-// Assumptions:
-// - 4 digits
-// - Each digit is driven by 2 SEG lines
-// - SEG lines: P9-P16 (i.e., SEG[0] to SEG[7])
-// - COM lines: COM0 to COM3
-// - Segment pairs per digit: [F,G,E,D] and [A,B,C,DP]
-// - segState is updated per phase (COM)
-
-
-// Phase-to-segment mapping for each SEG line
-// Format: seg_map[seg_line][phase] = logical segment ID 
-// (SEG_A ... SEG_G, SEG_P, or 0xFF if unused)
+// Seg combination lightup codes
+enum  {GED, FE, FGD} ;
+enum  {BCP, AC, ABP} ;
+/*
 const uint8_t seg_map[NSEGPINS][NCOMS] = {
     // COM0  COM1  COM2  COM3
     {SEG_D, SEG_G, SEG_D, SEG_G}, // SEG[0] - F/G/E/D (reuse pattern)
@@ -47,7 +38,7 @@ void updateDigit(uint8_t digPos, uint8_t digVal) {
         segStates[digPos*2+1] |= ((enc >> sR) & 1) << phase;
     }
 } // end Update Digit
-
+*/
 // Clear segment states
 void clrSegStates(void) {
     for (int i = 0; i < NSEGPINS; ++i)

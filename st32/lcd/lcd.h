@@ -10,9 +10,9 @@
 //    Four Common Lines .. 
 // Assumes default system clock = 8 MHz from HSI
 #define TIM2PSC 0  //
-#define TIM2ARR 499  //  8000/(1 * 512) =  (15.6kHz -> freq) 
+#define TIM2ARR 539  //  8000/(1 * 512) =  (15.6kHz -> freq) 
 #define TIM3PSC 799
-#define TIM3ARR 124  // 8000/(200*800)  kHz = (50 Hz -> freq)
+#define TIM3ARR 179  // 8000/(200*800)  kHz = (50 Hz -> freq)
 #define NPHASES   4
 #define PWM_MODE1 6  // is active high for count < ARR
 #define PWM_MODE2 7  // is active low  for count < ARR
@@ -41,7 +41,7 @@ enum {PB0=0, PB1, PB2, PB3, PB4, PB5, PB6, PB7} ;
 void delay (unsigned int time) ;
 void blink (int n) ;
 void init_TIM2_PWM(void) ;
-void init_TIM16_PWM(void);
+void init_TIM15_PWM(void);
 void init_TIM3_IRQ(void) ;
 void TIM3_IRQHandler(void) ;
 void clrSegStates(void) ;
