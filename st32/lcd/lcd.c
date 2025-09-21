@@ -6,35 +6,19 @@ int main(void) {
   enum {FE=0, GED=1, FGD=4, GD=5, FG=7, ED=9};
   enum {AC=0, BCP=1, CP=3, AB=4, BP=5, ACP=11, ABC=14};
   enum {LEFT, RIGHT} ;
-  const uint8_t digState[10][2*SS] = {
-       //{FE,  ED,  NIL,     ABC, NIL, NIL}, //0
-       {FE,  NIL, NIL,     AB, AB, AB}, //0
-       {FE,  NIL, NIL,     NIL, NIL, NIL}, //1
-       {GED, NIL, NIL,     AB,  NIL, NIL}, //2
-       {GD,  NIL, NIL,     ABC, NIL, NIL}, //3
-       {FG,  NIL, NIL,     BCP,  NIL, NIL}, //4
-       {FG,  ED,  NIL,     AC,  NIL, NIL}, //5
-       {FE,  GD,  NIL,     AC,  NIL, NIL}, //6
-       {NIL, NIL, NIL,     ABC, NIL, NIL}, //7
-       {FE,  GD,  NIL,     ABC, NIL, NIL}, //8
-       {FG,  NIL, NIL,     ABC, NIL, NIL}, //9
-  };                  
 
+//  uint8_t digit = 0 ;
+//  uint8_t  m = 15 ;
   startUp () ;
-  uint8_t digit = 0 ;
-  uint8_t  m = 15 ;
+  setupMux() ;
+  selSeg(0) ;
+  setSegState(15); 
+  outPin (GPIOA, 11) ;
+  blink(10) ;
   while (1) {
-      selSeg (LEFT) ;
-         setSegState (m) ;
-    //  resetTimers () ;
-      delay (5000) ;
-      selSeg (RIGHT) ;
-         setSegState (m) ;
-     // resetTimers () ;
-      delay (5000) ;
-    //  m = m + 1 ;
-     // if (m == 15) m = 0 ;
-	   __WFI();  // Sleep until interrupt (use when timers exist)
+      blink (2) ;
+      delay (10000) ;
+   //__WFI();  // Sleep until interrupt (use when timers exist)
   } // endwhile  
 
 } // end main

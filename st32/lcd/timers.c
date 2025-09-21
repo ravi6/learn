@@ -1,5 +1,7 @@
 #include "lcd.h"
 
+volatile uint16_t TIM2ticks = 0 ;
+
 // Output buffer for current SEG phase state
 volatile uint8_t phase = 0;
 volatile uint8_t invert = 1;  // Com Table Inversion flag
@@ -35,6 +37,8 @@ void init_TIM2_PWM(void) {
     RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
     (void)RCC->APB1ENR ;  // wait for above to completeyy
 
+    TIM2ticks = 0 ;  
+
   // PA0–PA3 → TIM2 CH1–CH4 (AF1) Used for Common Signals
     configPWMpin (PA0) ; configPWMpin (PA1) ;
     configPWMpin (PA2) ; configPWMpin (PA3) ;
@@ -53,90 +57,78 @@ void init_TIM2_PWM(void) {
                   (PWM_MODE1 << 12) | (1 << 11); // CH4 PWM mode 1 + preload
     TIM2->CCER |= TIM_CCER_CC1E | TIM_CCER_CC2E | TIM_CCER_CC3E | TIM_CCER_CC4E;
     
-    // Master mode: TRGO on update event
-    TIM2->CR2 &= ~TIM_CR2_MMS;
-    TIM2->CR2 |= (0b010 << TIM_CR2_MMS_Pos); // MMS=010 → Update event
     TIM2->EGR = TIM_EGR_UG;                  // force preload update
-}
-
-void init_TIM3_IRQ(void) {
-    RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
-    (void)RCC->APB1ENR ;  // wait for above to completeyy
-
-    TIM3->PSC = TIM3PSC ;
-    TIM3->ARR = TIM3ARR ;
 
     // Fire TIM3_IRQHandler every time Counter Overflow
-    TIM3->EGR = TIM_EGR_UG ;    // Force update Event for reload register ARR
-    TIM3->SR = 0 ;              // Clear Pending Flags (from status Register)
-    TIM3->DIER |= TIM_DIER_UIE; // Enable Update Interrupt
-    NVIC_ClearPendingIRQ (TIM3_IRQn) ;
-    NVIC_EnableIRQ (TIM3_IRQn);
+    TIM2->EGR = TIM_EGR_UG ;    // Force update Event for reload register ARR
+    TIM2->SR = 0 ;              // Clear Pending Flags (from status Register)
+    TIM2->DIER |= TIM_DIER_UIE; // Enable Update Interrupt
+    NVIC_ClearPendingIRQ (TIM2_IRQn) ;
+    NVIC_EnableIRQ (TIM2_IRQn);
 }
 
-void init_TIM15_PWM(void) {
+void TIM2_IRQHandler(void) {
+
+   if (TIM2->SR & TIM_SR_UIF) {
+       TIM2->SR &= ~TIM_SR_UIF;   // avoids race conditions
+
+      // === Drive all COMs ===
+      //  CCRx  is set with 1-duty insteady of duty since
+      //  active low in PWM
+      // Note CCRs are not aligned with COM index. Nucleo board
+      // hardwired in this way (GPIOA1, GPIOA0, GPIOA2, GPIOA3)
+      volatile uint32_t *ccr[4] = { &TIM2->CCR2, &TIM2->CCR1, 
+				    &TIM2->CCR3, &TIM2->CCR4 };
+
+      for (int com = 3; com < 4; com++) {
+	   float duty = comsTable[phase][com];
+	   if (invert) duty = 1 - duty;
+	   *ccr[com] = (uint16_t)(TIM2ARR * duty);
+       }
+
+       TIM2->EGR = TIM_EGR_UG;   // <<< force preload transfer for all 4 channels
+
+       // Drive Segments
+       segDriver () ;
+       
+       TIM2ticks = TIM2ticks + 1 ;
+       if (TIM2ticks == (TIM2FRQ / PHASEFRQ) - 1) { // ready for next phase
+	    TIM2ticks = 0 ;
+	    if (phase == 3) {
+		phase = 0 ; // new cycle
+		invert = !invert ; // AC signal requirement
+	    }
+	    else phase = phase + 1 ;
+        }   
+    } // end of TIM2 Flag test 
+}
+
+void init_TIM16_PWM(void) {
  // This timer is tied to PA6 ... can't move this
- // Using CH1 of TIM15 as SIG pin  
+ // Using CH1 of TIM16 as SIG pin  
 
     RCC->AHBENR  |= RCC_AHBENR_GPIOAEN;
     (void)RCC->AHBENR ;  // wait for above to completeyy
-    RCC->APB2ENR |= RCC_APB2ENR_TIM15EN;
+    RCC->APB2ENR |= RCC_APB2ENR_TIM16EN;
     (void)RCC->APB2ENR ;  // wait for above to completeyy
 
     configPWMpin (PA6)  ;   // (PA6) as  segment pin
 
     // Using same frequency settings as TIM2 that control Commons
-    TIM15->PSC = TIM2PSC  ;
-    TIM15->ARR = TIM2ARR  ;
+    TIM16->PSC = TIM2PSC  ;
+    TIM16->ARR = TIM2ARR  ;
 
     // Channel_x  is active while  TIMx_ARR < TIMx_CCR1 else inactive
     // Channel_x  output preload enable (TIMx_OC1PE)
-    TIM15->CCMR1 = (PWM_MODE1 << 4) | (1 << 3) ;  // CH1 PWM mode 1 + preload 
-    TIM15->CCER |= TIM_CCER_CC1E ;
-    TIM15->CR1  |= TIM_CR1_ARPE;
-    TIM15->EGR = TIM_EGR_UG;
-   
-  // Select TIM2 TRGO as trigger input (Table 129, page 732)
-  TIM15->SMCR &= ~(TIM_SMCR_SMS | TIM_SMCR_TS);
-//  TIM15->SMCR |= (0b100 << TIM_SMCR_SMS_Pos);  // SMS=100 → reset mode
-  TIM15->SMCR |= (0b110 << TIM_SMCR_SMS_Pos);  // SMS=100 → Trigger mode
-  TIM15->SMCR |= (0b000 << TIM_SMCR_TS_Pos);    // (TS =0b000) ITR0 → TIM2 TRGO
-
-// TIM15 will reset counter each TIM2 update
+    TIM16->CCMR1 = (PWM_MODE1 << 4) | (1 << 3) ;  // CH1 PWM mode 1 + preload 
+    TIM16->CCER |= TIM_CCER_CC1E ; // enable CH1 output
+    TIM16->CR1  |= TIM_CR1_ARPE;
+    TIM16->EGR = TIM_EGR_UG;
+    // This is a must as TIM16 has complementary outputs
+    TIM16->BDTR |= TIM_BDTR_MOE ;   //Master output Enable
+    TIM16->CCER &= ~TIM_CCER_CC1NE; // ensure PB6 stays free
 }
 
-void TIM3_IRQHandler(void) {
-
-    if (TIM3->SR & TIM_SR_UIF) {
-       TIM3->SR &= ~TIM_SR_UIF;   // avoids race conditions
-
-    // === Drive all COMs ===
-    //  CCRx  is set with 1-duty insteady of duty since
-    //  active low in PWM
-    // Note CCRs are not aligned with COM index. Nucleo board
-    // hardwired in this way (GPIOA1, GPIOA0, GPIOA2, GPIOA3)
-    volatile uint32_t *ccr[4] = { &TIM2->CCR2, &TIM2->CCR1, 
-                                  &TIM2->CCR3, &TIM2->CCR4 };
-
-    for (int com = 0; com < 4; com++) {
-         float duty = comsTable[phase][com];
-         if (invert) duty = 1 - duty;
-         *ccr[com] = (uint16_t)(TIM2ARR * duty);
-     }
-
-     TIM2->EGR = TIM_EGR_UG;   // <<< force preload transfer for all 4 channels
-
-     // Drive Segments
-     segDriver () ;
-
-      if (phase == 3) {
-          phase = 0 ; // new cycle
-          invert = !invert ; // AC signal requirement
-      }
-      else phase = phase + 1 ;
-
-    } // end of TIM3 Flag test 
-} // End of TIM3_IRQ Handle
 
 void segDriver(void) {
 
@@ -154,6 +146,6 @@ void segDriver(void) {
     if (invert) comDuty = 1 - comDuty ;
     segDuty = (isOn ?  1 - comDuty :  comDuty) ;
     // Apply SEG waveform to PWM (Active high is low)
-    TIM15->CCR1 = (uint16_t)(TIM15->ARR * (1 - segDuty));
-    TIM15->EGR = TIM_EGR_UG;
+    TIM16->CCR1 = (uint16_t)(TIM16->ARR * (1 - segDuty));
+    TIM16->EGR = TIM_EGR_UG;
 }

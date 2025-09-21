@@ -23,21 +23,22 @@ void outPin (GPIO_TypeDef *gpio, uint8_t pin) {
   gpio->MODER |= (1 << (2 * pin));  // output mode
   gpio->OSPEEDR |= (0 << ( 2 * pin));   // low speed
   gpio->OTYPER &= ~(1 << pin);      // Push-pull
-  gpio->AFR[0] &= ~(0xF << (4 * pin)) ; // CLR AFRL bits  (insurence)
   gpio->PUPDR  &= ~(3 << (2 * pin));    // No pull-up/down
+  gpio->AFR[0] &= ~(0xF << (4 * pin)) ; // CLR AFRL bits  (insurence)
+  gpio->AFR[1] &= ~(0xF << (4 * (pin - 8)));    // has effect only if pin >= 8
 }
 
 void resetTimers (void) {
   // Turn off timers
-  TIM15->CR1 &= ~TIM_CR1_CEN;
+  TIM16->CR1 &= ~TIM_CR1_CEN;
   TIM2->CR1  &= ~TIM_CR1_CEN;
 
   // Reset counters
-  TIM15->CNT = 0;
+  TIM16->CNT = 0;
   TIM2->CNT  = 0;
 
   // Start both together
-  TIM15->CR1 |= TIM_CR1_CEN;
+  TIM16->CR1 |= TIM_CR1_CEN;
   TIM2->CR1  |= TIM_CR1_CEN;
 
 }
@@ -66,24 +67,21 @@ char * toBin (uint8_t k) {
 
 void startUp() {
 
+  init_TIM16_PWM() ;          // used for single SEG pin
   init_TIM2_PWM() ;           // used for common pins signals (4 off)
-  init_TIM15_PWM() ;          // used for single SEG pin
-  init_TIM3_IRQ() ;          // Control wave patterns of Cx, and Seg
-
-  outPin (GPIOA, LED) ;
-  SETSTATE(GPIOA, LED, 1) ;   // LED on
-
-  // Enable Timers
-  TIM15->CR1 |= TIM_CR1_CEN; // first slave (Seg line PWM clock)
-  TIM2->CR1  |= TIM_CR1_CEN;  // then master (Cx lines PWM clock))
-  TIM3->CR1  |= TIM_CR1_CEN; // (Seg and Cx signal gen clock)
-
-  // Check they are ticking
-  if (!(TIM2->CR1 & TIM_CR1_CEN))  blink (2);   // TIM2 not  running!
-  if (!(TIM15->CR1 & TIM_CR1_CEN)) blink (3);  // TIM15 not  running!
-  if (!(TIM3->CR1 & TIM_CR1_CEN))  blink (5);  //  TIM2 not running
 
   // Add Mux
   setupMux() ; 
   SETSTATE(GPIOB, MUXINH, 0) ; // 0 Enable Mux, 1 disable 
+  outPin (GPIOA, LED) ;
+  SETSTATE(GPIOA, LED, 1) ;   // LED on
+
+  // Enable Timers
+  TIM16->CR1 |= TIM_CR1_CEN; // first slave (Seg line PWM clock)
+  TIM2->CR1  |= TIM_CR1_CEN;  // then master (Cx lines PWM clock))
+
+  // Check they are ticking
+  if (!(TIM2->CR1 & TIM_CR1_CEN))  blink (2);   // TIM2 not  running!
+  if (!(TIM16->CR1 & TIM_CR1_CEN)) blink (3);  // TIM16 not  running!
+
 }
