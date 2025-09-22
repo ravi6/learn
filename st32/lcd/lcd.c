@@ -5,20 +5,18 @@ int main(void) {
   #define SS 3    
   enum {FE=0, GED=1, FGD=4, GD=5, FG=7, ED=9};
   enum {AC=0, BCP=1, CP=3, AB=4, BP=5, ACP=11, ABC=14};
-  enum {LEFT, RIGHT} ;
+  enum {LEFT=0, RIGHT} ;
 
 //  uint8_t digit = 0 ;
-//  uint8_t  m = 15 ;
+  uint8_t  m = 0 ;
   startUp () ;
-  setupMux() ;
-  selSeg(0) ;
-  setSegState(15); 
-  outPin (GPIOA, 11) ;
-  blink(10) ;
+  selSeg (LEFT) ;
   while (1) {
-      blink (2) ;
-      delay (10000) ;
-   //__WFI();  // Sleep until interrupt (use when timers exist)
+   setSegState (~(1<<m));
+   delay(1000); 
+   if (m==3) m = 0 ;
+   else m = m + 1 ;
+   // __WFI();  // Sleep until interrupt (use when timers exist)
   } // endwhile  
 
 } // end main

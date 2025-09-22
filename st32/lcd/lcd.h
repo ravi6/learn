@@ -12,7 +12,9 @@
 #define TIM2PSC 0  // prescaler
 #define TIM2ARR 499  
 #define TIM2FRQ ((8E6 / (TIM2PSC + 1) / (TIM2ARR + 1))) // 16kHz
-#define PHASEFRQ 40  // Hz  ..ensure TIM2FRQ / PHASEFRQ is integer 
+#define TIM3PSC 799
+#define TIM3ARR 199 // 8000/(200*800)  kHz = (50 Hz -> freq)
+#define TIM3FRQ ((8E6 / (TIM3PSC + 1) / (TIM3ARR + 1))) // 40kHz
 #define NPHASES   4
 #define PWM_MODE1 6  // is active high for count < ARR
 #define PWM_MODE2 7  // is active low  for count < ARR
@@ -40,9 +42,11 @@ enum {PB0=0, PB1, PB2, PB3, PB4, PB5, PB6, PB7} ;
 
 void delay (unsigned int time) ;
 void blink (int n) ;
-void init_TIM2_PWM(void) ;
-void init_TIM16_PWM(void);
-void TIM2_IRQHandler(void) ;
+void setup_TIM2_PWM(void) ;
+void setup_TIM16_PWM(void);
+void setup_TIM3_IRQ(void);
+void setup_TIM3_IRQHandler(void);
+void configPWMpin (uint8_t i) ;
 void clrSegStates(void) ;
 void updateDigit(uint8_t digPos, uint8_t digVal) ;
 void segDriver (void) ;
@@ -54,4 +58,5 @@ void startUp(void) ;
 void setSegState (uint8_t s) ;
 uint8_t  getSegState () ;
 extern uint8_t segStates[NSEGPINS] ; //= {0}; // Will be applied in the interrupt
+extern volatile uint8_t segState ;
 #endif
