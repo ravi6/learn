@@ -8,13 +8,14 @@ int main(void) {
   enum {LEFT=0, RIGHT} ;
 
   uint8_t digit = 0 ;
-  uint8_t  k = 0 ;
+  uint8_t  k = 1 ;
   startUp () ;
   while (1) {
     selSeg (k) ;
-    blink(3) ;
-    if (k==7) k = 0;
-    k = k + 1 ;
+    setSegState(0b1000) ;
+    //delay(100);
+    if (k==7) k = 1;
+    k = k + 2 ;
    // __WFI();  // Sleep until interrupt (use when timers exist)
   } // endwhile  
 

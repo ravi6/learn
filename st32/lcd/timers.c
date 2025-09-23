@@ -1,8 +1,5 @@
 #include "lcd.h"
 volatile uint16_t TIM2ticks = 0 ;
-volatile uint8_t sCount = 0 ;
-const uint8_t segS[4] = {1, 2, 4, 8} ;
-volatile uint8_t sState  = segS[0] ;;
 
 // Output buffer for current SEG phase state
 volatile uint8_t phase = 0;
@@ -60,7 +57,7 @@ void segDriver (void) {
 
     float segDuty, comDuty ;
 
-    uint8_t state =  sState; //getSegState() ;
+    uint8_t state =  getSegState() ;
     uint8_t isOn = (state >> phase) & 0x1;
 
     comDuty = comsTable[phase][phase] ;
@@ -72,10 +69,6 @@ void segDriver (void) {
     if (phase == 3) {
 	phase = 0 ; // new cycle
 	invert = !invert ; // AC signal requirement
-
-        //Update segState (debug code)
-        sCount = (sCount == 3) ? 0 : sCount + 1 ;
-        sState = segS [sCount] ;
     }
     else phase = phase + 1 ;
 }
