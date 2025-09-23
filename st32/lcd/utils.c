@@ -44,7 +44,7 @@ void outPin (GPIO_TypeDef *gpio, uint8_t pin) {
 // Configure a gpio pin for slow output
   gpio->MODER &= ~(3 << (2 * pin)); // clear
   gpio->MODER |= (1 << (2 * pin));  // output mode
-  gpio->OSPEEDR |= (0 << ( 2 * pin));   // low speed
+  gpio->OSPEEDR |= (3 << ( 2 * pin));   // high speed
   gpio->OTYPER &= ~(1 << pin);      // Push-pull
   gpio->PUPDR  &= ~(3 << (2 * pin));    // No pull-up/down
   gpio->AFR[0] &= ~(0xF << (4 * pin)) ; // CLR AFRL bits  (insurence)
@@ -56,22 +56,19 @@ void resetTimers (void) {
   // Stop timers
   TIM16->CR1 &= ~TIM_CR1_CEN;
   TIM2->CR1  &= ~TIM_CR1_CEN;
-  TIM3->CR1  &= ~TIM_CR1_CEN;
 
   // Reset counters
-  TIM16->CNT = 0; TIM2->CNT  = 0; TIM3->CNT  = 0;
+  TIM16->CNT = 0; TIM2->CNT  = 0; 
 
   // Update EGRs
   TIM2->EGR = TIM_EGR_UG ;  
   TIM16->EGR = TIM_EGR_UG ; 
-  TIM3->EGR = TIM_EGR_UG ; 
 
   // Start all timers
   TIM16->CR1 |= TIM_CR1_CEN;
   TIM2->CR1  |= TIM_CR1_CEN;
-  TIM3->CR1  |= TIM_CR1_CEN;
 
-  TIM3->DIER |= TIM_DIER_UIE; // Enable Update Interrupt
+  TIM2->DIER |= TIM_DIER_UIE; // Enable Update Interrupt
   //🐞 Check they are ticking
   //if (!(TIM2->CR1 & TIM_CR1_CEN))  blink (2);   // TIM2 not  running!
   //if ((TIM3->CR1 & TIM_CR1_CEN)) blink (3);  // TIM16 not  running!
@@ -80,8 +77,8 @@ void resetTimers (void) {
 }
 
 void startUp() {
-
-  //Ensure GPIO(A/B) s are up
+  
+  // Enable GPIOA
     RCC->AHBENR  |= RCC_AHBENR_GPIOAEN;
     (void)RCC->AHBENR ;  // wait for above to completeyy
 
@@ -89,8 +86,8 @@ void startUp() {
   //   clocks like TIM3 have issue releasing pins for alternate use
     setup_TIM16_PWM() ;  // used for single SEG pin
     setup_TIM2_PWM() ;  // used for common pins signals (4 off)
-    setup_TIM3_IRQ() ;  // used for phase advancing 
 
+  // Enable GPIOB
     RCC->AHBENR  |= RCC_AHBENR_GPIOBEN;
     (void)RCC->AHBENR ;  // wait for above to completeyy
 
@@ -102,6 +99,5 @@ void startUp() {
 
   //Start timers with TIM2, TIM16 in phase
     resetTimers() ;
-
     blink (3) ;
 }

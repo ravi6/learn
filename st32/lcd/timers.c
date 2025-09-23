@@ -1,14 +1,13 @@
 #include "lcd.h"
+volatile uint16_t TIM2ticks = 0 ;
+volatile uint8_t sCount = 0 ;
+const uint8_t segS[4] = {1, 2, 4, 8} ;
+volatile uint8_t sState  = segS[0] ;;
 
 // Output buffer for current SEG phase state
 volatile uint8_t phase = 0;
 volatile uint8_t invert = 1;  // Com Table Inversion flag
-const float pwmDuty[4] = {0, 0.33333, 0.66666, 1.0} ;
-
-//const float pwmDuty[4] = {0, 0.5, 0.5, 1.0} ;
-//const float f = 1.33 ;
-//const float pwmDuty[4] = {0.25*f, 0.5*f, 0.75*f, 0.5*f} ;
-//const float pwmDuty[4] = {0, 1, 0.06251, 1} ; // extreme swing but less DC bias and optimal RMS
+const float pwmDuty[4] = {0, 0.5, 1.0, 0.5} ;
 
 const float  comsTable[NPHASES][4] = { //Cyclical shifted left
     { pwmDuty[0], pwmDuty[1], pwmDuty[2], pwmDuty[3] }, //phase 0
@@ -16,6 +15,82 @@ const float  comsTable[NPHASES][4] = { //Cyclical shifted left
     { pwmDuty[2], pwmDuty[3], pwmDuty[0], pwmDuty[1] }, //phase 2
     { pwmDuty[3], pwmDuty[0], pwmDuty[1], pwmDuty[2] }, //phase 3
 };
+
+void TIM2_IRQHandler(void) {
+
+   // avoid race conditions
+   if (TIM2->SR & TIM_SR_UIF) {
+       TIM2->SR &= ~TIM_SR_UIF;   // clear update flag
+       
+       if (TIM2ticks == 0) { // Load ccrs at start of phase
+         segDriver () ;
+         TIM2->EGR = TIM_EGR_UG;   // <<< force preload
+         TIM16->EGR = TIM_EGR_UG;   // <<< force preload
+       }
+       TIM2ticks = TIM2ticks + 1 ; // phase time ticker
+
+       // start of phase
+       if (TIM2ticks == (TIM2FRQ / PHASEFRQ)/4 - 1) { 
+	    TIM2ticks = 0 ;
+        }   
+
+   } // end race cond 
+}// end of TIM3 Interrupt
+
+void segDriver (void) {
+
+      // === Drive all COMs ===
+      //  CCRx  is set with 1-duty insteady of duty since
+      //  active low in PWM
+      // Note CCRs are not aligned with COM index. Nucleo board
+      // hardwired in this way (GPIOA1, GPIOA0, GPIOA2, GPIOA3)
+      volatile uint32_t *ccr[4] = { &TIM2->CCR2, &TIM2->CCR1, 
+				    &TIM2->CCR3, &TIM2->CCR4 };
+      for (int com = 0; com < 4; com++) {
+	   float duty = comsTable[phase][com];
+	   if (invert) duty = 1 - duty;
+	   *ccr[com] = (uint16_t)(TIM2ARR * duty);
+       }
+
+    // Drive Seg Line
+    // segState   .... Bit pattern controlling on/off status
+    // since we have four coms, expect 4 bits in segState
+    // A segline therfore can light up (four subsegments)
+    // individually with appropriate segState
+
+    float segDuty, comDuty ;
+
+    uint8_t state =  sState; //getSegState() ;
+    uint8_t isOn = (state >> phase) & 0x1;
+
+    comDuty = comsTable[phase][phase] ;
+    if (invert & isOn) comDuty = 1 - comDuty ;
+    segDuty = (isOn ?  1 - comDuty :  comDuty) ;
+    // Apply SEG waveform to PWM (Active high is low)
+    TIM16->CCR1 = (uint16_t)(TIM16->ARR * (1 - segDuty));
+
+    if (phase == 3) {
+	phase = 0 ; // new cycle
+	invert = !invert ; // AC signal requirement
+
+        //Update segState (debug code)
+        sCount = (sCount == 3) ? 0 : sCount + 1 ;
+        sState = segS [sCount] ;
+    }
+    else phase = phase + 1 ;
+}
+
+void configPWMpin (uint8_t i) {
+  // Setup the pin in GPIOA for PWM signals
+      GPIOA->MODER &= ~(0x3 << (i * 2));   // clear MODER bits
+      GPIOA->MODER |=  (0x2 << (i * 2));   // AF mode
+      GPIOA->AFR[0] &= ~(0xF << (i * 4));  // clear AFRL bits
+      GPIOA->AFR[0] |=  (0x1 << (i * 4));  // AF1
+      GPIOA->OTYPER &= ~(1 << i);          // output type = push-pull
+      GPIOA->OSPEEDR &= ~(0x3 << (i * 2));   // clear first
+      GPIOA->OSPEEDR |=  (0x3 << (i * 2));   // high speed
+      GPIOA->PUPDR &= ~(0x3 << (i * 2));     // no pull-up/down
+}
 
 void setup_TIM2_PWM(void) {
     RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
@@ -40,20 +115,12 @@ void setup_TIM2_PWM(void) {
     TIM2->CCER |= TIM_CCER_CC1E | TIM_CCER_CC2E | TIM_CCER_CC3E | TIM_CCER_CC4E;
     
     TIM2->SR = 0 ;              // Clear Pending Flags (from status Register)
+    
+    // Fire TIM2_IRQHandler every time Counter Overflow
+    NVIC_ClearPendingIRQ (TIM2_IRQn) ;
+    NVIC_EnableIRQ (TIM2_IRQn);
 }
 
-void setup_TIM3_IRQ(void) {
-    RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
-    (void)RCC->APB1ENR ;  // wait for above to completeyy
-
-    TIM3->PSC = TIM3PSC ;
-    TIM3->ARR = TIM3ARR ;
-    TIM3->SR = 0 ;              // Clear Pending Flags (from status Register)
-
-    // Fire TIM3_IRQHandler every time Counter Overflow
-    NVIC_ClearPendingIRQ (TIM3_IRQn) ;
-    NVIC_EnableIRQ (TIM3_IRQn);
-}
 
 void setup_TIM16_PWM(void) {
  // This timer is tied to PA6 ... can't move this
@@ -79,65 +146,3 @@ void setup_TIM16_PWM(void) {
     TIM16->CCER &= ~TIM_CCER_CC1NE; // ensure PB6 stays free
 }
 
-void TIM3_IRQHandler(void) {
-
-   // avoid race conditions
-   if (TIM3->SR & TIM_SR_UIF) {
-       TIM3->SR &= ~TIM_SR_UIF;   // clear update flag
-
-      // === Drive all COMs ===
-      //  CCRx  is set with 1-duty insteady of duty since
-      //  active low in PWM
-      // Note CCRs are not aligned with COM index. Nucleo board
-      // hardwired in this way (GPIOA1, GPIOA0, GPIOA2, GPIOA3)
-      volatile uint32_t *ccr[4] = { &TIM2->CCR2, &TIM2->CCR1, 
-				    &TIM2->CCR3, &TIM2->CCR4 };
-      for (int com = 0; com < 4; com++) {
-	   float duty = comsTable[phase][com];
-	   if (invert) duty = 1 - duty;
-	   *ccr[com] = (uint16_t)(TIM2ARR * duty);
-       }
-
-       // Drive Segments
-       segDriver () ;
-       TIM2->EGR = TIM_EGR_UG;   // <<< force preload transfer for all 4 channels
-       TIM16->EGR = TIM_EGR_UG;   // <<< force preload transfer for all 4 channels
-       
-      if (phase == 3)  {
-         invert = !invert ; //LCD AC generation
-         phase = 0 ;
-      }
-      else phase = (phase + 1) ;
-   } // end race cond 
-}// end of TIM3 Interrupt
-
-void segDriver(void) {
-
-    // segState   .... Bit pattern controlling on/off status
-    // since we have four coms, expect 4 bits in segState
-    // A segline therfore can light up (four subsegments)
-    // individually with appropriate segState
-
-    float segDuty, comDuty ;
-
-    uint8_t state = getSegState() ;
-    uint8_t isOn = (state >> phase) & 0x1;
-
-    comDuty = comsTable[phase][phase] ;
-    if (invert & isOn) comDuty = 1 - comDuty ;
-    segDuty = (isOn ?  1 - comDuty :  comDuty) ;
-    // Apply SEG waveform to PWM (Active high is low)
-    TIM16->CCR1 = (uint16_t)(TIM16->ARR * (1 - segDuty));
-}
-
-void configPWMpin (uint8_t i) {
-  // Setup the pin in GPIOA for PWM signals
-      GPIOA->MODER &= ~(0x3 << (i * 2));   // clear MODER bits
-      GPIOA->MODER |=  (0x2 << (i * 2));   // AF mode
-      GPIOA->AFR[0] &= ~(0xF << (i * 4));  // clear AFRL bits
-      GPIOA->AFR[0] |=  (0x1 << (i * 4));  // AF1
-      GPIOA->OTYPER &= ~(1 << i);          // output type = push-pull
-      GPIOA->OSPEEDR &= ~(0x3 << (i * 2));   // clear first
-      GPIOA->OSPEEDR |=  (0x3 << (i * 2));   // high speed
-      GPIOA->PUPDR &= ~(0x3 << (i * 2));     // no pull-up/down
-}

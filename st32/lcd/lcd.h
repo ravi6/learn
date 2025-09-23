@@ -10,11 +10,9 @@
 //    Four Common Lines .. 
 // Assumes default system clock = 8 MHz from HSI
 #define TIM2PSC 0  // prescaler
-#define TIM2ARR 499  
-#define TIM2FRQ ((8E6 / (TIM2PSC + 1) / (TIM2ARR + 1))) // 16kHz
-#define TIM3PSC 799
-#define TIM3ARR 199 // 8000/(200*800)  kHz = (50 Hz -> freq)
-#define TIM3FRQ ((8E6 / (TIM3PSC + 1) / (TIM3ARR + 1))) // 40kHz
+#define TIM2ARR 499
+#define TIM2FRQ ((8E6 / (TIM2PSC + 1) / (TIM2ARR + 1))) // 16e3Hz
+#define PHASEFRQ 40  //Hz
 #define NPHASES   4
 #define PWM_MODE1 6  // is active high for count < ARR
 #define PWM_MODE2 7  // is active low  for count < ARR
@@ -44,8 +42,7 @@ void delay (unsigned int time) ;
 void blink (int n) ;
 void setup_TIM2_PWM(void) ;
 void setup_TIM16_PWM(void);
-void setup_TIM3_IRQ(void);
-void setup_TIM3_IRQHandler(void);
+void setup_TIM2_IRQHandler(void);
 void configPWMpin (uint8_t i) ;
 void clrSegStates(void) ;
 void updateDigit(uint8_t digPos, uint8_t digVal) ;
