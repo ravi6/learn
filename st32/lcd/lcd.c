@@ -7,15 +7,17 @@ int main(void) {
   enum {AC=0, BCP=1, CP=3, AB=4, BP=5, ACP=11, ABC=14};
   enum {LEFT=0, RIGHT} ;
 
-  uint8_t digit = 0 ;
-  uint8_t  k = 1 ;
+  uint8_t k = 0 ;
+  uint8_t left[4] = {0, 2, 4, 6} ;
+  uint8_t right[4] = {1, 3, 5, 7} ;
   startUp () ;
+    setSegState(0b1111) ;
+    selSeg (left[0]) ;
+    delay (1000) ;
   while (1) {
-    selSeg (k) ;
-    setSegState(0b1000) ;
-    //delay(100);
-    if (k==7) k = 1;
-    k = k + 2 ;
+//    selSeg (right[k]) ;
+    k = k + 1 ;
+    if (k==4) k = 0;
    // __WFI();  // Sleep until interrupt (use when timers exist)
   } // endwhile  
 
