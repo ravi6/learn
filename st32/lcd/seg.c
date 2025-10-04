@@ -8,10 +8,10 @@
 // It is illegal to initialize these vars as they are external 
 #define NDIGITS 4   // We use just four digits
 char buf [NDIGITS + 3];  // one for dot and extra 2 for fscanf
-
 volatile uint8_t segState ;
+
 // Digit encoding using logical segments (A-G, DP)
-const uint8_t digit[10] = {0xBE, 0x06, 0x7C, 0x5C, 0xC2, 
+const uint8_t digit[10] = {0xB7, 0x06, 0x7C, 0x5C, 0xC2, 
                            0xDA, 0xFA, 0x0E, 0xFE, 0xEE} ;
 
 void toString (float x ) {

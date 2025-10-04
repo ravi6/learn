@@ -1,24 +1,27 @@
 #include "lcd.h"
+
 int main(void) {
 
-  #define NIL 15
-  #define SS 3    
-  enum {FE=0, GED=1, FGD=4, GD=5, FG=7, ED=9};
-  enum {AC=0, BCP=1, CP=3, AB=4, BP=5, ACP=11, ABC=14};
   enum {LEFT=0, RIGHT} ;
+// Digit encoding using logical segments (A-G, DP)
+const uint8_t digit[10] = {0xBE, 0x06, 0x7C, 0x5E, 0xC2, 
+                           0xDA, 0xFA, 0x0E, 0xFE, 0xEE} ;
 
   uint8_t k = 0 ;
-  uint8_t left[4] = {0, 2, 4, 6} ;
-  uint8_t right[4] = {1, 3, 5, 7} ;
-  startUp () ;
-    setSegState(0b1111) ;
-    selSeg (left[0]) ;
+    startUp () ;
     delay (1000) ;
   while (1) {
-//    selSeg (right[k]) ;
+    for (int i=0 ; i < 1000 ;i++) {
+    setSegState(digit[3]>>4) ;
+    selSeg (LEFT) ;
+    delay (11125) ;
+    selSeg (RIGHT) ;
+    setSegState(digit[3]) ;
+    delay (11125) ;
+    }
     k = k + 1 ;
-    if (k==4) k = 0;
-   // __WFI();  // Sleep until interrupt (use when timers exist)
+    if (k==10) k = 0;
+    delay (8000) ;
   } // endwhile  
 
 } // end main

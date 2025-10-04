@@ -4,7 +4,10 @@ volatile uint16_t TIM2ticks = 0 ;
 // Output buffer for current SEG phase state
 volatile uint8_t phase = 0;
 volatile uint8_t invert = 1;  // Com Table Inversion flag
-const float pwmDuty[4] = {0, 0.5, 1.0, 0.5} ;
+volatile uint8_t state ;  // state used for display
+
+//const float pwmDuty[4] = {0, 0.5, 1.0, 0.5} ;
+const float pwmDuty[4] = {0, 0.3333, 0.6666, 1} ;
 
 const float  comsTable[NPHASES][4] = { //Cyclical shifted left
     { pwmDuty[0], pwmDuty[1], pwmDuty[2], pwmDuty[3] }, //phase 0
@@ -56,9 +59,11 @@ void segDriver (void) {
     // individually with appropriate segState
 
     float segDuty, comDuty ;
+    uint8_t  isOn ;
 
-    uint8_t state =  getSegState() ;
-    uint8_t isOn = (state >> phase) & 0x1;
+    // Update state at start of four phase cycle
+    if (phase == 3) state =  getSegState() ;
+    isOn = (state >> phase) & 0x1;
 
     comDuty = comsTable[phase][phase] ;
     if (invert & isOn) comDuty = 1 - comDuty ;
