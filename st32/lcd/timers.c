@@ -7,7 +7,8 @@ volatile uint8_t invert = 1;  // Com Table Inversion flag
 volatile uint8_t state ;  // state used for display
 
 //const float pwmDuty[4] = {0, 0.5, 1.0, 0.5} ;
-const float pwmDuty[4] = {0, 0.3333, 0.6666, 1} ;
+const float pwmDuty[4] = {0, 1, 0.6666, 0.3333} ;
+//const float pwmDuty[4] = {0, 0.3333, 0.6666, 1} ;
 
 const float  comsTable[NPHASES][4] = { //Cyclical shifted left
     { pwmDuty[0], pwmDuty[1], pwmDuty[2], pwmDuty[3] }, //phase 0
@@ -62,7 +63,7 @@ void segDriver (void) {
     uint8_t  isOn ;
 
     // Update state at start of four phase cycle
-    if (phase == 3) state =  getSegState() ;
+    if (phase == 0) state =  getSegState() ;
     isOn = (state >> phase) & 0x1;
 
     comDuty = comsTable[phase][phase] ;
@@ -105,7 +106,6 @@ void setup_TIM2_PWM(void) {
     // Channel_x  is active while  TIMx_ARR < TIMx_CCR1 else inactive
     // Channel_x  output preload enable (TIMx_OC1PE)
     // PWM_MODE1  active high if count < ARR (who knows what active high is)
-    // Looks as though active high is (low) ... so duty needs inverted 
     TIM2->CCMR1 = (PWM_MODE1 << 4) | (1 << 3) |  // CH1 PWM mode 1 + preload 
                   (PWM_MODE1 << 12) | (1 << 11); // CH2 PWM mode 1 + preload
     TIM2->CCMR2 = (PWM_MODE1 << 4) | (1 << 3) |  // CH3 PWM mode 1 + preload
@@ -133,11 +133,11 @@ void setup_TIM16_PWM(void) {
 
     configPWMpin (PA6)  ;   // (PA6) as  segment pin
 
-    // Channel_x  is active while  TIMx_ARR < TIMx_CCR1 else inactive
+    // Channel_x  is active while  TIMx_CNT < TIMx_CCR1 else inactive
     // Channel_x  output preload enable (TIMx_OC1PE)
     TIM16->CCMR1 = (PWM_MODE1 << 4) | (1 << 3) ;  // CH1 PWM mode 1 + preload 
     TIM16->CCER |= TIM_CCER_CC1E ; // enable CH1 output
-    TIM16->CR1  |= TIM_CR1_ARPE;
+    TIM16->CR1  |= TIM_CR1_ARPE  ;
 
     // This is a must as TIM16 has complementary outputs
     TIM16->BDTR |= TIM_BDTR_MOE ;   //Master output Enable

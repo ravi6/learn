@@ -1,5 +1,4 @@
 #include "lcd.h"
-
 int main(void) {
 
   enum {LEFT=0, RIGHT} ;
@@ -10,13 +9,10 @@ const uint8_t digit[10] = {0xBE, 0x06, 0x7C, 0x5E, 0xC2,
   uint8_t k = 0 ;
     startUp () ;
     delay (1000) ;
+    setSegState(0b0001) ;
+    selSeg (LEFT) ;
   while (1) {
     for (int i=0 ; i < 1000 ;i++) {
-    setSegState(digit[3]>>4) ;
-    selSeg (LEFT) ;
-    delay (11125) ;
-    selSeg (RIGHT) ;
-    setSegState(digit[3]) ;
     delay (11125) ;
     }
     k = k + 1 ;
