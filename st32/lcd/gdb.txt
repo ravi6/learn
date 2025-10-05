@@ -84,3 +84,329 @@ $5 = 0
 $6 = 0
 $7 = 201326847
 $8 = 1677721600
+Loading section .isr_vector, size 0x188 lma 0x8000000
+Loading section .text, size 0x22f8 lma 0x8000188
+Loading section .rodata, size 0xec lma 0x8002480
+Loading section .ARM, size 0x8 lma 0x800256c
+Loading section .init_array, size 0x8 lma 0x8002574
+Loading section .fini_array, size 0x4 lma 0x800257c
+Loading section .data, size 0x574 lma 0x8002580
+Start address 0x08000668, load size 10996
+Transfer rate: 14 KB/sec, 1570 bytes/write.
+No symbol table is loaded.  Use the "file" command.
+Reading symbols from app.elf...
+1	#include "lcd.h"
+2	int main(void) {
+3	  uint8_t s[8] = {
+4	                  15, 15,
+5	                  0, 0,
+6	                  0, 0,
+7	                  0, 0,
+8	} ;
+9	  startUp () ;
+10	  selSeg (0) ;
+Breakpoint 1 at 0x8000dd8: file timers.c, line 43.
+Note: automatically using hardware breakpoints for read-only addresses.
+Continuing.
+
+Breakpoint 1, init_TIM2_PWM () at timers.c:43
+43	    TIM2->ARR = TIM2ARR ;
+$1 = 4369
+$2 = 0x0
+$3 = 0x0
+Breakpoint 2 at 0x8000e22: file timers.c, line 58.
+Continuing.
+
+Breakpoint 2, init_TIM2_PWM () at timers.c:58
+58	    TIM2->CR1 |= TIM_CR1_CEN;  // Restart timer
+$4 = 0x6868
+$5 = 0x6868
+$6 = 0x1111
+quit
+Loading section .isr_vector, size 0x188 lma 0x8000000
+Loading section .text, size 0x246c lma 0x8000188
+Loading section .rodata, size 0xdc lma 0x80025f4
+Loading section .ARM, size 0x8 lma 0x80026d0
+Loading section .init_array, size 0x8 lma 0x80026d8
+Loading section .fini_array, size 0x4 lma 0x80026e0
+Loading section .data, size 0x574 lma 0x80026e4
+Start address 0x08000668, load size 11352
+Transfer rate: 14 KB/sec, 1621 bytes/write.
+No symbol table is loaded.  Use the "file" command.
+Breakpoint 1 (timers.c:148) pending.
+Reading symbols from app.elf...
+Note: automatically using hardware breakpoints for read-only addresses.
+Continuing.
+
+Breakpoint 1, TIM3_IRQHandler () at timers.c:148
+148	     TIM2->EGR = TIM_EGR_UG;   // <<< force preload transfer for all 4 channels
+$1 = {{CCR = {499, 166, 332, 0}, phase = 0 '\000', invert = 0 '\000'}, {CCR = {0, 0, 0, 0}, phase = 0 '\000', invert = 0 '\000'} <repeats 15 times>}
+Continuing.
+
+Breakpoint 1, TIM3_IRQHandler () at timers.c:148
+148	     TIM2->EGR = TIM_EGR_UG;   // <<< force preload transfer for all 4 channels
+$2 = {{CCR = {499, 166, 332, 0}, phase = 0 '\000', invert = 0 '\000'}, {CCR = {166, 332, 0, 499}, phase = 1 '\001', invert = 0 '\000'}, {CCR = {0, 0, 0, 0}, phase = 0 '\000', invert = 0 '\000'} <repeats 14 times>}
+Continuing.
+
+Breakpoint 1, TIM3_IRQHandler () at timers.c:148
+148	     TIM2->EGR = TIM_EGR_UG;   // <<< force preload transfer for all 4 channels
+Continuing.
+
+Breakpoint 1, TIM3_IRQHandler () at timers.c:148
+148	     TIM2->EGR = TIM_EGR_UG;   // <<< force preload transfer for all 4 channels
+Continuing.
+
+Breakpoint 1, TIM3_IRQHandler () at timers.c:148
+148	     TIM2->EGR = TIM_EGR_UG;   // <<< force preload transfer for all 4 channels
+Continuing.
+
+Breakpoint 1, TIM3_IRQHandler () at timers.c:148
+148	     TIM2->EGR = TIM_EGR_UG;   // <<< force preload transfer for all 4 channels
+Continuing.
+
+Breakpoint 1, TIM3_IRQHandler () at timers.c:148
+148	     TIM2->EGR = TIM_EGR_UG;   // <<< force preload transfer for all 4 channels
+Continuing.
+
+Breakpoint 1, TIM3_IRQHandler () at timers.c:148
+148	     TIM2->EGR = TIM_EGR_UG;   // <<< force preload transfer for all 4 channels
+Continuing.
+
+Breakpoint 1, TIM3_IRQHandler () at timers.c:148
+148	     TIM2->EGR = TIM_EGR_UG;   // <<< force preload transfer for all 4 channels
+$3 = {{CCR = {499, 166, 332, 0}, phase = 0 '\000', invert = 0 '\000'}, {CCR = {166, 332, 0, 499}, phase = 1 '\001', invert = 0 '\000'}, {CCR = {332, 0, 499, 166}, phase = 2 '\002', invert = 0 '\000'}, {CCR = {0, 499, 166, 332}, phase = 3 '\003', invert = 0 '\000'}, {CCR = {0, 332, 166, 499}, phase = 0 '\000', invert = 1 '\001'}, {CCR = {332, 166, 499, 0}, phase = 1 '\001', invert = 1 '\001'}, {CCR = {166, 499, 0, 332}, phase = 2 '\002', invert = 1 '\001'}, {CCR = {499, 0, 332, 166}, phase = 3 '\003', invert = 1 '\001'}, {CCR = {499, 166, 332, 0}, phase = 0 '\000', invert = 0 '\000'}, {CCR = {0, 0, 0, 0}, phase = 0 '\000', invert = 0 '\000'}, {CCR = {0, 0, 0, 0}, phase = 0 '\000', invert = 0 '\000'}, {CCR = {0, 0, 0, 0}, phase = 0 '\000', invert = 0 '\000'}, {CCR = {0, 0, 0, 0}, phase = 0 '\000', invert = 0 '\000'}, {CCR = {0, 0, 0, 0}, phase = 0 '\000', invert = 0 '\000'}, {CCR = {0, 0, 0, 0}, phase = 0 '\000', invert = 0 '\000'}, {CCR = {0, 0, 0, 0}, phase = 0 '\000', invert = 0 '\000'}}
+Continuing.
+
+Breakpoint 1, TIM3_IRQHandler () at timers.c:148
+148	     TIM2->EGR = TIM_EGR_UG;   // <<< force preload transfer for all 4 channels
+$4 = {{CCR = {499, 166, 332, 0}, phase = 0 '\000', invert = 0 '\000'}, {CCR = {166, 332, 0, 499}, phase = 1 '\001', invert = 0 '\000'}, {CCR = {332, 0, 499, 166}, phase = 2 '\002', invert = 0 '\000'}, {CCR = {0, 499, 166, 332}, phase = 3 '\003', invert = 0 '\000'}, {CCR = {0, 332, 166, 499}, phase = 0 '\000', invert = 1 '\001'}, {CCR = {332, 166, 499, 0}, phase = 1 '\001', invert = 1 '\001'}, {CCR = {166, 499, 0, 332}, phase = 2 '\002', invert = 1 '\001'}, {CCR = {499, 0, 332, 166}, phase = 3 '\003', invert = 1 '\001'}, {CCR = {499, 166, 332, 0}, phase = 0 '\000', invert = 0 '\000'}, {CCR = {166, 332, 0, 499}, phase = 1 '\001', invert = 0 '\000'}, {CCR = {0, 0, 0, 0}, phase = 0 '\000', invert = 0 '\000'}, {CCR = {0, 0, 0, 0}, phase = 0 '\000', invert = 0 '\000'}, {CCR = {0, 0, 0, 0}, phase = 0 '\000', invert = 0 '\000'}, {CCR = {0, 0, 0, 0}, phase = 0 '\000', invert = 0 '\000'}, {CCR = {0, 0, 0, 0}, phase = 0 '\000', invert = 0 '\000'}, {CCR = {0, 0, 0, 0}, phase = 0 '\000', invert = 0 '\000'}}
+Continuing.
+
+Breakpoint 1, TIM3_IRQHandler () at timers.c:148
+148	     TIM2->EGR = TIM_EGR_UG;   // <<< force preload transfer for all 4 channels
+Continuing.
+
+Breakpoint 1, TIM3_IRQHandler () at timers.c:148
+148	     TIM2->EGR = TIM_EGR_UG;   // <<< force preload transfer for all 4 channels
+Continuing.
+
+Breakpoint 1, TIM3_IRQHandler () at timers.c:148
+148	     TIM2->EGR = TIM_EGR_UG;   // <<< force preload transfer for all 4 channels
+Continuing.
+
+Breakpoint 1, TIM3_IRQHandler () at timers.c:148
+148	     TIM2->EGR = TIM_EGR_UG;   // <<< force preload transfer for all 4 channels
+Continuing.
+
+Breakpoint 1, TIM3_IRQHandler () at timers.c:148
+148	     TIM2->EGR = TIM_EGR_UG;   // <<< force preload transfer for all 4 channels
+Continuing.
+
+Breakpoint 1, TIM3_IRQHandler () at timers.c:148
+148	     TIM2->EGR = TIM_EGR_UG;   // <<< force preload transfer for all 4 channels
+Continuing.
+
+Breakpoint 1, TIM3_IRQHandler () at timers.c:148
+148	     TIM2->EGR = TIM_EGR_UG;   // <<< force preload transfer for all 4 channels
+$5 = {{CCR = {499, 166, 332, 0}, phase = 0 '\000', invert = 0 '\000'}, {CCR = {166, 332, 0, 499}, phase = 1 '\001', invert = 0 '\000'}, {CCR = {332, 0, 499, 166}, phase = 2 '\002', invert = 0 '\000'}, {CCR = {0, 499, 166, 332}, phase = 3 '\003', invert = 0 '\000'}, {CCR = {0, 332, 166, 499}, phase = 0 '\000', invert = 1 '\001'}, {CCR = {332, 166, 499, 0}, phase = 1 '\001', invert = 1 '\001'}, {CCR = {166, 499, 0, 332}, phase = 2 '\002', invert = 1 '\001'}, {CCR = {499, 0, 332, 166}, phase = 3 '\003', invert = 1 '\001'}, {CCR = {499, 166, 332, 0}, phase = 0 '\000', invert = 0 '\000'}, {CCR = {166, 332, 0, 499}, phase = 1 '\001', invert = 0 '\000'}, {CCR = {332, 0, 499, 166}, phase = 2 '\002', invert = 0 '\000'}, {CCR = {0, 499, 166, 332}, phase = 3 '\003', invert = 0 '\000'}, {CCR = {0, 332, 166, 499}, phase = 0 '\000', invert = 1 '\001'}, {CCR = {332, 166, 499, 0}, phase = 1 '\001', invert = 1 '\001'}, {CCR = {166, 499, 0, 332}, phase = 2 '\002', invert = 1 '\001'}, {CCR = {499, 0, 332, 166}, phase = 3 '\003', invert = 1 '\001'}}
+$6 = {CCR = {499, 166, 332, 0}, phase = 0 '\000', invert = 0 '\000'}
+$7 = {CCR = {166, 332, 0, 499}, phase = 1 '\001', invert = 0 '\000'}
+$8 = {CCR = {332, 0, 499, 166}, phase = 2 '\002', invert = 0 '\000'}
+$9 = {CCR = {0, 499, 166, 332}, phase = 3 '\003', invert = 0 '\000'}
+$10 = {CCR = {0, 332, 166, 499}, phase = 0 '\000', invert = 1 '\001'}
+$11 = {CCR = {332, 166, 499, 0}, phase = 1 '\001', invert = 1 '\001'}
+$12 = {CCR = {166, 499, 0, 332}, phase = 2 '\002', invert = 1 '\001'}
+$13 = {CCR = {499, 0, 332, 166}, phase = 3 '\003', invert = 1 '\001'}
+$14 = {CCR = {499, 166, 332, 0}, phase = 0 '\000', invert = 0 '\000'}
+Remote connection closed
+Loading section .isr_vector, size 0x188 lma 0x8000000
+Loading section .text, size 0x230c lma 0x8000188
+Loading section .rodata, size 0xec lma 0x8002494
+Loading section .ARM, size 0x8 lma 0x8002580
+Loading section .init_array, size 0x8 lma 0x8002588
+Loading section .fini_array, size 0x4 lma 0x8002590
+Loading section .data, size 0x574 lma 0x8002594
+Start address 0x08000668, load size 11016
+Transfer rate: 14 KB/sec, 1573 bytes/write.
+Reading symbols from app.elf...
+Breakpoint 1 at 0x8001034: file timers.c, line 152.
+Note: automatically using hardware breakpoints for read-only addresses.
+1	#include "lcd.h"
+2	int main(void) {
+3	  uint8_t s[8] = {
+4	                  15, 15,
+5	                  0, 0,
+6	                  0, 0,
+7	                  0, 0,
+8	} ;
+9	  startUp () ;
+10	  selSeg (0) ;
+Continuing.
+
+Breakpoint 1, segDriver () at timers.c:152
+152	    comDuty = comsTable[phase][phase] ;
+147	    float segDuty, comDuty ;
+148	    uint8_t state ;
+149	    state = getSegState() ;
+150	    uint8_t isOn = (state >> phase) & 0x1;
+151	
+152	    comDuty = comsTable[phase][phase] ;
+153	    if (invert) comDuty = 1 - comDuty ;
+154	    segDuty = (isOn ?  1 - comDuty :  comDuty) ;
+155	    // Apply SEG waveform to PWM (Active high is low)
+156	    TIM16->CCR1 = (uint16_t)(TIM16->ARR * (1 - segDuty));
+$1 = 0x0
+$2 = 0 '\000'
+$3 = 0 '\000'
+No symbol "com" in current context.
+$4 = {{0, 0.666660011, 0.333330005, 1}, {0.666660011, 0.333330005, 1, 0}, {0.333330005, 1, 0, 0.666660011}, {1, 0, 0.666660011, 0.333330005}}
+quit
+Loading section .isr_vector, size 0x188 lma 0x8000000
+Loading section .text, size 0x2304 lma 0x8000188
+Loading section .rodata, size 0xec lma 0x800248c
+Loading section .ARM, size 0x8 lma 0x8002578
+Loading section .init_array, size 0x8 lma 0x8002580
+Loading section .fini_array, size 0x4 lma 0x8002588
+Loading section .data, size 0x574 lma 0x800258c
+Start address 0x08000668, load size 11008
+Transfer rate: 14 KB/sec, 1572 bytes/write.
+No symbol table is loaded.  Use the "file" command.
+Breakpoint 1 (timers.c:152) pending.
+Reading symbols from app.elf...
+Note: automatically using hardware breakpoints for read-only addresses.
+Continuing.
+
+Breakpoint 1, segDriver () at timers.c:152
+152	    comDuty = comsTable[phase][phase] ;
+$1 = 0x0
+Continuing.
+
+Breakpoint 1, segDriver () at timers.c:152
+152	    comDuty = comsTable[phase][phase] ;
+$2 = 1 '\001'
+Continuing.
+
+Breakpoint 1, segDriver () at timers.c:152
+152	    comDuty = comsTable[phase][phase] ;
+$3 = 0x0
+Continuing.
+
+Breakpoint 1, segDriver () at timers.c:152
+152	    comDuty = comsTable[phase][phase] ;
+$4 = 3 '\003'
+Continuing.
+
+Breakpoint 1, segDriver () at timers.c:152
+152	    comDuty = comsTable[phase][phase] ;
+$5 = 0 '\000'
+$6 = 0x0
+quit
+Loading section .isr_vector, size 0x188 lma 0x8000000
+Loading section .text, size 0x2254 lma 0x8000188
+Loading section .rodata, size 0x108 lma 0x80023dc
+Loading section .ARM, size 0x8 lma 0x80024e4
+Loading section .init_array, size 0x8 lma 0x80024ec
+Loading section .fini_array, size 0x4 lma 0x80024f4
+Loading section .data, size 0x574 lma 0x80024f8
+Start address 0x08000668, load size 10860
+Transfer rate: 13 KB/sec, 1551 bytes/write.
+No symbol table is loaded.  Use the "file" command.
+Breakpoint 1 (utils.c:87) pending.
+Reading symbols from app.elf...
+Note: automatically using hardware breakpoints for read-only addresses.
+Continuing.
+
+Breakpoint 1, startUp () at utils.c:87
+87	  setupMux() ; 
+$1 = 0x0
+$2 = 0x1
+A syntax error in expression, near `print/x GPIOA->AFR[0]'.
+A syntax error in expression, near `print/x GPIOA'.
+A syntax error in expression, near `print/x TIM15->CCER
+print/x TIM15->SMCR
+print/x TIM15->CCR1'.
+There is no member named CCERt.
+$3 = 0x1
+$4 = 0x81
+$5 = 0x6
+$6 = 0x0
+$7 = 0xa84020aa
+$8 = 0x1001111
+There is no member named MODER6.
+Breakpoint 2 at 0x8000ffc: file timers.c, line 158.
+Continuing.
+
+Breakpoint 2, segDriver () at timers.c:158
+158	    TIM15->EGR = TIM_EGR_UG;
+$9 = 0x0
+Continuing.
+
+Breakpoint 2, segDriver () at timers.c:158
+158	    TIM15->EGR = TIM_EGR_UG;
+Continuing.
+
+Breakpoint 2, segDriver () at timers.c:158
+158	    TIM15->EGR = TIM_EGR_UG;
+$10 = 0x0
+Continuing.
+
+Breakpoint 2, segDriver () at timers.c:158
+158	    TIM15->EGR = TIM_EGR_UG;
+Continuing.
+
+Breakpoint 2, segDriver () at timers.c:158
+158	    TIM15->EGR = TIM_EGR_UG;
+Continuing.
+
+Breakpoint 2, segDriver () at timers.c:158
+158	    TIM15->EGR = TIM_EGR_UG;
+$11 = 0x167
+Loading section .isr_vector, size 0x188 lma 0x8000000
+Loading section .text, size 0x1e58 lma 0x8000188
+Loading section .rodata, size 0x60 lma 0x8001fe0
+Loading section .ARM, size 0x8 lma 0x8002040
+Loading section .init_array, size 0x8 lma 0x8002048
+Loading section .fini_array, size 0x4 lma 0x8002050
+Loading section .data, size 0x5b0 lma 0x8002054
+Start address 0x08000668, load size 9732
+Transfer rate: 14 KB/sec, 1390 bytes/write.
+No symbol table is loaded.  Use the "file" command.
+Reading symbols from app.elf...
+warning: Source file is more recent than executable.
+136	    TIM16->CR1 |= TIM_CR1_ARPE;
+137	    TIM16->CCMR1 = (PWM_MODE1 << 4) | (1 << 3);
+138	    TIM16->CCER |= TIM_CCER_CC1E;
+139	    TIM16->BDTR |= TIM_BDTR_MOE;
+140	    TIM16->EGR = TIM_EGR_UG;
+141	}
+142	
+143	// --- LED setup ---
+144	void init_LED(void) {
+145	    RCC->AHBENR |= RCC_AHBENR_GPIOAEN;
+Breakpoint 1 at 0x8000ab2: file z.c, line 94.
+Note: automatically using hardware breakpoints for read-only addresses.
+146	    (void)RCC->AHBENR;
+147	    outPin(GPIOA, LED_PIN);
+148	    GPIOA->ODR &= ~(1<<LED_PIN); //led off
+149	}
+150	
+151	int main(void) {
+152	    init_LED();        // LED independent
+153	  //  init_TIM16_PWM();  // SEG pin PWM
+154	  //  init_TIM2_PWM();   // COM pins PWM
+155	
+Continuing.
+
+Program received signal SIGTRAP, Trace/breakpoint trap.
+0x08000c7a in main () at z.c:166
+166	   // for(volatile int i=0;i<100000;i++);
+161	GPIOA->ODR ^= (1 << LED_PIN);
+162	delay(5000);
+163	
+164	while(1) {
+165	   // SETSTATE(GPIOA, 11, 1);
+166	   // for(volatile int i=0;i<100000;i++);
+167	    //SETSTATE(GPIOA, 11, 0);
+168	    for(volatile int i=0;i<100000;i++);
+169	}
+170	

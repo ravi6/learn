@@ -8,7 +8,6 @@ BIN = arm-none-eabi-objcopy
 STL = st-flash --connect-under-reset
 #STL = st-flash 
 
-
 # Flags - C Language Options
 CFLAGS += -ffreestanding
 
@@ -35,7 +34,7 @@ CXXFLAGS += -fno-exceptions
 CXXFLAGS += -fno-unwind-tables
 
 #OBJ =  main.o  oled.o spi.o 
-OBJ =  lcd.o
+OBJ =   utils.o seg.o timers.o lcd.o
 
 all: app.bin
 
