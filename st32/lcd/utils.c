@@ -99,5 +99,6 @@ void startUp() {
 
   //Start timers with TIM2, TIM16 in phase
     resetTimers() ;
-//    blink (3) ;
+    
+    blink (1) ;
 }

@@ -3,17 +3,22 @@ int main(void) {
 
   enum {LEFT=0, RIGHT} ;
 // Digit encoding using logical segments (A-G, DP)
-const uint8_t digit[10] = {0xBE, 0x06, 0x7C, 0x5E, 0xC2, 
+const uint8_t digit[10] = {0xBE, 0x06, 0x7C, 0xAE, 0xC2, 
                            0xDA, 0xFA, 0x0E, 0xFE, 0xEE} ;
 
   uint8_t k = 0 ;
     startUp () ;
     delay (1000) ;
-    setSegState(0b0001) ;
-    selSeg (LEFT) ;
   while (1) {
     for (int i=0 ; i < 1000 ;i++) {
+    setSegState(0b0000) ;
+    selSeg (LEFT);
     delay (11125) ;
+/*
+    setSegState(digit[3]) ;
+    selSeg (RIGHT);
+    delay (11125) ;
+*/
     }
     k = k + 1 ;
     if (k==10) k = 0;
