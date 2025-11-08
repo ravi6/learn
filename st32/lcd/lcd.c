@@ -9,21 +9,14 @@ const uint8_t digit[10] = {0xBE, 0x06, 0x7C, 0xAE, 0xC2,
   uint8_t k = 0 ;
     startUp () ;
     delay (1000) ;
+    setSegState(digit[0]) ;
+    SETSTATE(GPIOA, LED, ON) ;   
   while (1) {
-    for (int i=0 ; i < 1000 ;i++) {
-    setSegState(0b0000) ;
-    selSeg (LEFT);
-    delay (11125) ;
-/*
-    setSegState(digit[3]) ;
-    selSeg (RIGHT);
-    delay (11125) ;
-*/
+    selSeg (4) ;
+    delay (1112) ;
+    selSeg (5) ;
+    delay (1112) ;
     }
-    k = k + 1 ;
-    if (k==10) k = 0;
-    delay (8000) ;
-  } // endwhile  
 
 } // end main
 

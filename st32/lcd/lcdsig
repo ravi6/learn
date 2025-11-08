@@ -1,0 +1,39 @@
+import numpy as np
+# This is the wave pattern with 8 phases
+# that already has invertion included
+# for ac signal that is why 8 phases
+# with four control signals
+# This pattern whe have never used I think
+# Cant make sense of it myself
+# Courtesy of circuits.com
+c0  = [0, 1, 2/3, 1/3,    2/3, 1/3, 2/3, 1/3] 
+c1  = [2/3, 1/3, 0, 1,    2/3, 1/3, 2/3, 1/3]
+c2  = [2/3, 1/3, 2/3,     1/3, 0, 1, 2/3, 1/3]
+c3  = [2/3, 1/3, 2/3,     1/3, 2/3, 1/3, 0, 1]
+
+
+#offSeg w.r.t c0
+s0  = [1/3, 2/3, 1/3, 2/3, 1/3, 2/3, 1/3, 2/3]
+s1  = [1/3, 2/3, 1, 0, 1/3, 2/3, 1/3, 2/3]
+
+## offsegment s1 w.r.t c0
+for i in range(8):
+   print (s1[i]-c0[i])
+
+## onegment s1 w.r.t c1
+for i in range(8):
+   print (s1[i]-c1[i])
+'''
+# This is CHATGPT's suggested table
+# based on AN1428 datasheet I provided.
+const float coms[8][4] = {
+    {0,   1/3, 2/3, 1  }, // Phase0
+    {1/3, 2/3, 1,   2/3}, // Phase1
+    {2/3, 1,   2/3, 1/3}, // Phase2
+    {1,   2/3, 1/3, 0  }, // Phase3
+    {2/3, 1/3, 0,   1/3}, // Phase4
+    {1/3, 0,   1/3, 2/3}, // Phase5
+    {0,   1/3, 2/3, 1  }, // Phase6
+    {1/3, 1/3, 1/3, 1/3}  // Phase7
+};
+

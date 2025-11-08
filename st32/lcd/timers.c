@@ -6,9 +6,9 @@ volatile uint8_t phase = 0;
 volatile uint8_t invert = 1;  // Com Table Inversion flag
 volatile uint8_t state ;  // state used for display
 
-//const float pwmDuty[4] = {0, 0.5, 1.0, 0.5} ;
+const float pwmDuty[4] = {0, 0.5, 1.0, 0.5} ;
 //const float pwmDuty[4] = {0, 1, 0.6666, 0.3333} ;
-const float pwmDuty[4] = {0, 0.3333, 0.6666, 1} ;
+//const float pwmDuty[4] = {0, 0.3333, 0.6666, 1} ;
 
 const float  comsTable[NPHASES][4] = { //Optimized RMS
     { pwmDuty[0], pwmDuty[1], pwmDuty[2], pwmDuty[3] }, //phase 0
