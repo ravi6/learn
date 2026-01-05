@@ -3,20 +3,52 @@ volatile uint16_t TIM2ticks = 0 ;
 
 // Output buffer for current SEG phase state
 volatile uint8_t phase = 0;
-volatile uint8_t invert = 1;  // Com Table Inversion flag
 volatile uint8_t state ;  // state used for display
 
-//const float pwmDuty[4] = {0, 0.5, 1.0, 0.5} ;
-//const float pwmDuty[4] = {0, 1, 0.6666, 0.3333} ;
-#define f 1
-const float pwmDuty[4] = {0*f, 0.3333*f, 0.6666*f, 1*f}  ;
+const float pwmDuty[4] = {0, 1/3, 2/3, 1}  ;
 
-const float  comsTable[NPHASES][4] = { //Optimized RMS
+// This changes every time state changes
+float segDuty[8] ;  // duty for all phases
+
+ const float  comsTable[NPHASES][4] = { // RMS optimized ? 
     { pwmDuty[0], pwmDuty[1], pwmDuty[2], pwmDuty[3] }, //phase 0
     { pwmDuty[1], pwmDuty[0], pwmDuty[3], pwmDuty[2] }, //phase 1
     { pwmDuty[2], pwmDuty[3], pwmDuty[0], pwmDuty[1] }, //phase 2
     { pwmDuty[3], pwmDuty[2], pwmDuty[1], pwmDuty[0] }, //phase 3
-};
+
+    { pwmDuty[0], pwmDuty[2], pwmDuty[1], pwmDuty[3] }, //phase 4
+    { pwmDuty[2], pwmDuty[0], pwmDuty[3], pwmDuty[1] }, //phase 5
+    { pwmDuty[1], pwmDuty[3], pwmDuty[0], pwmDuty[2] }, //phase 6
+    { pwmDuty[3], pwmDuty[1], pwmDuty[2], pwmDuty[0] }, //phase 7
+} ;
+
+void genSegDuty () {
+ // A way of optimising the segSignal such that
+ //  ghosting is minimised for a specific display state 
+
+  float s [8], smin, smax ;
+  float won = 1 ;  // on bit weight
+  float woff = 0 ;  // on bit weight
+
+  //Compute  waveform
+
+  smin = 100 ; smax = -100 ;
+  for (int p = 0 ; p < 8 ; p++) { //loop over all phases
+      s[p] = 0 ;
+      for (int c = 0 ; c < 4 ; c++) { // loop over contol lines
+         uint8_t bit = (state >> c) & 0x1 ;
+         s[p] = s[p] + won * bit * comsTable [p][c]  
+                           + woff * (1 - bit) * comsTable [p][c] ;
+       }
+       if (s[p] < smin) smin = s[p] ;
+       if (s[p] > smax) smax = s[p] ;
+   }
+  
+  // Keep DC offset within 0 to 1 (i.e Normalize waveform)
+  for (int p = 0 ; p < 8 ; p++) { //loop over all phases
+       segDuty[p] = (s[p] - smin) / smax ;
+  }
+} // end getSegDuty
 
 void TIM2_IRQHandler(void) {
 
@@ -32,12 +64,12 @@ void TIM2_IRQHandler(void) {
        TIM2ticks = TIM2ticks + 1 ; // phase time ticker
 
        // start of phase
-       if (TIM2ticks == (TIM2FRQ / PHASEFRQ)/4 - 1) { 
+       if (TIM2ticks == (TIM2FRQ / PHASEFRQ)/NPHASES - 1) { 
 	    TIM2ticks = 0 ;
         }   
 
    } // end race cond 
-}// end of TIM3 Interrupt
+}// end of TIM2 Interrupt
 
 void segDriver (void) {
 
@@ -50,32 +82,25 @@ void segDriver (void) {
 				    &TIM2->CCR3, &TIM2->CCR4 };
       for (int com = 0; com < 4; com++) {
 	   float duty = comsTable[phase][com];
-	   if (invert) duty = 1 - duty;
 	   *ccr[com] = (uint16_t)(TIM2ARR * duty);
        }
 
     // Drive Seg Line
     // segState   .... Bit pattern controlling on/off status
-    // since we have four coms, expect 4 bits in segState
-    // A segline therfore can light up (four subsegments)
-    // individually with appropriate segState
+    // Controlling the four subsegments of the digit
 
-    float segDuty, comDuty ;
-    uint8_t  isOn ;
 
     // Update state at start of four phase cycle
-    if (phase == 0) state =  getSegState() ;
-    isOn = (state >> phase) & 0x1;
+    // and get corresponding segWaveForm
+    if (phase == 0) {
+          state =  getSegState() ; // one of sixteen states
+          genSegDuty () ;   // Get SegDuty to display this state optimally
+    }
+   
+    TIM16->CCR1 = (uint16_t)(TIM16->ARR * (1 - segDuty[phase]));
 
-    comDuty = comsTable[phase][phase] ;
-    if (invert & isOn) comDuty = 1 - comDuty ;
-    segDuty = (isOn ?  1 - comDuty :  comDuty) ;
-    // Apply SEG waveform to PWM (Active high is low)
-    TIM16->CCR1 = (uint16_t)(TIM16->ARR * (1 - segDuty));
-
-    if (phase == 3) {
+    if (phase == NPHASES - 1) {
 	phase = 0 ; // new cycle
-	invert = !invert ; // AC signal requirement
     }
     else phase = phase + 1 ;
 }
@@ -93,6 +118,7 @@ void configPWMpin (uint8_t i) {
 }
 
 void setup_TIM2_PWM(void) {
+
     RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
     (void)RCC->APB1ENR ;  // wait for above to completeyy
 

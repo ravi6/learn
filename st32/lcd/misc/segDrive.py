@@ -3,9 +3,15 @@ import matplotlib.pyplot as plt
 
 #    c = np.array([0, 0, 1, 1, 2/3, 2/3, 1/3, 1/3])
 #    c = np.array([1/3, 1/3, 1/2, 1/2, 2/3, 2/3, 1/2, 1/2]) * 1.5
+#v = [0.25, 0.5, 0.75, 0.5]
+v = [0, 1/3, 2/3, 1]
+LCD = []
+for i in range (4):
+   LCD.append (v[i])
+   LCD.append (v[i])
 
-LCD = np.array([0.25, 0.25, 0.5, 0.5, 0.75, 0.75, 0.5, 0.5])
-LCD_str = "[0.25, 0.25, 0.5, 0.5, 0.75, 0.75, 0.5, 0.5]"
+LCD = np.array(LCD)
+#LCD_str = "[0.25, 0.25, 0.5, 0.5, 0.75, 0.75, 0.5, 0.5]"
 comSel = 2
     
 def getCsig(com):
@@ -44,8 +50,8 @@ def subPlot(ax, x, y, c, tag):
 def signals ():
     #plt.plot(xn,yn,'.', mfc='red', ms = 24)
     fig, axs  = plt.subplots (9)
-    s = "%s ActCom: %d" % (LCD_str, comSel)
-    plt.suptitle(s)
+    #s = "%s ActCom: %d" % (LCD_str, comSel)
+    #plt.suptitle(s)
     tags = ["C0", "C1", "C2", "C3"]
     c = ["blue", "red", "green", "brown"]
 

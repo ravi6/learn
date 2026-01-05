@@ -61,3 +61,36 @@ C0 -> (P A)
 C1 -> (B F)
 C2 -> (C G)
 C3 -> (D E)
+
+/*NB. 8 phases are needed to be able control each segment 
+of half digit controlled by one single segment line with
+four common lines. The RMS of each subsegment can now be
+properly be set independantly thus allowing all possible
+combinations (16) of segments display
+The time split and careful choice of duty provides the degrees
+of freedom to change RMS with constraints on DC bias and 
+off state RMS values.
+
+💡A SEG waveform is NOT just “COM ± something”
+  It is an independent time-shaped waveform whose 
+  average squared difference matters.
+💡Increasing phases adds time-domain degrees of freedom
+💡Four RMS voltage requirement for [com-seg]. With 8 phases
+  we get four more degrees of freedom that enable 16 subsegment
+  combination light up with proper choice of com table and
+  selection of segTable for each state.
+    1.  DC blance   Sum(Ci) over phases = constant
+    2.  RMS value between Ci-Cj (for i!=j) should be small and same
+        gives uniform off RMS for all segments
+    3.  Additional phases allow RMS energy distribution allowing
+        discrimination (explain it a bit better :))
+    4.  Keep number of voltage levels constant 
+  The above turns into a optimization problem  with constraints.
+  ChatGPT did come up with the optimal solution. And I am happy
+  to accept it for now.
+
+  Lack of above understanding lead to a long and frustrating saga
+  with this project. Tried to do it with just four phases and
+  inverting seg based on com states. That is only good for static 
+  driving not for multiplexed (4 mux, 1/3 bias).
+*/

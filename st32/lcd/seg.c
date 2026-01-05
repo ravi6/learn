@@ -11,7 +11,8 @@ char buf [NDIGITS + 3];  // one for dot and extra 2 for fscanf
 volatile uint8_t segState ;
 
 // Digit encoding using logical segments (A-G, DP)
-const uint8_t digit[10] = {0xB7, 0x06, 0x7C, 0x5C, 0xC2, 
+// Digit Segment Order  [GFED PCBA] ... 8 Bit State order
+const uint8_t digit[10] = {0x77, 0x06, 0xBC, 0x9C, 0xC2, 
                            0xDA, 0xFA, 0x0E, 0xFE, 0xEE} ;
 
 void toString (float x ) {

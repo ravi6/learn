@@ -1,0 +1,36 @@
+#include <stdio.h>
+#include <stdint.h>
+
+#define NPHASES 8
+#define NCOM 4
+static const uint8_t perm[2][4] = {
+    {0, 1, 2, 3},   // block 0
+    {0, 2, 3, 1}    // block 1 (breaks correlation)
+};
+
+const float pwmDuty[NCOM] = {0.0f, 1.0f/3.0f, 2.0f/3.0f, 1.0f};
+
+int main() {
+float comsTable[NPHASES][NCOM];
+for (int p = 0; p < 8; p++) {
+    int block = p >> 2;     // p / 4
+    int phase = p & 3;      // p % 4
+
+    for (int com = 0; com < 4; com++) {
+        int idx = perm[block][(com + phase) & 3];
+        comsTable[p][com] = pwmDuty[idx];
+    }
+}
+
+    printf("Generated COM Table:\n");
+    for (int phase = 0; phase < NPHASES; phase++) {
+        printf("Phase %d: ", phase);
+        for (int com = 0; com < NCOM; com++) {
+            printf("%0.3f ", comsTable[phase][com]);
+        }
+        printf("\n");
+    }
+
+    return 0;
+}
+
