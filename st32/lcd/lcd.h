@@ -12,8 +12,8 @@
 #define TIM2PSC 0  // prescaler
 #define TIM2ARR 499
 #define TIM2FRQ ((8E6 / (TIM2PSC + 1) / (TIM2ARR + 1))) // 16e3Hz
-#define PHASEFRQ 80  //Hz
-#define NPHASES  8 
+#define PHASEFRQ 40  //Hz
+#define NPHASES  4 
 #define PWM_MODE1 6  // is active high for count < ARR
 #define PWM_MODE2 7  // is active low  for count < ARR
 //

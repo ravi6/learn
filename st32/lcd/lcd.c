@@ -9,7 +9,7 @@ const uint8_t digit[10] = {0xBE, 0x06, 0x7C, 0xAE, 0xC2,
   uint8_t k = 0 ;
     startUp () ;
     delay (1000) ;
-    setSegState (1) ; 
+    setSegState (8) ; 
   while (1) {
     selSeg (4) ;
     delay (6000) ;

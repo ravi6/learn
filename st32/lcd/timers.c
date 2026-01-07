@@ -4,7 +4,6 @@ volatile uint16_t TIM2ticks = 0 ;
 // Output buffer for current SEG phase state
 volatile uint8_t phase = 0;
 volatile uint8_t state ;  // state used for display
-//const float pwmDuty[4] = {0, 1/3, 2/3, 1}  ;
 const float pwmDuty[4] = {0, 1/3, 2/3, 1}  ;
 
 const float  comsTable[NPHASES][4] = { // RMS optimized ? 
@@ -12,26 +11,7 @@ const float  comsTable[NPHASES][4] = { // RMS optimized ?
     { pwmDuty[1], pwmDuty[0], pwmDuty[3], pwmDuty[2] }, //phase 1
     { pwmDuty[2], pwmDuty[3], pwmDuty[0], pwmDuty[1] }, //phase 2
     { pwmDuty[3], pwmDuty[2], pwmDuty[1], pwmDuty[0] }, //phase 3
-
-    { pwmDuty[0], pwmDuty[2], pwmDuty[1], pwmDuty[3] }, //phase 4
-    { pwmDuty[2], pwmDuty[0], pwmDuty[3], pwmDuty[1] }, //phase 5
-    { pwmDuty[1], pwmDuty[3], pwmDuty[0], pwmDuty[2] }, //phase 6
-    { pwmDuty[3], pwmDuty[1], pwmDuty[2], pwmDuty[0] }, //phase 7
 } ;
-
-/* ChatGPt says this replica of AN1428 */
-/*
-const float comsTable[NPHASES][4] = {
-    {0.0f, 1.0f/3.0f, 2.0f/3.0f, 1.0f}, // P0
-    {1.0f/3.0f, 2.0f/3.0f, 1.0f, 2.0f/3.0f}, // P1
-    {2.0f/3.0f, 1.0f, 2.0f/3.0f, 1.0f/3.0f}, // P2
-    {1.0f, 2.0f/3.0f, 1.0f/3.0f, 0.0f}, // P3
-    {2.0f/3.0f, 1.0f/3.0f, 0.0f, 1.0f/3.0f}, // P4
-    {1.0f/3.0f, 0.0f, 1.0f/3.0f, 2.0f/3.0f}, // P5
-    {0.0f, 1.0f/3.0f, 2.0f/3.0f, 1.0f}, // P6
-    {1.0f/3.0f, 2.0f/3.0f, 1.0f, 2.0f/3.0f}  // P7
-};
-*/
 
 
 void TIM2_IRQHandler(void) {
@@ -79,14 +59,13 @@ void segDriver (void) {
           state =  getSegState() ; // one of sixteen states
    
     float   segDuty;
-    uint8_t targetCom = phase / 2;  // integer division
 
-      if ( (state >> targetCom) & 0x1 )  // if the segment is on
-         segDuty = 1 - comsTable[phase][targetCom];
+      if ( (state >> phase) & 0x1 )  // if the segment is on
+         segDuty = 1 - comsTable[phase][phase];
       else
-         segDuty = comsTable[phase][targetCom];
+         segDuty = comsTable[phase][phase];
 
-    TIM16->CCR1 = (uint16_t)(TIM16->ARR *  (1-segDuty));
+    TIM16->CCR1 = (uint16_t)(TIM16->ARR *  (1 - segDuty));
 
     if (phase == NPHASES - 1) {
 	phase = 0 ; // new cycle
