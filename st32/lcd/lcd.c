@@ -9,15 +9,13 @@ const uint8_t digit[10] = {0xBE, 0x06, 0x7C, 0xAE, 0xC2,
   uint8_t k = 0 ;
     startUp () ;
     delay (1000) ;
+    setSegState (1) ; 
   while (1) {
-    for (int k=0 ; k < 4 ; k++) {
-    selSeg (7) ;
-    setSegState (k<<1) ; 
-    delay (2000) ;
-    selSeg (6) ;
-    delay (2000) ;
+    selSeg (4) ;
+    delay (6000) ;
+    selSeg (5) ;
+    delay (6000) ;
 
-    }  
     }
 
 } // end main

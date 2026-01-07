@@ -4,13 +4,10 @@ volatile uint16_t TIM2ticks = 0 ;
 // Output buffer for current SEG phase state
 volatile uint8_t phase = 0;
 volatile uint8_t state ;  // state used for display
-
+//const float pwmDuty[4] = {0, 1/3, 2/3, 1}  ;
 const float pwmDuty[4] = {0, 1/3, 2/3, 1}  ;
 
-// This changes every time state changes
-float segDuty[8] ;  // duty for all phases
-
- const float  comsTable[NPHASES][4] = { // RMS optimized ? 
+const float  comsTable[NPHASES][4] = { // RMS optimized ? 
     { pwmDuty[0], pwmDuty[1], pwmDuty[2], pwmDuty[3] }, //phase 0
     { pwmDuty[1], pwmDuty[0], pwmDuty[3], pwmDuty[2] }, //phase 1
     { pwmDuty[2], pwmDuty[3], pwmDuty[0], pwmDuty[1] }, //phase 2
@@ -22,33 +19,20 @@ float segDuty[8] ;  // duty for all phases
     { pwmDuty[3], pwmDuty[1], pwmDuty[2], pwmDuty[0] }, //phase 7
 } ;
 
-void genSegDuty () {
- // A way of optimising the segSignal such that
- //  ghosting is minimised for a specific display state 
+/* ChatGPt says this replica of AN1428 */
+/*
+const float comsTable[NPHASES][4] = {
+    {0.0f, 1.0f/3.0f, 2.0f/3.0f, 1.0f}, // P0
+    {1.0f/3.0f, 2.0f/3.0f, 1.0f, 2.0f/3.0f}, // P1
+    {2.0f/3.0f, 1.0f, 2.0f/3.0f, 1.0f/3.0f}, // P2
+    {1.0f, 2.0f/3.0f, 1.0f/3.0f, 0.0f}, // P3
+    {2.0f/3.0f, 1.0f/3.0f, 0.0f, 1.0f/3.0f}, // P4
+    {1.0f/3.0f, 0.0f, 1.0f/3.0f, 2.0f/3.0f}, // P5
+    {0.0f, 1.0f/3.0f, 2.0f/3.0f, 1.0f}, // P6
+    {1.0f/3.0f, 2.0f/3.0f, 1.0f, 2.0f/3.0f}  // P7
+};
+*/
 
-  float s [8], smin, smax ;
-  float won = 1 ;  // on bit weight
-  float woff = 0 ;  // on bit weight
-
-  //Compute  waveform
-
-  smin = 100 ; smax = -100 ;
-  for (int p = 0 ; p < 8 ; p++) { //loop over all phases
-      s[p] = 0 ;
-      for (int c = 0 ; c < 4 ; c++) { // loop over contol lines
-         uint8_t bit = (state >> c) & 0x1 ;
-         s[p] = s[p] + won * bit * comsTable [p][c]  
-                           + woff * (1 - bit) * comsTable [p][c] ;
-       }
-       if (s[p] < smin) smin = s[p] ;
-       if (s[p] > smax) smax = s[p] ;
-   }
-  
-  // Keep DC offset within 0 to 1 (i.e Normalize waveform)
-  for (int p = 0 ; p < 8 ; p++) { //loop over all phases
-       segDuty[p] = (s[p] - smin) / smax ;
-  }
-} // end getSegDuty
 
 void TIM2_IRQHandler(void) {
 
@@ -82,22 +66,27 @@ void segDriver (void) {
 				    &TIM2->CCR3, &TIM2->CCR4 };
       for (int com = 0; com < 4; com++) {
 	   float duty = comsTable[phase][com];
-	   *ccr[com] = (uint16_t)(TIM2ARR * duty);
+	   *ccr[com] = (uint16_t)(TIM2ARR *  (1-duty));
        }
 
     // Drive Seg Line
     // segState   .... Bit pattern controlling on/off status
     // Controlling the four subsegments of the digit
 
-
     // Update state at start of four phase cycle
     // and get corresponding segWaveForm
-    if (phase == 0) {
+    if (phase == 0) 
           state =  getSegState() ; // one of sixteen states
-          genSegDuty () ;   // Get SegDuty to display this state optimally
-    }
    
-    TIM16->CCR1 = (uint16_t)(TIM16->ARR * (1 - segDuty[phase]));
+    float   segDuty;
+    uint8_t targetCom = phase / 2;  // integer division
+
+      if ( (state >> targetCom) & 0x1 )  // if the segment is on
+         segDuty = 1 - comsTable[phase][targetCom];
+      else
+         segDuty = comsTable[phase][targetCom];
+
+    TIM16->CCR1 = (uint16_t)(TIM16->ARR *  (1-segDuty));
 
     if (phase == NPHASES - 1) {
 	phase = 0 ; // new cycle
