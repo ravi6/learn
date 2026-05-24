@@ -3,9 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Random Matrices</title>
+    <title>Change of Variables in Integrals</title>
+    <!-- Load MathJax with Physics extension enabled -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                packages: {'[+]': ['physics']}
+            },
+            loader: {load: ['[tex]/physics']}
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
-
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             line-height: 1.6; 
@@ -13,18 +24,24 @@
             margin: 40px auto; 
             padding: 0 20px; 
             color: #d3d3d3; 
-            background-color: #414141; /* Smooth background tint */
+            background-color: #414141;
         }
-
-        h1 {
+        h1, h2 {
             color: #eeeeee;
-            margin-bottom: 20px;
+        }
+        h1 {
+            margin-bottom: 5px;
         }
         h2 { 
             border-bottom: 2px solid #424242; 
             padding-bottom: 8px; 
-            margin-top: 30px; 
-            color: #eeeeee;
+            margin-top: 40px; 
+        }
+        .author-date {
+            margin-top: 0;
+            margin-bottom: 30px;
+            color: #a0a0a0;
+            font-style: italic;
         }
         code { 
             background: #2f2f2f; 
@@ -33,26 +50,23 @@
             border-radius: 4px; 
             font-family: monospace; 
         }
-
         .eqn { 
             display: block; 
             width: 100%; 
             box-sizing: border-box;
-            white-space: normal; 
             background-color: #2f2f2f; 
             border: 1px solid #424242;   
             border-radius: 16px; 
             padding: 14px 18px; 
             margin: 15px 0;
             color: #f3f3e3; 
-            font-family: inherit; 
-            font-size: 1rem; 
         }
-
     </style>
 </head>
 <body>
-<div style="display: none;">
+
+    <!-- LaTeX Global Macro Definitions -->
+    <div style="display: none;">
         $
         \newcommand{\RR}{\mathbb{R}}
         \newcommand{\sE}[1]{10^{#1}}
@@ -62,299 +76,222 @@
         \newcommand{\ct}{\cos(\theta)}
         \newcommand{\ctt}{\cos^2(\theta)}
         $
-</div>
+    </div>
 
     <h1>Change of Variables in Integrals</h1>
-    <p style="margin-top: -15px; margin-bottom: 30px; color: #a0a0a0; font-style: italic;">
+    <p class="author-date">
         Author: Ravi Saripalli &nbsp;|&nbsp; Date: 21st May 2026
     </p>
 
     <p>
     Consider a simple integral of a function $f(x)$ and how a change of
-    variable of integration is performed in a simple manner.
+    variable of integration is performed.
     </p>
+
     <div class="eqn">
-    \begin{align*}
-        I = \int  \sin(x^2) dx \\
-    \end{align*}
-    Consider a change of variable y such that  $y = x^2$  
-    \begin{align*}
-     \int  \sin(y) \qty{{\dv{y}{x}}}^{-1} dy \\
-         = \int  \sin(y) \frac{1}{2 \sqrt{y}} dy \\
-    \end{align*}
+        \[ I = \int \sin(x^2) \, dx \]
     </div>
-<p>
-Notice that we have $x=\pm\sqrt{y}$. But we choose
-positive value. Since we know magnitude of the normal
-of the curve is $-{(\dv{y}{x})}^{-1}$, we could say change of variable
-results in scaling the integrand by absolute value of the normal.
-</p>
- <div class="eqn">
-  $$ \text{Consider }   \iint (x^2 + y^2)  dx dy $$
-  $$ \text{With change of variables } (r, \theta) $$
-  $$  x = r cos(\theta) \quad  \ y = r sin(\theta)$$
-\[
- \begin{align*}
-    \begin{bmatrix}
-       dx \\ dy
-    \end{bmatrix} &= J_{(x,y) \to  (r,\theta)}
-    \begin{bmatrix}
-       dr \\ d\theta
-    \end{bmatrix} \\
-\text {where } 
-     J_{(x,y) \to  (r,\theta)}
-    &= \begin{bmatrix}
-       \pdv{x}{r} \ \ \  \pdv{x}{\theta} \\
-       \pdv{y}{r} \ \ \  \pdv{y}{\theta} \\
-    \end{bmatrix} =   
-    \begin{bmatrix}
-       \cos(\theta) \ \ \  - r \sin(\theta) \\
-       \sin(\theta) \ \ \  r \cos(\theta)
-    \end{bmatrix}
-    \end{align*}
-\]
-</div>
-<p>
-When we move from single to multiple variables,
- the biggest mistake is treating \(dx\) and \(dy\)
- as separate numbers that can be multiplied like basic 
-algebra. If you blindly multiply the formulas
- for \(dx\) and \(dy\) during a change of variables,
-following the above relations, 
- you get an algebraic mess of \(dr^{2}\) and \(d\theta^2\) 
-terms that makes no sense. The trap is thinking of
- \(dxdy\) as a simple multiplication. 
-In reality, \(dxdy\) represents the area of a 
-tiny patch on the plane. When coordinates curve, 
-that patch stretches into a tilted parallelogram, 
-behaving exactly like a geometric cross product. 
-The cross product naturally kills off the 
-parallel \(dr^{2}\) and \(d\theta^2\) directions,
- leaving behind only the actual area element.
- The Jacobian matrix isn't a magic formula we arbitrarily
- substitute; it is just the mathematical tool that
- measures how much that tiny cross-product patch stretched.
-</p>
-<p>
-The area of differential element in the transformed
-variables can be determined as follows.
-</p>
-<div class="eqn">
-\begin{gather*}
-   dx\  \va{i}  = dr \ct\ \va{r}  -  r \st d\theta\ \va{\theta} \\
-   dy\  \va{j}  = dr \st\ \va{r}  +  r \ct d\theta\ \va{\theta} \\
-   dx\ dy\ ( \va{i} \cross \va{j} ) =
-       (r\ dr\ d\theta)\  (\va{r} \cross \va{\theta)} \\
-       
-   dx\ dy\ \norm{\va{i} \cross \va{j} } =
-       (r\ dr\ d\theta)\  \norm{\va{r} \cross \va{\theta}} \\
-      \text{noting  $\va{i} \vdot \va{j}= 0 \ $  and  
-                  $\ \va{r} \vdot\va{\theta} = 0$ } \\
-        dx dy \norm{\va{i}} \norm{\va{j}} sin(\pi/2) =
-        r dr d\theta \norm{\va{r}} \norm{\va{\theta}} sin(\pi/2)\\
-        dx dy = r dr d\theta
-\end{gather*}
-</div>
-<p>
-The square matrix in the above equation is known as the Jacobian
-of the transformation from $(x,y) \to (r,\theta)$. And it is worth
-nothing when needed one can use Jacobian of the transform in reverse,
-and use inverse rule to obtain the determinant in the normal direction.
-This concept will be eviden when the formula for 
-traslating from one non-orthogonal grid to antother non-orthogonal
-grid.
-With this concept firmly bedded we can now write te 
-double integral in the transformed variables as follows.
-</p>
-<div class="eqn">
-    \begin{align*}
-    J = \begin{bmatrix}
-       \cos(\theta) \ \ \  - r \sin(\theta) \\
-       \sin(\theta) \ \ \  r \cos(\theta)
-    \end{bmatrix} \\
-    \end{align*}
-    Noting that  $|\det(J)| = r = \frac{dx\ dy}{dr\ d\theta}$ 
-    \begin{align*}
-     &\iint \qty{r^2 \cos^2(\theta) + r^2 \sin^2(\theta)} |\det(J)| \, dr \, d\theta \\
-     &= \iint r^3 \, dr \, d\theta
-    \end{align*}
-</div>
 
-<p>
-It follows then that we can generalize multiple integrals on any dimension with change of 
-variables with the construction of Jacobian matrix and determination of its determinant
-to compute the scaling of integrand in the transformed variable. It is important to understand
-while the choice of transformation variables and their relation to the original variables
-is non unique, certain choices that make the determinant zero will result in infeasible
-transformation for obvious reason. The fact that the determinant of the Jacobian is zero itself
-is a definitive indicator the transformation variables are not independent.
-</p>
+    <p>Consider a change of variable $y$ such that $y = x^2$:</p>
 
-<h2>Generalized coordinate transformation</h2>
-<p>
-Although we delat with earlier example with change of variable from one orthogonal
-coordinate system to another orthogonal coordinate system, the 
-scaling of the differntial area in the coordinate transformation can be generlized
-even for non-orthogonal coordinate systems as following. 
-</p>
-<div class="eqn">
-    \begin{align*}
-     \text{let} \quad u &= f(p,q) \quad  
-    \text{and } \quad v = g(p,q) \\
-     J_{(u,v) \to  (p,q)}
-    &= \begin{bmatrix}
-       \pdv{u}{p} \ \ \  \pdv{u}{q} \\
-       \pdv{v}{p} \ \ \  \pdv{v}{q} \\
-    \end{bmatrix}   \\  
+    <div class="eqn">
+        \begin{align*}
+        \int \sin(y) \qty(\dv{y}{x})^{-1} \, dy = \int \sin(y) \frac{1}{2 \sqrt{y}} \, dy
+        \end{align*}
+    </div>
 
-     \det{ J_{(p,q) \to  (u,v)} } &= \frac{1}
-                            {\det{ J_{(u,v) \to  (p,q)}}} \\
+    <p>
+    Notice that we have $x=\pm\sqrt{y}$, but we restrict our focus to the positive branch. 
+    Since the absolute slope of the normal to the transformation curve is given by $\left|-(\dv{y}{x})^{-1}\right|$, 
+    we can state that a one-dimensional change of variables results in scaling the integrand 
+    by the absolute value of this normal slope.
+    </p>
 
-   du\ \va{u} &= dp\  \pdv{u}{p} \va{p} +  dq \pdv{u}{q} \va{q} \\
-   dv\ \va{v} &= dp\  \pdv{v}{p} \va{p} +  dq \pdv{v}{q} \va{q}\\
+    <h2>Multivariate Transformations</h2>
+    <p>Consider the double integral over a Cartesian area element:</p>
+    
+    <div class="eqn">
+        \[ \iint (x^2 + y^2) \, dx \, dy \]
+    </div>
 
-   du\ dv\ \norm{\va{u} \cross \va{v} } &=
-       (dp\ dq)\ 
-       \left(
-         \pdv{u}{p} \pdv{v}{q} -
-         \pdv{u}{q} \pdv{v}{p} 
-       \right)
-        \norm{\va{p} \cross \va{q}} \\
-         &= (dp\ dq) {J_{(u,v) \to  (p,q)}} 
-            \norm{\va{p} \cross \va{q}} \\
+    <p>We introduce a change of variables to polar coordinates $(r, \theta)$, defined by:</p>
+    <div class="eqn">
+        \[ x = r \cos(\theta), \quad y = r \sin(\theta) \]
+    </div>
 
-      \frac {dp\ dq} {du\ dv} &= \frac {sin(\alpha)}{sin(\beta)} 
-            \frac{1}{\det{J_{(u,v) \to  (p,q)}}} \\
-       \text{and} \\
-                   \norm{\va{u} \cross \va{v}} &= sin (\alpha)  \\
-                   \norm{\va{p} \cross \va{q}} &= sin (\beta)  
+    <p>The differential coordinate vectors transform via the forward Jacobian matrix:</p>
+    <div class="eqn">
+        \begin{align*}
+        \begin{bmatrix} dx \\ dy \end{bmatrix} &= J_{(x,y) \to (r,\theta)} \begin{bmatrix} dr \\ d\theta \end{bmatrix} \\
+        \text{where } J_{(x,y) \to (r,\theta)} &= \begin{bmatrix} \pdv{x}{r} & \pdv{x}{\theta} \\ \pdv{y}{r} & \pdv{y}{\theta} \end{bmatrix} = \begin{bmatrix} \cos(\theta) & -r \sin(\theta) \\ \sin(\theta) & r \cos(\theta) \end{bmatrix}
+        \end{align*}
+    </div>
 
-    \end{align*}
-</div>
+    <p>
+    When transitioning from single to multiple variables, a frequent conceptual trap is treating $dx$ and $dy$ 
+    as independent scalar quantities that can be multiplied via elementary algebra. Blindly multiplying the expansion 
+    formulas for $dx$ and $dy$ yields an incorrect algebraic combination of $dr^{2}$ and $d\theta^2$ terms. 
+    In reality, $dxdy$ represents a differential area element on the plane. 
+    Under a curved transformation, this rectangular patch deforms into a tilted parallelogram, behaving exactly 
+    like a geometric cross product (or wedge product). 
+    The cross product naturally eliminates parallel components ($dr \va{r} \cross dr \va{r} = 0$), leaving behind 
+    only the joint area element. The Jacobian determinant is the precise geometric tool that measures this local area scaling.
+    </p>
 
+    <p>
+    The area of the differential element in the transformed coordinate system can be derived via vector fields:
+    </p>
+    
+    <div class="eqn">
+        \begin{align*}
+        d\va{r}_1 &= \pdv{\va{r}}{r}dr = \left(\cos(\theta)\va{i} + \sin(\theta)\va{j}\right)dr \\
+        d\va{r}_2 &= \pdv{\va{r}}{\theta}d\theta = \left(-r\sin(\theta)\va{i} + r\cos(\theta)\va{j}\right)d\theta \\
+        dx \, dy \, (\va{i} \cross \va{j}) &= d\va{r}_1 \cross d\va{r}_2 = (r \, dr \, d\theta) \, (\va{i} \cross \va{j}) \\
+        \text{Taking the norm: } \quad dx \, dy &= r \, dr \, d\theta
+        \end{align*}
+    </div>
+
+    <p>
+    The matrix used in this transformation is the Jacobian of the map $(r,\theta) \to (x,y)$. 
+    When an inverse mapping is more readily available or easier to differentiate, one can evaluate the 
+    determinant of the reverse transformation matrix and exploit the scalar reciprocal identity. 
+    This strategy becomes vital when translating between two distinct non-orthogonal grids.
+    Executing this substitution yields the transformed double integral:
+    </p>
+
+    <div class="eqn">
+        \begin{align*}
+        &\iint \qty(r^2 \cos^2(\theta) + r^2 \sin^2(\theta)) \left|\det(J)\right| \, dr \, d\theta \\
+        &= \iint r^3 \, dr \, d\theta
+        \end{align*}
+    </div>
+
+    <p>
+    This framework generalizes to arbitrary dimensions. The absolute determinant of the respective Jacobian matrix 
+    tracks the precise spatial scaling of the integrand. If a transformation choice causes the Jacobian determinant to 
+    vanish, the transformation becomes invalid at those coordinates; a zero determinant is a definitive structural indicator 
+    that the chosen coordinate fields fail to maintain linear independence.
+    </p>
+
+    <h2>Generalized Coordinate Transformation</h2>
+    <p>
+    The scaling of a differential area element can be generalized to transformations involving non-orthogonal coordinate systems:
+    </p>
+
+    <div class="eqn">
+        \begin{align*}
+        \text{Let } \quad u = f(p,q) \quad &\text{and} \quad v = g(p,q) \\
+        J_{(u,v) \to (p,q)} &= \begin{bmatrix} \pdv{u}{p} & \pdv{u}{q} \\ \pdv{v}{p} & \pdv{v}{q} \end{bmatrix} \\
+        \left|\det J_{(p,q) \to (u,v)}\right| &= \frac{1}{\left|\det J_{(u,v) \to (p,q)}\right|}
+        \end{align*}
+    </div>
+
+    <p>The differential area elements scale proportionally according to the skew angle of the basis vectors:</p>
+
+    <div class="eqn">
+        \begin{align*}
+        \frac{dp \, dq}{du \, dv} &= \frac{\sin(\alpha)}{\sin(\beta)} \frac{1}{\left|\det J_{(u,v) \to (p,q)}\right|} \\
+        \text{where } \quad \norm{\va{u} \cross \va{v}} &= \sin(\alpha) \quad \text{and} \quad \norm{\va{p} \cross \va{q}} = \sin(\beta)
+        \end{align*}
+    </div>
 <h2> Concluding Remarks</h2>
 <p>
-The core lesson of this geometric view is that coordinate 
-scaling factors always measure how physical space expands
- or contracts. When changing variables in standard functions,
- the absolute determinant $|\det(J)|$ tracks how a region expands, 
-which is why it sits comfortably as a multiplier next to our differentials.
-And this is specific to the case for change of variables from an orthogonal
-coordinate system to another orthogonal coordinate system.
+The core lesson of this geometric view is that coordinate scaling factors always 
+measure how physical space expands or contracts. When changing variables in 
+standard functions, the absolute determinant $|\det(J)|$ tracks how a region 
+locally stretches, which is why it sits as a multiplier next to our 
+differentials. This behavior generalizes smoothly across curvilinear systems.
 </p>
 
 <p>
-In the next section, 
-we will shift our focus to evaluating integrals containing 
-the <strong>Dirac Delta Function ($\delta$)</strong>. 
+In the next section, we shift our focus to evaluating integrals containing the 
+<strong>Dirac Delta Function ($\delta$)</strong>, where coordinate transformations 
+govern distribution behaviors.
 </p>
 
 <h2>Integrands with Dirac Delta function</h2>
-The definition of Dirac Delta function $\delta(x)$ 
-is that it is zero at all points other than at $x=0$, and its integral 
-over the range of all possible x values  is 
-unity. Since the span of the function where it is nonzero is zero,
-it is inevitable the value of the function at $x=0$ tends to inifinity.
-Trivial integrals
-involving Dirac Delta function can be evaluated as follows, noting
-that Dirac Delta function definition can be extended to higher dimensions. 
-<div class="eqn">
-  \begin{align*}
-    \delta(x) = 
-    \begin{cases} 
-      1 & \text{if } x = 0 \\ 
-      0 & \text{if } x \neq 0 
-    \end{cases} \\ 
-  \end{align*}
-With the above definition, some trivial examples of
-integrals are as follows.
-  \begin{align*}
-    \int \delta(x-a) f(x) dx = f(a) \\
-    \iint \delta(x-a, y-b) g(x,y) dx dy = g(a,b) 
-  \end{align*}
-</div>
 <p>
-In the above integrals the argument of Dirac Delta functions
-are just offset from the variable with respect to the integration.
-But if indeed the argument is a complex function as shown below,
-the change of variable mechanism would come to our rescue.
+The Dirac delta function $\delta(x)$ is a generalized function (distribution) 
+characterized by its sifting property under an integral. It is zero for all 
+non-zero arguments, spikes infinitely at the origin, and integrates to unity 
+over the real line. This definition extends naturally to higher dimensions 
+via products of coordinate distributions.
 </p>
 
 <div class="eqn">
-\begin{gather*}
-     I = \int \delta(\phi(x)) f(x) dx  \\
-\text{Let }   y = \phi(x) \\
-\text{Then }  
-     I = \int \delta(y) \frac{f(x)}{\abs{\dv{\phi}{x}}} dy \\
-      =   \left. \frac{f(x)}{\abs{\dv{\phi}{x}}} \right|_{y=0} \\
-\end{gather*}
+  \begin{align*}
+    \delta(x) = 0 \quad \text{for } x \neq 0, \quad \text{and} \quad \int_{-\infty}^{\infty} \delta(x) \, dx = 1
+  \end{align*}
+  <p>Standard distributional evaluations satisfy the following properties:</p>
+  \begin{align*}
+    \int_{-\infty}^{\infty} \delta(x-a) f(x) \, dx &= f(a) \\
+    \iint_{\mathbb{R}^2} \delta(x-a, y-b) g(x,y) \, dx \, dy &= g(a,b) 
+  \end{align*}
 </div>
 
+<p>
+In the simple cases above, the delta arguments are linear offsets of the integration 
+variables. However, when the argument is a complex, continuously differentiable 
+function, an explicit change of variables is required to evaluate the sifting 
+property.
+</p>
+
 <div class="eqn">
-\[
-\begin{align*}
-I &= \iint \delta(\phi(x, y)) f(x,y) dx dy  \\
-\text{Let }   z &= \phi(x, y) \\
-\end{align*}
-\]
-To simplify the variable substitution, 
-we choose a single-valued branch of the inverse function, written as
-$y = \psi(x,z)$ 
-And with change of variables from  $(x, y)$ to $(x, z)$ 
-\begin{gather*}
-    J_{(x,y) \to (x,z)} = \begin{bmatrix}
-       1 \ \ \ 0  \\
-       \pdv{\psi}{x} \ \ \   \pdv{\psi}{z}
+  \begin{align*}
+     I &= \int \delta(\phi(x)) f(x) \, dx  \\
+     \text{Let } y &= \phi(x) \implies dy = \abs{\dv{\phi}{x}} \, dx \\
+     I &= \int \delta(y) \frac{f(x)}{\abs{\dv{\phi}{x}}} \, dy = \left. \frac{f(x)}{\abs{\dv{\phi}{x}}} \right|_{\phi(x)=0}
+  \end{align*}
+</div>
+
+<p>
+We now extend this mechanics to two dimensions where the delta function is 
+composed with a multivariable function:
+</p>
+
+<div class="eqn">
+  \begin{align*}
+    I = \iint_{\mathbb{R}^2} \delta(\phi(x, y)) f(x,y) \, dx \, dy  
+  \end{align*}
+  <p>
+  Let $z = \phi(x, y)$. To construct a valid coordinate transformation, we assume 
+  the existence of a local single-valued inverse function branch, written as 
+  $y = \psi(x,z)$, mapping coordinates from $(x,y) \to (x,z)$.
+  </p>
+  \begin{align*}
+    J_{(x,z) \to (x,y)} &= \begin{bmatrix}
+       1 & 0  \\
+       \pdv{\psi}{x} & \pdv{\psi}{z}
     \end{bmatrix} \\
-     I = \iint \delta(z) {f(x,\psi(x,z))}{\abs{\pdv{\psi}{z}}} dx dz\\
-      =  \int  f(x,\psi(x,0))\abs{\pdv{\psi}{x}}_{z=0} dx \\
-
-\end{gather*}
+     I &= \iint \delta(z) f(x,\psi(x,z)) \abs{\pdv{\psi}{z}} \, dx \, dz \\
+      &= \int f(x,\psi(x,0)) \abs{\pdv{\psi}{z}(x,0)} \, dx
+  \end{align*}
 </div>
+
 <p>
-While the above derivation is for a specific inverse function 
-$\psi_i(x,z)$, in practice it is possible to have multiple
-inversei functions and we have to account for all such occurences
-in order that the integral is evaluated properly. In that
-instance it is matter of summing over contributioons of
-all such inverse functions as shown here.
+While the sequence above details a single isolated inverse branch $\psi_i(x,z)$, 
+general non-linear functions $\phi(x,y)=0$ can possess multiple discrete solution 
+roots. To evaluate the total distribution accurately, we must sum over all 
+contributing inverse coordinate branches:
 </p>
-<div c3yylass="eqn">
-\begin{align*}
-     I = \iint \delta(z)\sum_i {f(x,\psi_i(x,z))}{\abs{\pdv{\psi_i}{z}}} dx dz\\
-      =  \int \sum_i  f(x,\psi_i(x,0))\abs{\pdv{\psi_i}{x}}_{z=0} dx \\
-\end{align*}
+
+<div class="eqn">
+  \begin{align*}
+     I &= \iint \delta(z) \sum_i f(x,\psi_i(x,z)) \abs{\pdv{\psi_i}{z}} \, dx \, dz \\
+      &= \int \sum_i f(x,\psi_i(x,0)) \abs{\pdv{\psi_i}{z}(x,0)} \, dx
+  \end{align*}
 </div>
 
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<script>
-        window.MathJax = {
-            tex: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']],
-                displayMath: [['$$', '$$'], ['\\[', '\\]']],
-                packages: {'[+]': ['physics']}
-            },
-            loader: {
-                load: ['[tex]/physics']
-            }
-        };
-    </script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<h2>Acknowledgement</h2>
+<p>
+ I have to acknowledge contribution of Google's AI engine, in vetting
+my document and polishing the presentation of this topic. While all of
+these mathematical concepts have been thrashed out well, understanding
+them deeply was challenging to me. I am hopeful this will help others in
+some way.
+ This effort was a precursor to my the derivation of
+distribution of the eigen value difference of a simple symmetric 2x2
+square matrix (based on a youtube lecture by a physicist on this topic).
+</p>
 </body>
 </html>
-
