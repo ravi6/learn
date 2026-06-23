@@ -19,7 +19,7 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             line-height: 1.6; 
-            max-width: 800px; 
+            max-width: 1000px; 
             margin: 40px auto; 
             padding: 0 20px; 
             color: #d3d3d3; 
@@ -74,10 +74,10 @@
         \newcommand{\RR}{\mathbb{R}}
         \newcommand{\sE}[1]{10^{#1}}
         \newcommand{\bold}[1]{\mathbf{#1}}
-        \newcommand{\st}{\sin(\theta)}
-        \newcommand{\stt}{\sin^2(\theta)}
-        \newcommand{\ct}{\cos(\theta)}
-        \newcommand{\ctt}{\cos^2(\theta)}
+        \newcommand{\st}{\sin\theta}
+        \newcommand{\stn}[1]{\sin^{#1}\theta}
+        \newcommand{\ctn}[1]{\cos^{#1}\theta}
+        \newcommand{\ct}{\cos\theta}
         \newcommand{\GA}{\frac{1}{\sqrt{2\pi\sigma^2}}}
         \newcommand{\half}{\frac{1}{2}}
         \newcommand{\intg}{\int_{-\infty}^\infty}
@@ -217,7 +217,7 @@ account for contribution of both in variable transformation.
     \pdv{\phi}{z} &= 4z / \phi = \frac{2}{\phi} \sqrt{\phi^2 - (x-y)^2}  \\
     p(z) &= \GA e^{-\frac{(\phi^2 - (x-y)^2)}{8\sigma^2}} \\
 p(s) &= 
-     \intg \intg \intg p(x)\  p(y)\  
+     \intg \intg \int_{|x-y|}^\infty p(x)\  p(y)\  
      \GA e^{-\frac{(\phi^2 - (x-y)^2)}{8\sigma^2}} 
      \ \delta(\phi - s)\  \\
       & 
@@ -374,5 +374,136 @@ some way.
 distribution of the eigen value difference of a simple symmetric 2x2
 square matrix (based on a youtube lecture by a physicist on this topic).
 </p>
+
+<div style="background-color: #2f2f2f; border-left: 4px solid gold; padding: 15px; margin: 20px 0; border-radius: 4px;">
+    <strong>Intuitive Note on the Factor of 2:</strong><br>
+    When we change variables from $z$ to $\phi$, we are mapping a domain that goes from $-\infty$ to $+\infty$ onto a domain that only goes from $|x-y|$ to $+\infty$ (since a square root is always positive). Because $z$ is squared ($\phi^2 = (x-y)^2 + 4z^2$), every single value of $\phi$ actually corresponds to two distinct values of $z$: a positive one ($+z$) and a negative one ($-z$). 
+    <br><br>
+    If we only use the standard single-variable Jacobian derivative, we are accidentally throwing away half of our integration space (the negative $z$ values)! Because our original bell curve probability function $p(z)$ is perfectly symmetrical around zero, the negative half of the graph contains the exact same area as the positive half. Therefore, we simply multiply our single-branch Jacobian by 2 to fully account for both pieces of the domain. 
+    <br><br>
+    The above triple integral reduces to a double integral as the integral with respect to $\phi$ reduces to the integrand evaluated at $\phi=s$.
+</div>
+
+<h2>Evaluation of the Distribution of $s$</h2>
+
+<p>
+With the known probability distributions of $x$, $y$, and $z$, we can determine the distribution of their eigenvalue spacing $\phi(x,y,z)$. Sampling the exact spacing distance $s$ from the random matrix elements is achieved using a Dirac delta function as a constraint inside the joint probability integral:
+\[
+p(s) = \intg\intg\intg p(x)\ p(y)\ p(z)\ \delta(\phi(x,y,z) - s)\ dx\ dy\ dz
+\]
+To evaluate this, our motivation is to transform the integration variable from $z$ to our spacing variable $\phi$ using the direct forward relationship:
+\[
+\phi = \sqrt{(x-y)^2 + 4z^2}
+\]
+Differentiating $\phi$ directly with respect to $z$ gives a clean forward derivative:
+\[
+\pdv{\phi}{z} = \frac{4z}{\phi} \implies dz = \frac{\phi}{4z}\, d\phi
+\]
+</p>
+
+<h3>The Fork in the Road: Managing the Non-Unique Mapping</h3>
+<p>
+As soon as we attempt to substitute our old variable $z$ away, we hit a mathematical hurdle. Rearranging the spacing formula to express $z$ in terms of our new coordinate $\phi$ requires a square root:
+\[
+4z^2 = \phi^2 - (x-y)^2 \implies z = \pm \half \sqrt{\phi^2 - (x-y)^2}
+\]
+Because of the $\pm$ sign, our chosen coordinate change is not a simple one-to-one transformation. For every single value of our new distance metric $\phi$, there are two distinct physical pathways in our original $z$ space: a <b>Positive Branch</b> ($z \ge 0$) and a <b>Negative Branch</b> ($z \le 0$). To handle this non-unique transformation rigorously without dropping any integration space, we must process both pathways in parallel.
+</p>
+
+<div class="eqn">
+<h4>Path 1: The Positive Branch ($z \ge 0$)</h4>
+On this pathway, $z = +\half \sqrt{\phi^2 - (x-y)^2}$. Let us track how the boundaries behave:
+<ul>
+    <li>When $z = 0$, the minimum possible value for $\phi$ is $\sqrt{(x-y)^2} = |x-y|$.</li>
+    <li>When $z \to \infty$, then $\phi \to \infty$.</li>
+</ul>
+Substituting this positive root into our differential gives the standard absolute Jacobian element:
+\[
+dz = \frac{\phi}{4|z|}\, d\phi = \frac{\phi}{2\sqrt{\phi^2 - (x-y)^2}}\, d\phi
+\]
+This branch integrates smoothly over forward-running limits from $|x-y|$ to $\infty$:
+\[
+\text{Branch}_1 = \int_{|x-y|}^{\infty} p(x)\, p(y)\, p(+z(\phi))\, \delta(\phi - s)\, \frac{\phi}{2\sqrt{\phi^2 - (x-y)^2}}\, d\phi
+\]
+</div>
+
+<div class="eqn">
+<h4>Path 2: The Negative Branch ($z \le 0$)</h4>
+On this parallel pathway, $z = -\half \sqrt{\phi^2 - (x-y)^2}$. Tracking the boundaries as $z$ moves forward from $-\infty$ up to $0$:
+<ul>
+    <li>When $z = -\infty$, our positive distance metric starts at $\phi = \infty$.</li>
+    <li>When $z = 0$, the boundary finishes at $\phi = |x-y|$.</li>
+</ul>
+Because our slope is falling on this side, the spatial differential explicitly tracks the negative orientation of the line: $dz = -\frac{\phi}{4|z|}\, d\phi$. This leaves us with an integral that initially runs backward from $\infty$ down to $|x-y|$:
+\[
+\text{Branch}_2 = \int_{\infty}^{|x-y|} p(x)\, p(y)\, p(-z(\phi))\, \delta(\phi - s)\, \left(-\frac{\phi}{2\sqrt{\phi^2 - (x-y)^2}}\right) d\phi
+\]
+To straighten these integration boundaries out so they run from smallest to largest, we must flip the limits. Flipping an integral's limits introduces a second negative sign ($\int_a^b = -\int_b^a$). This double-negative cancels out perfectly:
+\[
+\text{Branch}_2 = + \int_{|x-y|}^{\infty} p(x)\, p(y)\, p(-z(\phi))\, \delta(\phi - s)\, \frac{\phi}{2\sqrt{\phi^2 - (x-y)^2}}\, d\phi
+\]
+</div>
+
+<h3>Collapsing the Sum into a Multiplier</h3>
+<p>
+The total probability distribution is the combined sum of both pathways: $p(s) = \text{Branch}_1 + \text{Branch}_2$. 
+</p>
+<p>
+Now we observe a beautiful geometric handshake. First, the limit-flipping math has forced both branches to span the exact same forward integration limits ($|x-y|$ to $\infty$) with the exact same absolute Jacobian factor. Second, because our original Gaussian probability density function $p(z)$ relies strictly on $z^2$, the negative sign on the second branch root vanishes ($(-z)^2 = (+z)^2$). 
+</p>
+<p>
+Because the two integration pathways carry identical physical weight over the exact same domain, the formal summation collapses into a simple global multiplier of 2:
+\begin{align*}
+p(s) &= \intg \intg \int_{|x-y|}^{\infty} p(x)\ p(y)\ \GA e^{-\frac{(\phi^2 - (x-y)^2)}{8\sigma^2}}\ \delta(\phi - s)\ \left[ 2 \cdot \frac{\phi}{2\sqrt{\phi^2 - (x-y)^2}} \right] dx\ dy\ d\phi \\
+     &= \intg \intg \int_{|x-y|}^{\infty} p(x)\ p(y)\ \GA e^{-\frac{(\phi^2 - (x-y)^2)}{8\sigma^2}}\ \delta(\phi - s)\ \frac{\phi}{\sqrt{\phi^2 - (x-y)^2}}\ dx\ dy\ d\phi
+\end{align*}
+The 2 from the dual-branch summation has cleanly cancelled out the $\half$ inside the single-branch Jacobian.
+</p>
+
+<h3>Reduction to the Double Integral</h3>
+<p>
+Finally, the Dirac delta function fires, instantly collapsing the $\phi$ integral by evaluating the entire integrand at the exact pinpoint constraint of $\phi = s$. Because the sampling point $s$ must fall inside the valid integration boundaries, this evaluation enforces the physical condition that $s \ge |x-y|$ (or conversely, $(x-y)^2 \le s^2$). 
+</p>
+<p>
+Substituting $\phi = s$ and grouping our standard normalization constants into our macro definition yields our definitive double integral:
+\begin{align*}
+    p(s) &= \GB \intg \intg e^{-\frac{x^2+y^2}{2\sigma^2}}
+              e^{-\frac{s^2 - (x-y)^2}{8\sigma^2}}
+               \frac{1}{\sqrt{s^2 - (x-y)^2}}\ dx\ dy
+\end{align*}
+where the integration domain is now implicitly bound to regions where $(x-y)^2 \le s^2$.
+</p>
+<h3>Modified Bessel Function of First Kind</h3>
+\begin{align*}
+    I_0 (z) = \int_{0}^{\pi} e^{z \ct}\  d\theta 
+\end{align*}
+Expanding the integrand as infinite series with Taylor Series
+expansion around $z=0$
+\begin{align*}
+  I_0 (z) = \int_{0}^{\pi} \sum_{i=0}^{\infty} 
+	     \frac{(z\ct)^i}{i!} \ 
+	     d\theta 
+\end{align*}
+To further simplify we need to derive the following general
+integral
+
+\begin{align*}
+  C_n &= \int_0^\pi \ctn{n} \ d\theta  \\
+      &=\left[ \st \ctn{n-1}  \right]_0^\pi +
+	(n - 1) \int_0^\pi \stn{2} \ctn{n-2} \ d\theta \\
+      &= 0 + (n - 1) \int_0^\pi \left( 1 - \ctn{2} \right) \ctn{n-2} \ d\theta \\
+      &= (n-1) C_{n-2} - (n-1) C_n \\
+\end{align*}
+And this gives us the recursive relation of the integrals that
+can be exploited
+\[ 
+    C_n = \frac{n-1}{n} C_{n-2}
+\]
+Ginve that $C_1=\int_0^\pi \ct d\theta=0$, it is easy to see all $C_n$ terms where
+$n$ is odd would also be zero due the recursion. Then we can deduce that the
+$C_n$ value for any even value of $n$ can be written as follows.
+\begin{align*}
+   C_n = \frac {\prod_{i=1}^{n} 2i-1} {\prod_{i=1}^{n} 2(i-1)}
+\end{align*}
 </body>
 </html>
