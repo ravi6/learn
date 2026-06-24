@@ -18,51 +18,36 @@
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            line-height: 1.6; 
-            max-width: 1000px; 
-            margin: 40px auto; 
-            padding: 0 20px; 
-            color: #d3d3d3; 
-            background-color: #414141;
+            line-height: 1.6; max-width: 1000px; margin: 40px auto;
+            padding: 0 20px; color: #d3d3d3; background-color: #414141;
         }
         a {color: gold}
 
-        h1, h2 {
-            color: #eeeeee;
-        }
-        h1 {
-            margin-bottom: 5px;
-        }
-        h2 { 
-            border-bottom: 2px solid #424242; 
-            padding-bottom: 8px; 
-            margin-top: 40px; 
+        h1, h2 { color: #eeeeee; }
+        h1 { margin-bottom: 5px; }
+        h2 {
+            border-bottom: 2px solid #424242;
+            padding-bottom: 8px;
+            margin-top: 40px;
         }
         .author-date {
-            margin-top: 0;
-            margin-bottom: 30px;
-            color: #a0a0a0;
-            font-style: italic;
+            margin-top: 0; margin-bottom: 30px;
+            color: #a0a0a0; font-style: italic;
         }
-        code { 
-            background: #2f2f2f; 
-            color: #ececec;
-            padding: 2px 6px; 
-            border-radius: 4px; 
-            font-family: monospace; 
+        code {
+            background: #2f2f2f; color: #ececec;
+            padding: 2px 6px; border-radius: 4px;
+            font-family: monospace;
         }
-        .eqn { 
-            display: block; 
-            width: 100%; 
-            box-sizing: border-box;
-            background-color: #2f2f2f; 
-            border: 1px solid #424242;   
-            border-radius: 16px; 
-            padding: 14px 18px; 
-            margin: 15px 0;
-            color: #f3f3e3; 
-                overflow-x: auto;
-
+        .eqn {
+            display: block; width: 100%; box-sizing: border-box;
+            background-color: #2f2f2f; border: 1px solid #424242;
+            border-radius: 16px; padding: 14px 18px;
+            margin: 15px 0; color: #f3f3e3; overflow-x: auto;
+        }
+        .note {
+            background-color: #2f2f2f; border-left: 4px solid gold; 
+            padding: 15px; margin: 20px 0; border-radius: 4px;
         }
     </style>
 </head>
@@ -92,13 +77,13 @@
 
 <h2>Preamble</h2>
 <p>
-     I came across a video of a lecture series  on 
+     I came across a video of a lecture series  on
 <a href=https://www.youtube.com/watch?v=Je4bU3g_QGk&list=PLIwqi3x7Lu0oR2jJaCs8kIXaxba5Cq5sG>
 "Random Matrices: Theory and Practice"</a> on the above topic during my
 attempts to understand the use of random matrix projections to achieve image
-compression in conjunction with single value decomposition (SVD). 
+compression in conjunction with single value decomposition (SVD).
 The current  topic indeed is a digression from my aim, and yet it interested me
-for it showed 
+for it showed
 </p>
 <ul>
 <li>
@@ -106,14 +91,14 @@ Derivation of the distrubtion of a complex expression involving several
 independant random variables.
 </li>
 <li> The use of delta function for sampling with constraints in  complex
-domain. 
+domain.
 </li>
-<li> The role of Jacobian determinant in 
+<li> The role of Jacobian determinant in
 variable transformations with integrals involving more than one dimension.
-</li> 
+</li>
 </ul>
 <p>In addition, it showed some interesting properties of the distribution
-of the distance between the two eigen values of a symmetric 2x2 matrix 
+of the distance between the two eigen values of a symmetric 2x2 matrix
 whose elements are normally distributed. The analytic derivation of this
 diaribution was attributed to Wigner and was referred as Wigner Surmise,
 despite the fact that it is not a surmise but concrete proof.
@@ -127,11 +112,11 @@ Indeed after a  considerable effort and discussions
 with AI, I have finally grasped the concept and consolidated my understanding
 in a mini article "Change of Variables in Inegration"
 The second hurdle was to come up with the variable transformations once the
-delta function in the integrand appropriately handled. 
+delta function in the integrand appropriately handled.
 The variable transformation that permitted easy separation of domains, and
 evaluation of separated integrals proved challenging to me.
 </p>
-<p> 
+<p>
 The derivation I present here is an experiment to see to what
 extent I can get the result on my own, despite the benefit of seeing
 the lecture which showed all the steps that I have either not clearly
@@ -140,25 +125,25 @@ put together something very complex once and then trying it on my own,
 with some residual memory of what was absorbed earlier.
 </p>
 <p>
-In no way I calim that it is 
-completely my working, but I can claim that it is the working that I have 
+In no way I calim that it is
+completely my working, but I can claim that it is the working that I have
 good understaning of  and that in itself is very satisfying to me.
 </p>
 
 <p>With no more musings let us derive the distribution of
-the distance between the eigen values of a symmetric 
+the distance between the eigen values of a symmetric
 2x2 square random  matrix
 </p>
 
 
     <div class="eqn">
 Consider
-        \[ A = 
-        \begin{bmatrix} x \ \ z \\ z \ \ y \end{bmatrix} 
+        \[ A =
+        \begin{bmatrix} x \ \ z \\ z \ \ y \end{bmatrix}
         \]
 where
     x, y and z are random variables and have independant and identical
-normal distributions with zero mean and standard deviation of 
+normal distributions with zero mean and standard deviation of
 $\sigma$
 
   \begin{align*}
@@ -172,14 +157,14 @@ Eigen values of the square matrix $A$ can be calculated as follows
     <div class="eqn">
         \begin{align*}
            det \left( A - \lambda I \right) &= 0  \\
-           det 
+           det
         \begin{bmatrix}
-               x-\lambda\ &z          \\ 
-               z\   &y -\lambda 
+               x-\lambda\ &z          \\
+               z\   &y -\lambda
         \end{bmatrix} &= 0 \\
          (x - \lambda)  (y - \lambda) -
-         z^2 &= 0 \\ 
-        \lambda^2 - \lambda (x + y) + x y -  z^2 &= 0  
+         z^2 &= 0 \\
+        \lambda^2 - \lambda (x + y) + x y -  z^2 &= 0
         \end{align*}
 Root of the above equation give the eigen values of interest.
 \begin{align*}
@@ -187,7 +172,7 @@ Root of the above equation give the eigen values of interest.
 \end{align*}
 
 Now the distance between the two eigen values ($\phi$) is the difference
-between the two roots and is given by 
+between the two roots and is given by
 \begin{align*}
       \phi(x,y,z) =  \sqrt {(x-y)^2 + 4z^2}
 \end{align*}
@@ -204,7 +189,7 @@ p(s) = \intg\intg\intg  &p(x)\  p(y)\ p(z)  \\
 &\delta(\phi(x,y,z) - s)\  dx\  dy\  dz
 \end{align*}
 </div>
-We can utilize the change of variable technique that was described in 
+We can utilize the change of variable technique that was described in
 <a href=#>Change of Variables in Integration</a>
   to reduce the
 above tripple integral to double integral in x and y with the transformation $z$ variable
@@ -216,30 +201,30 @@ account for contribution of both in variable transformation.
     \phi^2 &= (x-y)^2 + 4 z^2 \\
     \pdv{\phi}{z} &= 4z / \phi = \frac{2}{\phi} \sqrt{\phi^2 - (x-y)^2}  \\
     p(z) &= \GA e^{-\frac{(\phi^2 - (x-y)^2)}{8\sigma^2}} \\
-p(s) &= 
-     \intg \intg \int_{|x-y|}^\infty p(x)\  p(y)\  
-     \GA e^{-\frac{(\phi^2 - (x-y)^2)}{8\sigma^2}} 
+p(s) &=
+     \intg \intg \int_{|x-y|}^\infty p(x)\  p(y)\
+     \GA e^{-\frac{(\phi^2 - (x-y)^2)}{8\sigma^2}}
      \ \delta(\phi - s)\  \\
-      & 
-\quad \quad  \quad 
-\quad \quad  \quad 
-\quad \quad  \quad 
-2 \frac{\phi}{2} \frac{1}{\sqrt{\phi^2 - (x-y)^2}}  
+      &
+\quad \quad  \quad
+\quad \quad  \quad
+\quad \quad  \quad
+2 \frac{\phi}{2} \frac{1}{\sqrt{\phi^2 - (x-y)^2}}
       \ dx\  dy\  d\phi \\
 \end{align*}
 </div>
-When we change variables from \(z\) to \(\phi \), we are mapping a domain 
-that goes from \(-\infty \) to \(+\infty \) onto a 
-domain that only goes from \(0\) to \(+\infty \) (since a square 
-root is always positive).Because \(z\) is squared (\(\phi^2 = (x-y)^2 + 4z^2\)), 
-every single value of \(\phi \) actually corresponds 
+When we change variables from \(z\) to \(\phi \), we are mapping a domain
+that goes from \(-\infty \) to \(+\infty \) onto a
+domain that only goes from \(0\) to \(+\infty \) (since a square
+root is always positive).Because \(z\) is squared (\(\phi^2 = (x-y)^2 + 4z^2\)),
+every single value of \(\phi \) actually corresponds
 to two distinct values of \(z\): a positive one (\(+z\))
- and a negative one (\(-z\)).If we only use the 
-standard single-variable Jacobian derivative, 
-we are accidentally throwing away half of our integration 
-space (the negative \(z\) values)! Because our original bell 
-curve probability function \(p(z)\) is perfectly symmetrical around zero, 
-the negative half of the graph contains the exact same area as 
+ and a negative one (\(-z\)).If we only use the
+standard single-variable Jacobian derivative,
+we are accidentally throwing away half of our integration
+space (the negative \(z\) values)! Because our original bell
+curve probability function \(p(z)\) is perfectly symmetrical around zero,
+the negative half of the graph contains the exact same area as
 the positive half. Therefore, we simply multiply our
  single-branch Jacobian by 2 to fully account for both pieces of the domain.
 The above tripple integral reduces to double integral as the integral with
@@ -248,24 +233,24 @@ to $\phi$ reduces to the integrad evaluated at $\phi=s$.
 
 <div class=eqn>
 \begin{align*}
-p(s) &= 
-     \intg \intg p(x)\  p(y)\  
-     \GA e^{-\frac{(s^2 - (x-y)^2)}{8\sigma^2}} 
-     2 \frac{s}{2} \frac{1}{\sqrt{s^2 - (x-y)^2}}  
+p(s) &=
+     \intg \intg p(x)\  p(y)\
+     \GA e^{-\frac{(s^2 - (x-y)^2)}{8\sigma^2}}
+     2 \frac{s}{2} \frac{1}{\sqrt{s^2 - (x-y)^2}}
      \  dx\  dy\   \\
      &=
-     \intg \intg p(x)\  p(y)\  
-     \GA e^{-\frac{(s^2 - (x-y)^2)}{8\sigma^2}} 
+     \intg \intg p(x)\  p(y)\
+     \GA e^{-\frac{(s^2 - (x-y)^2)}{8\sigma^2}}
      2 \frac{s}{2} \frac{1}{\sqrt{s^2 - (x-y)^2}}
      \  dx\  dy\   \\
     &=
      \GB \intg \intg e^{-\frac{x^2+y^2}{2\sigma^2}}
-      e^{-\frac{(s^2 - (x-y)^2)}{8\sigma^2}} 
-      \frac{1}{\sqrt{s^2 - (x-y)^2}}  
+      e^{-\frac{(s^2 - (x-y)^2)}{8\sigma^2}}
+      \frac{1}{\sqrt{s^2 - (x-y)^2}}
      \  dx\  dy\   \\
 \end{align*}
 </div>
-Further transformation of variables is necessary to enable analytic 
+Further transformation of variables is necessary to enable analytic
 evaluation of the integral and the following transformation from x,y to
 u,v is chosen as follows.
 
@@ -278,34 +263,34 @@ integral is now written as follows. It is easy to show the Jacobian
 of this transformation from (x,y) to (u,v) is 1/2.
 <div class=eqn>
 \begin{align*}
-p(s) 
+p(s)
     &=
      \GB \intg \int_{-s}^{s} e^{-\frac{u^2 + v^2}{4\sigma^2}}
-      e^{-\frac{s^2 - v^2}{8\sigma^2}} 
-      \frac{1}{\sqrt{s^2 - v^2}}  
+      e^{-\frac{s^2 - v^2}{8\sigma^2}}
+      \frac{1}{\sqrt{s^2 - v^2}}
      \  \half du\  dv\   \\
     &=
      \GB \half  \intg  e^{-\frac{u^2} {4\sigma^2}} \ du
-     \int_{-s}^{s}  e^{-\frac{s^2+v^2}{8\sigma^2}} 
-      \frac{1}{\sqrt{s^2 - v^2}}  
+     \int_{-s}^{s}  e^{-\frac{s^2+v^2}{8\sigma^2}}
+      \frac{1}{\sqrt{s^2 - v^2}}
        dv\   \\
 \end{align*}
 </div>
 Now we have successfully deliniked the double integral integrands, but further transformation
-of variable $v$ is required to evaluate integral w.r.t to $v$. 
+of variable $v$ is required to evaluate integral w.r.t to $v$.
 
 <div class=eqn>
 \begin{align*}
 v = s \ sin\theta \\
 
-p(s) 
+p(s)
     &=
      \GB \half \intg  e^{-\frac{u^2} {4\sigma^2}} \ du
-     \int_{-\pi/2}^{\pi/2}  e^{- \frac{s^2 (1 + sin^2\theta)}{8\sigma^2}} 
+     \int_{-\pi/2}^{\pi/2}  e^{- \frac{s^2 (1 + sin^2\theta)}{8\sigma^2}}
        d\theta\   \\
     &=
      \GB \half \intg  e^{-\frac{u^2} {4\sigma^2}} \ du
-     \int_{-\pi/2}^{\pi/2}  e^{-\frac{s^2 (3-cos\ 2\theta)}{16\sigma^2}} 
+     \int_{-\pi/2}^{\pi/2}  e^{-\frac{s^2 (3-cos\ 2\theta)}{16\sigma^2}}
        d\theta\   \\
 \end{align*}
 Noting that integrand in $\theta$ integral is symmetric about $\theta=0$
@@ -315,28 +300,28 @@ and rescaling theta with factor of 2,
 
 <div class=eqn>
 \begin{align*}
-p(s) 
+p(s)
     &=
      \GB \half  \intg  e^{-\frac{u^2} {4\sigma^2}} \ du
-     \int_{0}^{\pi}  e^{-\frac{s^2 (3-cos\ \theta)}{16\sigma^2}} 
+     \int_{0}^{\pi}  e^{-\frac{s^2 (3-cos\ \theta)}{16\sigma^2}}
        d\theta\   \\
     &=
      \GB \half  e^{-\frac{3s^2}{16\sigma^2}}  \intg  e^{-\frac{u^2} {4\sigma^2}} \ du
-     \int_{0}^{\pi}  e^{\frac{s^2}{16\sigma^2} \cos\ \theta} 
+     \int_{0}^{\pi}  e^{\frac{s^2}{16\sigma^2} \cos\ \theta}
        d\theta\   \\
 \end{align*}
 </div>
 The second integral is in the form of the Modified Bessel Function of first Kind representing infinite
-series as shown below. 
+series as shown below.
 \[
-      I_0(x) = \frac{1}{\pi}\int_0^\pi e^{(x\ cos\ \theta)} d\theta 
+      I_0(x) = \frac{1}{\pi}\int_0^\pi e^{(x\ cos\ \theta)} d\theta
 \]
 <div class=eqn>
 \begin{align*}
-p(s) 
+p(s)
     &=
-     \GB \half e^{-\frac{3 s^2}{16\sigma^2}} \  
-     \pi \  I_0\left(\frac{s^2}{16\sigma^2}\right) 
+     \GB \half e^{-\frac{3 s^2}{16\sigma^2}} \
+     \pi \  I_0\left(\frac{s^2}{16\sigma^2}\right)
      \intg  e^{-\frac{u^2} {4\sigma^2}} \ du
          \\
 \end{align*}
@@ -346,20 +331,20 @@ function whose integral is well known. And finally the distribution $s$ is as
 follows.
 <div class=eqn>
 \begin{align*}
-p(s) 
+p(s)
     &=
-     \GB \half  e^{-\frac{3s^2}{16\sigma^2}} \  
-     \pi \  I_0\left(\frac{s^2}{16\sigma^2}\right) 
+     \GB \half  e^{-\frac{3s^2}{16\sigma^2}} \
+     \pi \  I_0\left(\frac{s^2}{16\sigma^2}\right)
      \sqrt{4\pi\sigma^2}
          \\
     &=
-     \GB \half  e^{-\frac{3s^2}{16\sigma^2}} \  
-     \pi \  I_0\left(\frac{s^2}{16\sigma^2}\right) 
+     \GB \half  e^{-\frac{3s^2}{16\sigma^2}} \
+     \pi \  I_0\left(\frac{s^2}{16\sigma^2}\right)
      \sqrt{4\pi\sigma^2} \\
     &=
-     \frac{s}{2\sqrt{2}\sigma^2}   e^{-\frac{3s^2}{16\sigma^2}} \  
-       I_0\left(\frac{s^2}{16\sigma^2}\right) 
-     
+     \frac{s}{2\sqrt{2}\sigma^2}   e^{-\frac{3s^2}{16\sigma^2}} \
+       I_0\left(\frac{s^2}{16\sigma^2}\right)
+
          \\
 \end{align*}
 </div>
@@ -375,11 +360,12 @@ distribution of the eigen value difference of a simple symmetric 2x2
 square matrix (based on a youtube lecture by a physicist on this topic).
 </p>
 
-<div style="background-color: #2f2f2f; border-left: 4px solid gold; padding: 15px; margin: 20px 0; border-radius: 4px;">
+<h2>Appendix</h2>
+ <div class=note>
     <strong>Intuitive Note on the Factor of 2:</strong><br>
-    When we change variables from $z$ to $\phi$, we are mapping a domain that goes from $-\infty$ to $+\infty$ onto a domain that only goes from $|x-y|$ to $+\infty$ (since a square root is always positive). Because $z$ is squared ($\phi^2 = (x-y)^2 + 4z^2$), every single value of $\phi$ actually corresponds to two distinct values of $z$: a positive one ($+z$) and a negative one ($-z$). 
+    When we change variables from $z$ to $\phi$, we are mapping a domain that goes from $-\infty$ to $+\infty$ onto a domain that only goes from $|x-y|$ to $+\infty$ (since a square root is always positive). Because $z$ is squared ($\phi^2 = (x-y)^2 + 4z^2$), every single value of $\phi$ actually corresponds to two distinct values of $z$: a positive one ($+z$) and a negative one ($-z$).
     <br><br>
-    If we only use the standard single-variable Jacobian derivative, we are accidentally throwing away half of our integration space (the negative $z$ values)! Because our original bell curve probability function $p(z)$ is perfectly symmetrical around zero, the negative half of the graph contains the exact same area as the positive half. Therefore, we simply multiply our single-branch Jacobian by 2 to fully account for both pieces of the domain. 
+    If we only use the standard single-variable Jacobian derivative, we are accidentally throwing away half of our integration space (the negative $z$ values)! Because our original bell curve probability function $p(z)$ is perfectly symmetrical around zero, the negative half of the graph contains the exact same area as the positive half. Therefore, we simply multiply our single-branch Jacobian by 2 to fully account for both pieces of the domain.
     <br><br>
     The above triple integral reduces to a double integral as the integral with respect to $\phi$ reduces to the integrand evaluated at $\phi=s$.
 </div>
@@ -446,10 +432,10 @@ To straighten these integration boundaries out so they run from smallest to larg
 
 <h3>Collapsing the Sum into a Multiplier</h3>
 <p>
-The total probability distribution is the combined sum of both pathways: $p(s) = \text{Branch}_1 + \text{Branch}_2$. 
+The total probability distribution is the combined sum of both pathways: $p(s) = \text{Branch}_1 + \text{Branch}_2$.
 </p>
 <p>
-Now we observe a beautiful geometric handshake. First, the limit-flipping math has forced both branches to span the exact same forward integration limits ($|x-y|$ to $\infty$) with the exact same absolute Jacobian factor. Second, because our original Gaussian probability density function $p(z)$ relies strictly on $z^2$, the negative sign on the second branch root vanishes ($(-z)^2 = (+z)^2$). 
+Now we observe a beautiful geometric handshake. First, the limit-flipping math has forced both branches to span the exact same forward integration limits ($|x-y|$ to $\infty$) with the exact same absolute Jacobian factor. Second, because our original Gaussian probability density function $p(z)$ relies strictly on $z^2$, the negative sign on the second branch root vanishes ($(-z)^2 = (+z)^2$).
 </p>
 <p>
 Because the two integration pathways carry identical physical weight over the exact same domain, the formal summation collapses into a simple global multiplier of 2:
@@ -462,7 +448,7 @@ The 2 from the dual-branch summation has cleanly cancelled out the $\half$ insid
 
 <h3>Reduction to the Double Integral</h3>
 <p>
-Finally, the Dirac delta function fires, instantly collapsing the $\phi$ integral by evaluating the entire integrand at the exact pinpoint constraint of $\phi = s$. Because the sampling point $s$ must fall inside the valid integration boundaries, this evaluation enforces the physical condition that $s \ge |x-y|$ (or conversely, $(x-y)^2 \le s^2$). 
+Finally, the Dirac delta function fires, instantly collapsing the $\phi$ integral by evaluating the entire integrand at the exact pinpoint constraint of $\phi = s$. Because the sampling point $s$ must fall inside the valid integration boundaries, this evaluation enforces the physical condition that $s \ge |x-y|$ (or conversely, $(x-y)^2 \le s^2$).
 </p>
 <p>
 Substituting $\phi = s$ and grouping our standard normalization constants into our macro definition yields our definitive double integral:
@@ -473,37 +459,49 @@ Substituting $\phi = s$ and grouping our standard normalization constants into o
 \end{align*}
 where the integration domain is now implicitly bound to regions where $(x-y)^2 \le s^2$.
 </p>
-<h3>Modified Bessel Function of First Kind</h3>
-\begin{align*}
-    I_0 (z) = \int_{0}^{\pi} e^{z \ct}\  d\theta 
-\end{align*}
-Expanding the integrand as infinite series with Taylor Series
-expansion around $z=0$
-\begin{align*}
-  I_0 (z) = \int_{0}^{\pi} \sum_{i=0}^{\infty} 
-	     \frac{(z\ct)^i}{i!} \ 
-	     d\theta 
-\end{align*}
-To further simplify we need to derive the following general
-integral
 
+<h3>Modified Bessel Function of First Kind</h3>
+<div class=note>
+    <strong>Representation of Bessel Function as infinite series sum</strong><br>
+\begin{align*}
+    I_0 (z) = \frac{1}{\pi} \int_{0}^{\pi} e^{z \ct}\  d\theta
+\end{align*}
+Expanding the integrand as an infinite series with a Taylor Series expansion around $z=0$:
+\begin{align*}
+  I_0 (z) = \frac{1}{\pi} \int_{0}^{\pi} \sum_{i=0}^{\infty} \frac{(z\ct)^i}{i!} \ d\theta
+\end{align*}
+</div>
+To further simplify, we need to derive the following general integral:
 \begin{align*}
   C_n &= \int_0^\pi \ctn{n} \ d\theta  \\
-      &=\left[ \st \ctn{n-1}  \right]_0^\pi +
-	(n - 1) \int_0^\pi \stn{2} \ctn{n-2} \ d\theta \\
+      &=\left[ \st \ctn{n-1}  \right]_0^\pi + (n - 1) \int_0^\pi \stn{2} \ctn{n-2} \ d\theta \\
       &= 0 + (n - 1) \int_0^\pi \left( 1 - \ctn{2} \right) \ctn{n-2} \ d\theta \\
-      &= (n-1) C_{n-2} - (n-1) C_n \\
+      &= (n-1) C_{n-2} - (n-1) C_n 
 \end{align*}
-And this gives us the recursive relation of the integrals that
-can be exploited
-\[ 
-    C_n = \frac{n-1}{n} C_{n-2}
-\]
-Ginve that $C_1=\int_0^\pi \ct d\theta=0$, it is easy to see all $C_n$ terms where
-$n$ is odd would also be zero due the recursion. Then we can deduce that the
-$C_n$ value for any even value of $n$ can be written as follows.
+And this gives us the recursive relation of the integrals that can be exploited:
 \begin{align*}
-   C_n = \frac {\prod_{i=1}^{n} 2i-1} {\prod_{i=1}^{n} 2(i-1)}
+    C_n = \frac{n-1}{n} C_{n-2}
 \end{align*}
+Given that $C_1=\int_0^\pi \ct\ d\theta=0$, it is easy to see all $C_n$ terms where $n$ is odd would be zero given the recursion relation above. The summation terms in the integrand of $I_0$ would be just the terms corresponding to even powers of $\cos\theta$.
+ 
+\begin{align*}
+  I_0 (z) &= \frac{1}{\pi} \int_{0}^{\pi} \sum_{i=0}^{\infty} \frac{(z\ct)^{2i}}{(2i)!} \ d\theta \\
+  &= \frac{1}{\pi} \sum_{i=0}^{\infty} \frac{z^{2i}}{(2i)!} \int_{0}^{\pi} \ctn{2i}\ d\theta \\
+  &= \frac{1}{\pi} \sum_{i=0}^{\infty} \frac{z^{2i}}{(2i)!} C_{2i} 
+\end{align*}
+Once again utilising the recursion relation and the base case $C_0 = \pi$, $C_{2i}$ can be written as follows:
+\begin{align*}
+  C_{2i} &= \pi \cdot \frac {\prod_{k=1}^{i} (2k-1)} {\prod_{k=1}^{i} (2k)} \\
+   &= \pi \cdot \frac {\prod_{k=1}^{i} (2k-1)} {2^ii!} 
+\end{align*}
+Substituting $C_{2i}$ back into the expression for $I_0(z)$ yields:
+<div class=eqn>
+\begin{align*}
+  I_0(z) &= \frac{1}{\pi} \sum_{i=0}^{\infty} \frac{z^{2i}}{(2i)!} \left( \pi \cdot \frac {\prod_{k=1}^{i} (2k-1)} {2^ii!} \right) \\
+   &= \sum_{i=0}^{\infty} \frac{z^{2i}}{(2i)!} \frac {\prod_{k=1}^{i} (2k-1)} {2^ii!} \\
+   &= \sum_{i=0}^{\infty} \frac{z^{2i}}{2^i i!} \frac {1}{{2^ii!}} \\
+   &= \sum_{i=0}^{\infty} \frac{ \left(\frac{z^2}{4}\right)^i} {(i!)^2}
+\end{align*}
+</div>
 </body>
 </html>
