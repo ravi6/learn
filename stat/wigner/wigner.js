@@ -5,7 +5,8 @@ function bruteSpdf(sigma, N, m) {
 // m can take values of 0 to 3
 
  let pdf = {x: [] , y: []} ;
- for (s=0 ; s <= 10 ; s = s + 0.01) {
+ let sMax = sigma * 10 ;
+ for (s=0 ; s <= sMax ; s = s + sMax/100) {
    let beta = (s/4.0/sigma)**2 ;
    let sf = Math.exp (-m * beta);  // we will see the effect of m in accuracy  
    let alpha =  Math.exp (-(3 - m) * beta ) *  s / ( (2**1.5) * sigma**2 );
@@ -53,10 +54,12 @@ window.addEventListener('DOMContentLoaded', (event) => {
       if (isNaN(sigma) || sigma <= 0) return;
       const y_vals = s_vals.map(s => wignerSurmisePdf(s, sigma));
 
-      let spdf = bruteSpdf (sigma, 5, 0) ;
+      let spdf5 = bruteSpdf (sigma, 5, 0) ;
+      let spdf3 = bruteSpdf (sigma, 1, 0) ;
       const data = [
-            { x: s_vals, y: y_vals, mode: 'lines', line: { width: 3, color: '#17BECF' } },
-            { x: spdf.x, y: spdf.y, mode: 'lines', line: { width: 3, color: "green" } },
+          //  { x: s_vals, y: y_vals, mode: 'lines', line: { width: 3, color: '#17BECF' } },
+            { name: "N=1", x: spdf3.x, y: spdf3.y, mode: 'lines', line: { width: 3, color: "orange" } },
+            { name: "N=5", x: spdf5.x, y: spdf5.y, mode: 'lines', line: { width: 3, color: "green" } },
            ];
 
       const layout = {

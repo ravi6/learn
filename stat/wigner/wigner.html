@@ -20,7 +20,6 @@
  <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/1.20.1/plotly.min.js" integrity="sha512-WQMqQWX/5iyOwDoVWHoYlvRHmg8H0rfQPbm9giK43AgvEiKorcBylGWfOyFfbN2uNWyT46rrbR7HrByJrciBDg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
  <script id="MathJax-script" async  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
  <script src="https://unpkg.com/mathjs@15.2.0/lib/browser/math.js"></script>
- <script src="wigner.js"></script>
 </head>
 <body>
 
@@ -66,6 +65,10 @@ domain.
 </li>
 <li> The role of Jacobian determinant in
 variable transformations with integrals involving more than one dimension.
+</li>
+<li> The deep connection of the properties of the Random Matrix Eigen value
+     distances to the success of efficient principle component analysis utilising
+     random matrix projections.
 </li>
 </ul>
 <p>In addition, it showed some interesting properties of the distribution
@@ -300,6 +303,7 @@ p(s)
 Finally the integral with respect $u$ is in the form of a Normal distribution
 function whose integral is well known. And finally the distribution $s$ is as
 follows.
+
 <div class=eqn>
 \begin{align*}
 p(s)
@@ -327,10 +331,13 @@ p(s) =
        \frac {
         \left(\frac{s^2}{32\sigma^2}\right)^{2i} }
         {(i!)^2 }
- 
-
 \end{align*}
 </div>
+<p>
+Finally the shape of the probability distribution can be visualized here
+with numerical approximation of the above truncated series. It appears
+just few terms are enough to get converged distribuion function.
+</p>
 <div class="controls">
         <label for="sigma-input">Variance (σ):</label>
         <input type="number" id="sigma-input" value="1.0" min="0.1" max="10.0" step="0.1">
@@ -338,16 +345,46 @@ p(s) =
 
 <div id="plot-container"></div>
 
+<h2>Key properties of the distribution</h2>
+<ul>
+<li>The probability density of  Eigen values of a symmetric square matirx being  identical is zero. </li>
+<li>Similarly the probability density  of the Eigen values are very far apart also 
+    decreases dramatically.</li>
+<li>There exists an optimal distance between the Eigen values where the probability
+    density is the highest</li>
+</ul>
+
+It appears that these observations can be generalized to larger dimensional
+random matricies. If that indeed is the case, it is intutive to see how 
+principle component analysis utilising the projections to lower dimensions based
+on random matrices is so successful, due to the above properties.
+
+A more concrete reasoning as to how the above properties help
+in random matrix projection based principle component analysis is 
+given below (thanks to AI).
+<p><strong>1. Distinct eigenvalues guarantee unique feature extraction in PCA:</strong> 
+Eigenvalue repulsion ensures all eigenvalues are strictly different, 
+forcing every projected dimension to isolate a completely unique, 
+non-overlapping axis of data variance.</p>
+<p><strong>2. A restricted eigenvalue range prevents single-feature 
+dominance during projection:</strong> The rapid decay of probability 
+density at large distances limits how far apart eigenvalues can spread, 
+ensuring a single data trait does not completely overwhelm the lower-dimensional subspace.</p>
+<p><strong>3. Characteristic spacing optimizes dimension 
+selection thresholds for truncation:</strong> The peak 
+probability density establishes a highly predictable step-like 
+decay across consecutive eigenvalues, allowing algorithms 
+to confidently identify the exact cutoff point where remaining 
+dimensions can be safely ignored.</p>
+
+
 <h2>Acknowledgement</h2>
 <p>
  I have to acknowledge contribution of Google's AI engine, in vetting
 my document and polishing the presentation of this topic. While all of
-these mathematical concepts have been thrashed out well, understanding
-them deeply was challenging to me. I am hopeful this will help others in
-some way.
- This effort was a precursor to my the derivation of
-distribution of the eigen value difference of a simple symmetric 2x2
-square matrix (based on a youtube lecture by a physicist on this topic).
+these mathematical concepts have been established ages ago by others,
+understanding them deeply was challenging to me. I am hopeful that sharing
+my journey in this field will help others in some way.
 </p>
 
 <h2>Appendix</h2>
@@ -493,5 +530,6 @@ Substituting $C_{2i}$ back into the expression for $I_0(z)$ yields:
    &= \sum_{i=0}^{\infty} \frac{ \left(\frac{z^2}{4}\right)^i} {(i!)^2}
 \end{align*}
 </div>
+ <script src="wigner.js"></script>
 </body>
 </html>
