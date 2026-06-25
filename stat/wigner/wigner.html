@@ -4,52 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wigner Surmise Derivation</title>
-    <script>
-        window.MathJax = {
-            tex: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']],
-                displayMath: [['$$', '$$'], ['\\[', '\\]']],
-                packages: {'[+]': ['physics']}
+    <link rel="stylesheet" href="style.css">
+<script>
+    window.MathJax = {
+           tex: {
+               inlineMath: [['$', '$'], ['\\(', '\\)']],
+               displayMath: [['$$', '$$'], ['\\[', '\\]']],
+               packages: {'[+]': ['physics']}
             },
             loader: {load: ['[tex]/physics']}
         };
-    </script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            line-height: 1.6; max-width: 1000px; margin: 40px auto;
-            padding: 0 20px; color: #d3d3d3; background-color: #414141;
-        }
-        a {color: gold}
-
-        h1, h2 { color: #eeeeee; }
-        h1 { margin-bottom: 5px; }
-        h2 {
-            border-bottom: 2px solid #424242;
-            padding-bottom: 8px;
-            margin-top: 40px;
-        }
-        .author-date {
-            margin-top: 0; margin-bottom: 30px;
-            color: #a0a0a0; font-style: italic;
-        }
-        code {
-            background: #2f2f2f; color: #ececec;
-            padding: 2px 6px; border-radius: 4px;
-            font-family: monospace;
-        }
-        .eqn {
-            display: block; width: 100%; box-sizing: border-box;
-            background-color: #2f2f2f; border: 1px solid #424242;
-            border-radius: 16px; padding: 14px 18px;
-            margin: 15px 0; color: #f3f3e3; overflow-x: auto;
-        }
-        .note {
-            background-color: #2f2f2f; border-left: 4px solid gold; 
-            padding: 15px; margin: 20px 0; border-radius: 4px;
-        }
-    </style>
+   // Kludge to fool plotly to think we use oldMathJax
+    window.MathJax.Hub = { Config() {}, Configured() {} };
+</script>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/1.20.1/plotly.min.js" integrity="sha512-WQMqQWX/5iyOwDoVWHoYlvRHmg8H0rfQPbm9giK43AgvEiKorcBylGWfOyFfbN2uNWyT46rrbR7HrByJrciBDg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+ <script id="MathJax-script" async  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+ <script src="https://unpkg.com/mathjs@15.2.0/lib/browser/math.js"></script>
+ <script src="wigner.js"></script>
 </head>
 <body>
 
@@ -347,7 +318,26 @@ p(s)
 
          \\
 \end{align*}
+Rewriting Bessel Function as summation of series (Derivation of it is
+provided in the Appendix).
+\begin{align*}
+p(s) =
+     \frac{s}{2\sqrt{2}\sigma^2}   e^{-\frac{3s^2}{16\sigma^2}} \
+      \sum_{i=0}^{\infty}
+       \frac {
+        \left(\frac{s^2}{32\sigma^2}\right)^{2i} }
+        {(i!)^2 }
+ 
+
+\end{align*}
 </div>
+<div class="controls">
+        <label for="sigma-input">Variance (σ):</label>
+        <input type="number" id="sigma-input" value="1.0" min="0.1" max="10.0" step="0.1">
+</div>
+
+<div id="plot-container"></div>
+
 <h2>Acknowledgement</h2>
 <p>
  I have to acknowledge contribution of Google's AI engine, in vetting
